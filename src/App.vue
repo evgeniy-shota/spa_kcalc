@@ -2,6 +2,7 @@
 import { RouterLink, RouterView } from 'vue-router';
 import NavBar from './components/NavBar.vue';
 import StatusBar from './components/StatusBar.vue';
+import Footer from './components/Footer.vue';
 
 </script>
 
@@ -13,19 +14,18 @@ import StatusBar from './components/StatusBar.vue';
       <NavBar />
     </div>
 
-    <!-- @ $ 0 & != !== === >-->
     <!-- status bar -->
     <div class="row mb-2">
       <StatusBar />
     </div>
 
-    <div class="row">
+    <div class="row mb-2">
       <RouterView />
     </div>
 
     <!-- footer   fixed-bottom -->
-    <div class="row">
-      footer
+    <div class=" fixed-bottom">
+      <Footer />
     </div>
 
   </div>

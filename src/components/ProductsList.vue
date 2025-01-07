@@ -19,7 +19,7 @@ import { ref } from 'vue';
             <button type="button" class="btn btn-sm btn-secondary">Избранное</button>
             <button type="button" class="btn btn-sm btn-outline-danger ">Сбросить</button>
         </div>
-        <div class="list-group cat-list-height-limit">
+        <div class="list-group mb-2 cat-list-height-limit">
 
             <div class="accordion" id="accordionExample">
 

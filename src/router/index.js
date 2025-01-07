@@ -5,6 +5,8 @@ import StatisticView from '@/views/StatisticView.vue'
 import DietView from '@/views/DietView.vue'
 import ActivityView from '@/views/ActivityView.vue'
 import WelcomView from '@/views/WelcomView.vue'
+import LoginView from '@/views/LoginView.vue'
+import RegistrationView from '@/views/RegistrationView.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -42,12 +44,12 @@ const router = createRouter({
     {
       path: '/registration',
       name: 'registration',
-      component: HomeView,
+      component: RegistrationView,
     },
     {
       path: '/login',
       name: 'login',
-      component: HomeView,
+      component: LoginView,
     },
     {
       path: '/welcome',

@@ -5,8 +5,9 @@ import { ref } from 'vue';
 
 <template>
 
+
     <div class="col-3">
-        <div class="card progress-bar">
+        <div class="card progress-bar ">
             <h6 class="card-header">Калории</h6>
         </div>
     </div>
@@ -26,6 +27,8 @@ import { ref } from 'vue';
             <h6 class="card-header">Жиры</h6>
         </div>
     </div>
+
+
 </template>
 
 <style>

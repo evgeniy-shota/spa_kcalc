@@ -82,7 +82,7 @@ import PieChart from './PieChart.vue';
                         </tr>
                     </tbody>
                 </table>
-                <div class="d-grid gap-2">
+                <div class="d-grid gap-2 mb-2">
                     <button class="btn btn-primary" type="button">Сохранить</button>
                 </div>
 
