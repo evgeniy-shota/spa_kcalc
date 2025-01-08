@@ -2,6 +2,8 @@
 import { ref } from 'vue';
 </script>
 
+
+<!-- replace floating labels -->
 <template>
     <div class="col"></div>
     <div class="col">

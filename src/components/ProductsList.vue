@@ -1,5 +1,19 @@
 <script setup>
-import { ref } from 'vue';
+import axios from 'axios';
+import { ref, onMounted } from 'vue';
+import { defineStore } from 'pinia';
+import { useProductsStore } from '../stores/productsStore';
+
+const productsStore = useProductsStore();
+productsStore.getCategories();
+// productsStore.getCategories();
+
+// need chenge getting products on watched val?
+
+onMounted(() => {
+    console.log("onMounted!");
+    console.log("onMounted done!");
+});
 
 </script>
 
@@ -19,88 +33,47 @@ import { ref } from 'vue';
             <button type="button" class="btn btn-sm btn-secondary">Избранное</button>
             <button type="button" class="btn btn-sm btn-outline-danger ">Сбросить</button>
         </div>
+
         <div class="list-group mb-2 cat-list-height-limit">
 
             <div class="accordion" id="accordionExample">
 
-                <div class="accordion-item">
+                <!-- need add parametr category.id in click->productsStore.getProducts() -->
+                <div v-for="category in productsStore.categories" v-bind:key="category.id"
+                    v-on:click="productsStore.getProducts()" class="accordion-item">
+
                     <h2 class="accordion-header">
-                        <button class="accordion-button" type="button" data-bs-toggle="collapse"
-                            data-bs-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
-                            Accordion Item #1
+                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+                            v-bind:data-bs-target="'#collapse-' + category.id" aria-expanded="true"
+                            aria-controls="collapseOne">
+                            <!-- need change title -->
+                            {{ category.title }}
                         </button>
                     </h2>
-                    <div id="collapseOne" class="accordion-collapse collapse show" data-bs-parent="#accordionExample">
+                    <!-- add class 'show' to show collaspsed -->
+                    <div :id="'collapse-' + category.id" class="accordion-collapse collapse"
+                        data-bs-parent="#accordionExample">
                         <div class="accordion-body">
 
                             <div class="list-group list-height-limit">
 
-                                <a href="#" class="list-group-item list-group-item-action" aria-current="true">
-                                    <p class="mb-1">Some placeholder content in a paragraph.</p>
-                                    <small>And some small print.</small>
-                                </a>
                                 <a href="#" class="list-group-item list-group-item-action">
                                     <p class="mb-1">Some placeholder content in a paragraph.</p>
                                     <small class="text-body-secondary">And some muted small print.</small>
                                 </a>
-                                <a href="#" class="list-group-item list-group-item-action">
-                                    <p class="mb-1">Some placeholder content in a paragraph.</p>
-                                    <small class="text-body-secondary">And some muted small print.</small>
+
+                                <a v-for="product in productsStore.products" :key="product.id" href="#"
+                                    class="list-group-item list-group-item-action" aria-current="true">
+                                    <p class="mb-1">{{ product.title }}</p>
+                                    <small>{{ product.completed }}</small>
                                 </a>
-                                <a href="#" class="list-group-item list-group-item-action">
-                                    <p class="mb-1">Some placeholder content in a paragraph.</p>
-                                    <small>And some small print.</small>
-                                </a>
-                                <a href="#" class="list-group-item list-group-item-action">
-                                    <p class="mb-1">Some placeholder content in a paragraph.</p>
-                                    <small class="text-body-secondary">And some muted small print.</small>
-                                </a>
-                                <a href="#" class="list-group-item list-group-item-action">
-                                    <p class="mb-1">Some placeholder content in a paragraph.</p>
-                                    <small class="text-body-secondary">And some muted small print.</small>
-                                </a>
-                                <a href="#" class="list-group-item list-group-item-action">
-                                    <p class="mb-1">Some placeholder content in a paragraph.</p>
-                                    <small>And some small print.</small>
-                                </a>
-                                <a href="#" class="list-group-item list-group-item-action">
-                                    <p class="mb-1">Some placeholder content in a paragraph.</p>
-                                    <small class="text-body-secondary">And some muted small print.</small>
-                                </a>
-                                <a href="#" class="list-group-item list-group-item-action">
-                                    <p class="mb-1">Some placeholder content in a paragraph.</p>
-                                    <small class="text-body-secondary">And some muted small print.</small>
-                                </a>
-                                <a href="#" class="list-group-item list-group-item-action">
-                                    <p class="mb-1">Some placeholder content in a paragraph.</p>
-                                    <small>And some small print.</small>
-                                </a>
-                                <a href="#" class="list-group-item list-group-item-action">
-                                    <p class="mb-1">Some placeholder content in a paragraph.</p>
-                                    <small class="text-body-secondary">And some muted small print.</small>
-                                </a>
-                                <a href="#" class="list-group-item list-group-item-action">
-                                    <p class="mb-1">Some placeholder content in a paragraph.</p>
-                                    <small class="text-body-secondary">And some muted small print.</small>
-                                </a>
-                                <a href="#" class="list-group-item list-group-item-action">
-                                    <p class="mb-1">Some placeholder content in a paragraph.</p>
-                                    <small>And some small print.</small>
-                                </a>
-                                <a href="#" class="list-group-item list-group-item-action">
-                                    <p class="mb-1">Some placeholder content in a paragraph.</p>
-                                    <small class="text-body-secondary">And some muted small print.</small>
-                                </a>
-                                <a href="#" class="list-group-item list-group-item-action">
-                                    <p class="mb-1">Some placeholder content in a paragraph.</p>
-                                    <small class="text-body-secondary">And some muted small print.</small>
-                                </a>
+
                             </div>
                         </div>
                     </div>
                 </div>
 
-                <div class="accordion-item">
+                <!-- <div class="accordion-item">
                     <h2 class="accordion-header">
                         <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
                             data-bs-target="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo">
@@ -120,7 +93,7 @@ import { ref } from 'vue';
                             can go within the <code>.accordion-body</code>, though the transition does limit overflow.
                         </div>
                     </div>
-                </div>
+                </div> -->
             </div>
         </div>
     </div>

@@ -2,6 +2,8 @@
 import { ref } from 'vue';
 </script>
 
+
+<!-- change input form, replace floating lables -->
 <template>
     <div class="col"></div>
     <div class="col">
@@ -20,6 +22,7 @@ import { ref } from 'vue';
                 <div class="d-grid">
                     <button class="btn btn-primary" type="button">Войти</button>
                 </div>
+                <a href="" class="link">Забыли пароль?</a>
             </form>
         </div>
     </div>
