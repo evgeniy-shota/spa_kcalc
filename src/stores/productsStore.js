@@ -10,6 +10,7 @@ export const useProductsStore = defineStore('products', () => {
   const categories = ref([])
   const products = ref([])
 
+  // get list of categories
   const getCategories = async () => {
     axios
       .get(URL_API_CATEGORIES)
@@ -21,9 +22,14 @@ export const useProductsStore = defineStore('products', () => {
       })
   }
 
-  const getProducts = async () => {
+  // get list of products in category
+  const getProducts = async (id_category = 0) => {
     axios
-      .get(URL_API_PRODUCTS)
+      .get(URL_API_PRODUCTS, {
+        params: {
+          id: id_category,
+        },
+      })
       .then((response) => {
         products.value = response.data
       })
