@@ -40,14 +40,14 @@ onMounted(() => {
 
                 <!-- need add parametr category.id in click->productsStore.getProducts() -->
                 <div v-for="category in productsStore.categories" v-bind:key="category.id"
-                    v-on:click="productsStore.getProducts()" class="accordion-item">
+                    v-on:click="productsStore.getProducts(category.id)" class="accordion-item">
 
                     <h2 class="accordion-header">
                         <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
                             v-bind:data-bs-target="'#collapse-' + category.id" aria-expanded="true"
                             aria-controls="collapseOne">
                             <!-- need change title -->
-                            {{ category.title }}
+                            {{ category.name }}
                         </button>
                     </h2>
                     <!-- add class 'show' to show collaspsed -->
@@ -57,15 +57,10 @@ onMounted(() => {
 
                             <div class="list-group list-height-limit">
 
-                                <a href="#" class="list-group-item list-group-item-action">
-                                    <p class="mb-1">Some placeholder content in a paragraph.</p>
-                                    <small class="text-body-secondary">And some muted small print.</small>
-                                </a>
-
                                 <a v-for="product in productsStore.products" :key="product.id" href="#"
                                     class="list-group-item list-group-item-action" aria-current="true">
-                                    <p class="mb-1">{{ product.title }}</p>
-                                    <small>{{ product.completed }}</small>
+                                    <p class="mb-1">{{ product.name }}</p>
+                                    <small>Калорийность: {{ product.calory }}</small>
                                 </a>
 
                             </div>
