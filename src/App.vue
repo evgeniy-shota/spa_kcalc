@@ -24,9 +24,9 @@ import Footer from './components/Footer.vue';
     </div>
 
     <!-- footer   fixed-bottom -->
-    <div class=" fixed-bottom">
+    <!-- <div class=" fixed-bottom">
       <Footer />
-    </div>
+    </div> -->
 
   </div>
 </template>

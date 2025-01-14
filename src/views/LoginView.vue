@@ -1,5 +1,30 @@
 <script setup>
+import axios from 'axios';
 import { ref } from 'vue';
+
+const email = ref("ttuser@mail.com");
+const password = ref("qwerty");
+
+
+function login() {
+    axios.get("http://127.0.0.1:8000/sanctum/csrf-cookie")
+        .then((response) => {
+            console.log(response);
+        })
+        .catch((error) => {
+            console.log(error);
+        });
+
+    axios.post("http://127.0.0.1:8000/api/login")
+        .then((response) => {
+            console.log(response);
+        })
+        .catch((error) => {
+            console.log('We hawe a problem....');
+            console.log(error);
+        });
+}
+
 </script>
 
 
@@ -7,23 +32,28 @@ import { ref } from 'vue';
 <template>
     <div class="col"></div>
     <div class="col">
-        <div class="card top-50 p-2">
-            <form action="">
-                <h6>Войти</h6>
-                <div class="form-floating mb-2">
-                    <input type="text" class="form-control" id="loginInput" placeholder="name@example.com">
-                    <label for="loginInput">Email address</label>
-                </div>
-                <div class="form-floating mb-2">
-                    <input type="password" class="form-control" id="passwordInput" placeholder="Password">
-                    <label for="passwordInput">Password</label>
-                </div>
+        <div class="card top-50">
+            <h4 class="card-header">Войти</h4>
+            <div class="card-body">
 
-                <div class="d-grid">
-                    <button class="btn btn-primary" type="button">Войти</button>
-                </div>
-                <a href="" class="link">Забыли пароль?</a>
-            </form>
+                <form action="">
+                    <div class="form-floating mb-2">
+                        <input type="text" :value="email" class="form-control" id="loginInput"
+                            placeholder="name@example.com">
+                        <label for="loginInput">Email address {{ email }}</label>
+                    </div>
+                    <div class="form-floating mb-2">
+                        <input type="password" :value="password" class="form-control" id="passwordInput"
+                            placeholder="Password">
+                        <label for="passwordInput">Password {{ password }}</label>
+                    </div>
+
+                    <div class="d-grid">
+                        <button class="btn btn-primary" v-on:click="login()" type="button">Войти</button>
+                    </div>
+                    <a href="" class="link">Забыли пароль?</a>
+                </form>
+            </div>
         </div>
     </div>
     <div class="col"></div>

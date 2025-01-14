@@ -1,18 +1,38 @@
 <script setup>
-import axios from 'axios';
-import { ref, onMounted } from 'vue';
-import { defineStore } from 'pinia';
+// import axios from 'axios';
+// import { defineStore } from 'pinia';
+import { ref, onMounted, onUpdated } from 'vue';
 import { useProductsStore } from '../stores/productsStore';
 
 const productsStore = useProductsStore();
 productsStore.getCategories();
-// productsStore.getCategories();
 
-// need chenge getting products on watched val?
+const idSelectedCategory = ref(0);
+const idSelectedProduct = ref(0);
+
+// Get list of products if don't click to the same category
+function getProductsList(category_id) {
+    if (category_id != idSelectedCategory.value) {
+        productsStore.getProducts(category_id);
+    }
+    idSelectedCategory.value = category_id;
+}
+
+// Get product info if don't click to the same product
+function getProductInfo(product_id) {
+    if (product_id != idSelectedProduct.value) {
+        productsStore.getProduct(product_id);
+    }
+    idSelectedProduct.value = product_id;
+}
 
 onMounted(() => {
     console.log("onMounted!");
     console.log("onMounted done!");
+});
+
+onUpdated(() => {
+    console.log("Component has updated");
 });
 
 </script>
@@ -36,29 +56,28 @@ onMounted(() => {
 
         <div class="list-group mb-2 cat-list-height-limit">
 
+            <!-- Acccordions -->
             <div class="accordion" id="accordionExample">
 
-                <!-- need add parametr category.id in click->productsStore.getProducts() -->
                 <div v-for="category in productsStore.categories" v-bind:key="category.id"
-                    v-on:click="productsStore.getProducts(category.id)" class="accordion-item">
+                    v-on:click="getProductsList(category.id)" class="accordion-item">
 
                     <h2 class="accordion-header">
                         <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
                             v-bind:data-bs-target="'#collapse-' + category.id" aria-expanded="true"
                             aria-controls="collapseOne">
-                            <!-- need change title -->
                             {{ category.name }}
                         </button>
                     </h2>
-                    <!-- add class 'show' to show collaspsed -->
                     <div :id="'collapse-' + category.id" class="accordion-collapse collapse"
                         data-bs-parent="#accordionExample">
                         <div class="accordion-body">
 
                             <div class="list-group list-height-limit">
 
-                                <a v-for="product in productsStore.products" :key="product.id" href="#"
-                                    class="list-group-item list-group-item-action" aria-current="true">
+                                <a v-for="product in productsStore.products" :key="product.id"
+                                    class="list-group-item list-group-item-action" style="cursor: pointer;"
+                                    aria-current="true" v-on:click="getProductInfo(product.id)">
                                     <p class="mb-1">{{ product.name }}</p>
                                     <small>Калорийность: {{ product.calory }}</small>
                                 </a>

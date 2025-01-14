@@ -10,25 +10,43 @@ import ChartDataLabels from 'chartjs-plugin-datalabels';
 ChartJS.register(ArcElement, Tooltip, Legend)
 
 export default {
+  props: ['kcal', 'carbohydrates', 'proteins', 'fats'],
   name: 'PieChart',
   components: {
     Pie
   },
-  data() {
-    return {
-      chartData: {
+  computed: {
+    chartData() {
+      return {
         labels: ['Белки', 'Углеводы', 'Жиры', 'Калории'],
         datasets: [
           {
             backgroundColor: ['#0dcaf0', '#20c997', '#ffc107'],
-            data: [10, 20, 16],
+            data: [this.proteins, this.carbohydrates, this.fats],
           },
           {
             backgroundColor: ['#fd7e14'],
-            data: [100],
+            data: [this.kcal],
           },
         ],
-      },
+      };
+    },
+  },
+  data() {
+    return {
+      // chartData: {
+      //   labels: ['Белки', 'Углеводы', 'Жиры', 'Калории'],
+      //   datasets: [
+      //     {
+      //       backgroundColor: ['#0dcaf0', '#20c997', '#ffc107'],
+      //       data: [this.proteins, this.carbohydrates, this.fats],
+      //     },
+      //     {
+      //       backgroundColor: ['#fd7e14'],
+      //       data: [this.kcal],
+      //     },
+      //   ],
+      // },
       chartOptions: {
         responsive: true,
         maintainAspectRatio: false,

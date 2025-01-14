@@ -5,10 +5,30 @@ import axios from 'axios'
 const FAKE_API = 'https://jsonplaceholder.typicode.com/todos'
 const URL_API_CATEGORIES = 'http://127.0.0.1:8000/api/categories'
 const URL_API_PRODUCTS = 'http://127.0.0.1:8000/api/categories/'
+const URL_API_PRODUCT = 'http://127.0.0.1:8000/api/products/'
 
 export const useProductsStore = defineStore('products', () => {
   const categories = ref([])
   const products = ref([])
+  const product = ref({
+    id: 0,
+    category_id: 0,
+    name: '',
+    product_composition: {},
+    description: '',
+    calory: 0,
+    proteins: 0,
+    carbohydrates: 0,
+    fats: 0,
+    nutrients_and_vitamins: { empty: 'val' },
+    is_visible: true,
+  })
+
+  function $reset() {
+    categories = []
+    products = []
+    product = {}
+  }
 
   // get list of categories
   const getCategories = async () => {
@@ -23,9 +43,9 @@ export const useProductsStore = defineStore('products', () => {
   }
 
   // get list of products in category
-  const getProducts = async (id_category = 0) => {
+  const getProducts = async (category_id = 0) => {
     axios
-      .get(URL_API_PRODUCTS + `${id_category}`)
+      .get(URL_API_PRODUCTS + `${category_id}`)
       .then((response) => {
         products.value = response.data.data
       })
@@ -34,5 +54,16 @@ export const useProductsStore = defineStore('products', () => {
       })
   }
 
-  return { categories, products, getCategories, getProducts }
+  const getProduct = async (product_id = 0) => {
+    axios
+      .get(URL_API_PRODUCT + `${product_id}`)
+      .then((response) => {
+        product.value = response.data.data
+      })
+      .catch((error) => {
+        console.log(error)
+      })
+  }
+
+  return { categories, products, product, getCategories, getProducts, getProduct, $reset }
 })
