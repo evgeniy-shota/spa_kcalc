@@ -2,11 +2,17 @@
 import { ref } from 'vue';
 import axios from 'axios';
 
-const name = ref('someName');
-const email = ref("anotherSome@email.com");
-const password = ref("qwerty");
+const name = ref('');
+const email = ref("");
+const password = ref("");
+const conf_password = ref("");
 
 function registrate(userEmail, userName, userPassword) {
+
+    if (password.value != conf_password.value) {
+        console.log("Password is not confirm!");
+        return 0;
+    }
     axios.defaults.withXSRFToken = true;
     axios.defaults.withCredentials = true;
 
@@ -20,15 +26,17 @@ function registrate(userEmail, userName, userPassword) {
                 password: userPassword,
             })
                 .then((response) => {
-                    console.log(response);
+                    console.log(response.data);
+                    //redirect to login page and success message
                 })
                 .catch((error) => {
                     console.log("Trouble with registration...");
-
                     console.log(error);
+                    //warnin message
                 });
         })
         .catch((error) => {
+            console.log('CSRF-Registration problem')
             console.log(error);
         });
 
@@ -46,21 +54,22 @@ function registrate(userEmail, userName, userPassword) {
             <div class="card-body">
                 <form action="">
                     <div class="form-floating mb-2">
-                        <input type="text" :value="name" class="form-control" id="nameInput" placeholder="Ivan">
+                        <input type="text" v-model="name" class="form-control" id="nameInput" placeholder="Ivan">
                         <label for="nameInput">Name</label>
                     </div>
                     <div class="form-floating mb-2">
-                        <input type="email" :value="email" class="form-control" id="emailInput"
+                        <input type="email" v-model="email" class="form-control" id="emailInput"
                             placeholder="name@example.com">
                         <label for="emailInput">Email address</label>
                     </div>
                     <div class="form-floating mb-2">
-                        <input type="password" :value="password" class="form-control" id="passwordInput"
+                        <input type="password" v-model="password" class="form-control" id="passwordInput"
                             placeholder="Password">
                         <label for="passwordInput">Password</label>
                     </div>
                     <div class="form-floating mb-2">
-                        <input type="password" class="form-control" id="passwordConfirm" placeholder="Password confirm">
+                        <input type="password" v-model="conf_password" class="form-control" id="passwordConfirm"
+                            placeholder="Password confirm">
                         <label for="passwordConfirm">Password confirm</label>
                     </div>
 

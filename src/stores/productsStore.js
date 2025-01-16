@@ -3,9 +3,9 @@ import { defineStore } from 'pinia'
 import axios from 'axios'
 
 const FAKE_API = 'https://jsonplaceholder.typicode.com/todos'
-const URL_API_CATEGORIES = 'http://127.0.0.1:8000/api/categories'
-const URL_API_PRODUCTS = 'http://127.0.0.1:8000/api/categories/'
-const URL_API_PRODUCT = 'http://127.0.0.1:8000/api/products/'
+const URL_API_CATEGORIES = 'http://localhost:8000/api/categories'
+const URL_API_PRODUCTS = 'http://localhost:8000/api/categories/'
+const URL_API_PRODUCT = 'http://localhost:8000/api/products/'
 
 export const useProductsStore = defineStore('products', () => {
   const categories = ref([])
@@ -32,6 +32,8 @@ export const useProductsStore = defineStore('products', () => {
 
   // get list of categories
   const getCategories = async () => {
+    axios.defaults.withXSRFToken = true
+    axios.defaults.withCredentials = true
     axios
       .get(URL_API_CATEGORIES)
       .then((response) => {
@@ -44,6 +46,9 @@ export const useProductsStore = defineStore('products', () => {
 
   // get list of products in category
   const getProducts = async (category_id = 0) => {
+    axios.defaults.withXSRFToken = true
+    axios.defaults.withCredentials = true
+
     axios
       .get(URL_API_PRODUCTS + `${category_id}`)
       .then((response) => {

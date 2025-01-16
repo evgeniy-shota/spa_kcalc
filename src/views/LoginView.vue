@@ -2,35 +2,40 @@
 import axios from 'axios';
 import { ref } from 'vue';
 
-const email = ref("ttuser@mail.com");
-const password = ref("qwerty");
+const email = ref("");
+const password = ref("");
 
 
 
 function login(userEmail, userPassword) {
 
-    axios.get("http://127.0.0.1:8000/sanctum/csrf-cookie")
+    axios.defaults.withXSRFToken = true;
+    axios.defaults.withCredentials = true;
+
+    axios.get("http://localhost:8000/sanctum/csrf-cookie")
         .then((response) => {
             console.log("Get csrf");
-            console.log(response.headers);
-            // console.log(response);
-            // axios.defaults.headers.common['X-CSRF-TOKEN'] = response.data;
+
+            axios.post("http://localhost:8000/api/login", {
+                email: userEmail,
+                password: userPassword
+            })
+                .then((response) => {
+                    console.log(response);
+                })
+                .catch((error) => {
+                    console.log('Login problem....');
+                    console.log(error);
+                });
+
         })
         .catch((error) => {
+            console.log('CSRF-Login problem');
+
             console.log(error);
         });
 
-    // axios.post("http://127.0.0.1:8000/api/login", {
-    //     email: userEmail,
-    //     password: userPassword
-    // })
-    //     .then((response) => {
-    //         console.log(response);
-    //     })
-    //     .catch((error) => {
-    //         console.log('We hawe a problem....');
-    //         console.log(error);
-    //     });
+
 }
 
 </script>
@@ -46,12 +51,12 @@ function login(userEmail, userPassword) {
 
                 <form action="">
                     <div class="form-floating mb-2">
-                        <input type="text" :value="email" class="form-control" id="loginInput"
+                        <input type="text" v-model="email" class="form-control" id="loginInput"
                             placeholder="name@example.com">
                         <label for="loginInput">Email address {{ email }}</label>
                     </div>
                     <div class="form-floating mb-2">
-                        <input type="password" :value="password" class="form-control" id="passwordInput"
+                        <input type="password" v-model="password" class="form-control" id="passwordInput"
                             placeholder="Password">
                         <label for="passwordInput">Password {{ password }}</label>
                     </div>
