@@ -26,11 +26,11 @@ import { RouterLink } from 'vue-router';
                         </li>
 
                         <li class="nav-item">
-                            <RouterLink class="nav-link disabled" to="/diet">Диета</RouterLink>
+                            <RouterLink class="nav-link" to="/diet">Диета</RouterLink>
                         </li>
 
                         <li class="nav-item">
-                            <RouterLink class="nav-link disabled" to="/activity">Активности</RouterLink>
+                            <RouterLink class="nav-link" to="/activity">Активности</RouterLink>
                         </li>
 
                         <li class="nav-item">

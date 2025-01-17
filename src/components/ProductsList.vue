@@ -13,6 +13,7 @@ const idSelectedProduct = ref(0);
 // Get list of products if don't click to the same category
 function getProductsList(category_id) {
     if (category_id != idSelectedCategory.value) {
+        productsStore.products.length = 0;
         productsStore.getProducts(category_id);
     }
     idSelectedCategory.value = category_id;
