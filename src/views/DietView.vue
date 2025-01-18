@@ -9,8 +9,10 @@ const dietsStore = useDietsStore();
 </script>
 
 <template>
+    <!-- diets list -->
     <div class="col-5">
         <div class="card pt-2 ps-2 pe-2">
+
             <div class="d-flex flex-row mb-2">
                 <input class="form-control form-control-sm" type="text" placeholder=".form-control-sm"
                     aria-label=".form-control-sm example">
@@ -41,8 +43,12 @@ const dietsStore = useDietsStore();
             </div>
         </div>
     </div>
+    <!-- diet info -->
     <div class="col">
         <div class="card pt-2 ps-2 pe-2">
+            <input class="form-control mb-2" type="text" placeholder="Начните вводить название продукта..."
+                aria-label="default input example">
+
             <form action="">
                 <ul class="list-group mb-2">
                     <li class="list-group-item">
