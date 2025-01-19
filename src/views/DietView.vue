@@ -1,11 +1,35 @@
 <script setup>
-import { ref } from 'vue';
+import { onMounted, onUpdated, ref } from 'vue';
 import { useDietsStore } from '@/stores/dietsStore';
-import axios from 'axios';
+// import axios from 'axios';
 
-const selected_products = [];
+const selected_products = ref([]);
+const idTheLastSelectedDiet = ref(0);
+const fucking_input = ref('fuckink vue');
 
 const dietsStore = useDietsStore();
+
+
+function getSelectedDietInfo(diet_id) {
+    if (diet_id == idTheLastSelectedDiet.value) {
+        return 0;
+    }
+
+    console.log('select diet');
+
+    dietsStore.getDiet(diet_id);
+    idTheLastSelectedDiet.value = diet_id;
+}
+
+onMounted(() => {
+    dietsStore.getDiets();
+});
+
+onUpdated(() => {
+    console.log('diets: ');
+    console.log(dietsStore.diets);
+    console.log('diet: ');
+});
 </script>
 
 <template>
@@ -24,12 +48,13 @@ const dietsStore = useDietsStore();
             </div>
 
             <div class="list-group list-height-limit mb-2">
-                <a href="#" class="list-group-item list-group-item-action active" aria-current="true">
+                <a v-for="diet in dietsStore.diets" :key="diet.id" @click="getSelectedDietInfo(diet.id)"
+                    class="list-group-item list-group-item-action" aria-current="true">
                     <div class="d-flex w-100 justify-content-between">
-                        <h6 class="mb-1">List group item heading</h6>
+                        <h6 class="mb-1">{{ diet.name }}</h6>
                         <small>Delete</small>
                     </div>
-                    <p class="mb-1">Some placeholder content in a paragraph.</p>
+                    <p class="mb-1">{{ diet.description }}</p>
                     <small>Calory, carb, prot, fats</small>
                 </a>
                 <!-- <a href="#" class="list-group-item list-group-item-action">
@@ -46,16 +71,18 @@ const dietsStore = useDietsStore();
     <!-- diet info -->
     <div class="col">
         <div class="card pt-2 ps-2 pe-2">
-            <input class="form-control mb-2" type="text" placeholder="Начните вводить название продукта..."
-                aria-label="default input example">
 
             <form action="">
+                <input class="form-control mb-2" placeholder="Название диеты\рациона" type="text" name="diet_name"
+                    id="diet_name" :value="dietsStore.diet.name">
+                <input class="form-control mb-2" type="text" placeholder="Начните вводить название продукта..."
+                    aria-label="default input example">
                 <ul class="list-group mb-2">
                     <li class="list-group-item">
                         <div class="d-flex flex-row">
                             <div class="p-1 flex-grow-1">Продукт</div>
                             <div class="p-1">
-                                <input type="number" name="productNumber" id="productNumber">
+                                <input class="form-control" type="number" name="productNumber" id="productNumber">
                             </div>
 
                             <button type="button" class="btn p-1" aria-label="Remove">X</button>
@@ -79,3 +106,11 @@ const dietsStore = useDietsStore();
         </div>
     </div>
 </template>
+
+<style>
+.list-height-limit {
+    cursor: pointer;
+    max-height: 85vh;
+    overflow-y: scroll;
+}
+</style>

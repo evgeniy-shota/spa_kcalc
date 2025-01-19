@@ -3,15 +3,20 @@ import { defineStore } from 'pinia'
 import axios from 'axios'
 
 const URL_API_DIETS = 'http://localhost:8000/api/diets'
-const URL_API_DIET = 'http://localhost:8000/api/diets/'
 
 export const useDietsStore = defineStore('diets', () => {
   const diets = ref([])
-  const diet = ref([])
+  const diet = ref({
+    id: 0,
+    name: '',
+    description: '',
+    products: {},
+    summ_val: {},
+  })
 
   function $reset() {
     diets = []
-    diet = []
+    diet = {}
   }
 
   // get list of categories
@@ -34,7 +39,7 @@ export const useDietsStore = defineStore('diets', () => {
     axios.defaults.withCredentials = true
 
     axios
-      .get(URL_API_DIET + `${diet_id}`)
+      .get(URL_API_DIETS + `/${diet_id}`)
       .then((response) => {
         diet.value = response.data.data
       })
