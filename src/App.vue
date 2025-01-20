@@ -1,8 +1,22 @@
 <script setup>
-import { RouterLink, RouterView } from 'vue-router';
+import { onMounted } from 'vue';
+import { RouterView } from 'vue-router';
+import axios_instance from './resource/js/axiosInstance'
+
+import { useUsersStore } from './stores/usersStore';
+
 import NavBar from './components/NavBar.vue';
 import StatusBar from './components/StatusBar.vue';
 import Footer from './components/Footer.vue';
+
+const userStore = useUsersStore();
+
+
+
+onMounted(() => {
+  console.log('App is mounted');
+  userStore.getCurrentUserInfo();
+});
 
 </script>
 
@@ -15,7 +29,7 @@ import Footer from './components/Footer.vue';
     </div>
 
     <!-- status bar -->
-    <div class="row mb-2">
+    <div v-if="userStore.userName" class="row mb-2">
       <StatusBar />
     </div>
 

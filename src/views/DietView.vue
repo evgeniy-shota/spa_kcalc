@@ -1,11 +1,10 @@
 <script setup>
-import { onMounted, onUpdated, ref } from 'vue';
+import { computed, onMounted, onUpdated, ref } from 'vue';
 import { useDietsStore } from '@/stores/dietsStore';
 // import axios from 'axios';
 
 const selected_products = ref([]);
 const idTheLastSelectedDiet = ref(0);
-const fucking_input = ref('fuckink vue');
 
 const dietsStore = useDietsStore();
 
@@ -20,6 +19,29 @@ function getSelectedDietInfo(diet_id) {
     dietsStore.getDiet(diet_id);
     idTheLastSelectedDiet.value = diet_id;
 }
+
+const productsInDiet = computed(() => {
+    let data = Object.entries(dietsStore.diet.products);
+    console.log(`data: ${data}`);
+
+    return data;
+});
+
+const kcalSelectedDiet = computed(() => {
+    return dietsStore.diet.summ_val.kcal;
+});
+
+const carbSelectedDiet = computed(() => {
+    return dietsStore.diet.summ_val.carb;
+});
+
+const protSelectedDiet = computed(() => {
+    return dietsStore.diet.summ_val.prot;
+});
+
+const fatsSelectedDiet = computed(() => {
+    return dietsStore.diet.summ_val.fats;
+});
 
 onMounted(() => {
     dietsStore.getDiets();
@@ -78,11 +100,12 @@ onUpdated(() => {
                 <input class="form-control mb-2" type="text" placeholder="Начните вводить название продукта..."
                     aria-label="default input example">
                 <ul class="list-group mb-2">
-                    <li class="list-group-item">
+                    <li v-for="product in productsInDiet" class="list-group-item">
                         <div class="d-flex flex-row">
-                            <div class="p-1 flex-grow-1">Продукт</div>
+                            <div class="p-1 flex-grow-1">{{ product[0] }}</div>
                             <div class="p-1">
-                                <input class="form-control" type="number" name="productNumber" id="productNumber">
+                                <input :value="product[1]" class="form-control" type="number" name="productNumber"
+                                    id="productNumber">
                             </div>
 
                             <button type="button" class="btn p-1" aria-label="Remove">X</button>
@@ -92,15 +115,32 @@ onUpdated(() => {
 
                 </ul>
 
-                <h6>Общая калорийность
-                    <span class="badge text-bg-secondary">ккал</span>
-                    <span class="badge text-bg-secondary">гр</span>
-                    <span class="badge text-bg-secondary">гр</span>
-                    <span class="badge text-bg-secondary">гр</span>
-                </h6>
+                <h6 class="m-2">Общая калорийность</h6>
+                <div class="card mb-2">
+                    <div class="row card-body">
+                        <div class="col text-center"> 
+                            <div>Калории</div>
+                            <div>{{ kcalSelectedDiet }} ккал </div>
+                        </div>
+                        <div class="col text-center">
+                            <div>Углеводы</div>
+                            <div>{{ carbSelectedDiet }} гр.</div>
+                        </div>
+                        <div class="col text-center">
+                            <div>Белки</div>
+                            <div>{{ protSelectedDiet }} гр.</div>
+                        </div>
+                        <div class="col text-center">
+                            <div>Жиры</div>
+                            <div>{{ fatsSelectedDiet }} гр.</div>
+                        </div>
+                    </div>
+                </div>
+
                 <div class="d-grid gap-2 mb-2">
                     <button class="btn btn-primary" type="button">Сохранить</button>
                     <button class="btn btn-outline-warning" type="button">Очистить</button>
+                    <button class="btn btn-outline-danger" type="button">Удалить</button>
                 </div>
             </form>
         </div>
