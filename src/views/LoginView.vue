@@ -1,42 +1,31 @@
 <script setup>
-import axios from 'axios';
-import { ref } from 'vue';
+import { useUsersStore } from '@/stores/usersStore';
+import { ref, watch } from 'vue';
+import { useRouter } from 'vue-router';
+
+const userStore = useUsersStore();
+const router = useRouter();
 
 const email = ref("");
 const password = ref("");
+const loginResult = ref({ result: false, response: {} });
 
+// need add validation
 
-
-function login(userEmail, userPassword) {
-
-    axios.defaults.withXSRFToken = true;
-    axios.defaults.withCredentials = true;
-
-    axios.get("http://localhost:8000/sanctum/csrf-cookie")
-        .then((response) => {
-            console.log("Get csrf");
-
-            axios.post("http://localhost:8000/api/login", {
-                email: userEmail,
-                password: userPassword
-            })
-                .then((response) => {
-                    console.log(response);
-                })
-                .catch((error) => {
-                    console.log('Login problem....');
-                    console.log(error);
-                });
-
-        })
-        .catch((error) => {
-            console.log('CSRF-Login problem');
-
-            console.log(error);
-        });
-
-
+async function login(userEmail, userPassword) {
+    loginResult.value = await userStore.login(userEmail, userPassword);
 }
+
+function redirectToRoute(path = 'home') {
+    router.push(path);
+}
+
+watch(loginResult, () => {
+    if (loginResult.value.result) {
+        console.log('Login successful');
+        redirectToRoute('home');
+    }
+});
 
 </script>
 

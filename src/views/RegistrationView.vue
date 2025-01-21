@@ -1,47 +1,49 @@
 <script setup>
-import { ref } from 'vue';
-import axios from 'axios';
+import { ref, watch } from 'vue';
+import { useUsersStore } from '@/stores/usersStore';
+import { useRouter } from 'vue-router';
 
-const name = ref('');
-const email = ref("");
-const password = ref("");
-const conf_password = ref("");
+import validateFormData from '@/resource/js/dataValidation';
 
-function registrate(userEmail, userName, userPassword) {
+const userStore = useUsersStore();
+const router = useRouter();
 
-    if (password.value != conf_password.value) {
-        console.log("Password is not confirm!");
+const name = ref('Ёuser11');
+const email = ref("user11@mail.com");
+const password = ref("user11");
+const conf_password = ref("user111");
+// const validationError = ref({
+//     nameInput: [],
+//     emailInput: [],
+//     passwordInput: [],
+//     passwordConfInput: [],
+// })
+const registerResult = ref({ result: false, response: {} })
+// { result: false, error: null, user: null }
+
+async function registrate(userEmail, userName, userPassword) {
+
+    let { dataIsValid, validationError } = validateFormData(name.value, email.value, password.value, conf_password.value);
+    if (!dataIsValid) {
+        console.log('Form data is invalid: ' + dataIsValid);
+        console.log(validationError);
+
         return 0;
     }
-    axios.defaults.withXSRFToken = true;
-    axios.defaults.withCredentials = true;
 
-    axios.get("http://localhost:8000/sanctum/csrf-cookie")
-        .then((response) => {
-            console.log("Get csrf");
-
-            axios.post("http://localhost:8000/api/registration", {
-                email: userEmail,
-                name: userName,
-                password: userPassword,
-            })
-                .then((response) => {
-                    console.log(response.data);
-                    //redirect to login page and success message
-                })
-                .catch((error) => {
-                    console.log("Trouble with registration...");
-                    console.log(error);
-                    //warnin message
-                });
-        })
-        .catch((error) => {
-            console.log('CSRF-Registration problem')
-            console.log(error);
-        });
-
-
+    registerResult.value = await userStore.register(userName, userEmail, userPassword);
 }
+
+function redirectToRoute(path = 'home') {
+    router.push(path);
+}
+
+watch(registerResult, () => {
+    console.log(registerResult.value);
+    if (registerResult.value.result) {
+        setTimeout(redirectToRoute, 3000, 'login');
+    }
+});
 </script>
 
 
@@ -49,7 +51,7 @@ function registrate(userEmail, userName, userPassword) {
 <template>
     <div class="col"></div>
     <div class="col">
-        <div class="card top-50">
+        <div v-show="!registerResult.result" class="card top-50">
             <h4 class="card-header">Регистрация</h4>
             <div class="card-body">
                 <form action="">
@@ -78,6 +80,13 @@ function registrate(userEmail, userName, userPassword) {
                             type="button">Зарегистрироваться</button>
                     </div>
                 </form>
+            </div>
+        </div>
+        <div v-show="registerResult.result" class="card top-50">
+            <div class="card-header">Регистрация прошла успешно
+            </div>
+            <div class="card-body">
+                <h6>Вы будете перенаправлены на страницу входа </h6>
             </div>
         </div>
     </div>

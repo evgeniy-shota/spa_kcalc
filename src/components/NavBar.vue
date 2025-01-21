@@ -1,6 +1,11 @@
 <script setup>
 import { ref } from 'vue';
 import { RouterLink } from 'vue-router';
+
+const props = defineProps({
+    userIsAuthorized: { type: Boolean, required: true, default: false },
+    userName: { type: String, default: "TestName" }
+});
 </script>
 
 <template>
@@ -38,10 +43,16 @@ import { RouterLink } from 'vue-router';
                         </li>
                     </ul>
 
-                    <form class="d-flex" role="search">
-                        <RouterLink class="btn btn-outline-success" to="/login">Войти</RouterLink>
-
-                        <RouterLink class="btn btn-outline-success" to="/registration">Регистрация</RouterLink>
+                    <form class="d-flex">
+                        <div v-if="props.userIsAuthorized">
+                            <div class="btn btn-outline-primary me-2">{{ props.userName }}</div>
+                            <RouterLink class="btn btn-outline-dark" to="/logout">Выйти</RouterLink>
+                        </div>
+                        <div v-else>
+                            <RouterLink class="btn btn-outline-success me-2" to="/login">Войти</RouterLink>
+                            <RouterLink class="btn btn-outline-success" to="/registration">Зарегистрироваться
+                            </RouterLink>
+                        </div>
                     </form>
                 </div>
             </div>

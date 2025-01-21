@@ -1,18 +1,25 @@
 import { defineStore } from 'pinia'
 import { ref } from 'vue'
 import axios_instance from '../resource/js/axiosInstance'
+import axios from 'axios'
 
 const URL_API_USERS = 'api/users'
+const URL_API_LOGIN = '/api/login'
+const URL_API_LOGOUT = '/api/logout'
+const URL_API_REGISTER = '/api/registration'
 
 export const useUsersStore = defineStore('users', () => {
   const userEmail = ref('')
   const userName = ref('')
-  const userStatus = ref('')
+  const userIsBanned = ref(false)
+  const userIsAuthorized = ref(false)
+  const registrationIsSuccessful = ref(false)
 
   function $reset() {
     userEmail.value = ''
     userName.value = ''
-    userStatus.value = ''
+    userIsBanned.value = false
+    userIsAuthorized.value = false
   }
 
   const getCurrentUserInfo = async () => {
@@ -20,18 +27,21 @@ export const useUsersStore = defineStore('users', () => {
       .get('sanctum/csrf-cookie')
       .then((response) => {
         console.log('csrf-token request successful')
-        // console.log(response)
 
         axios_instance
           .get(URL_API_USERS)
           .then((response) => {
             console.log('getUserInfo response:')
-            // console.log(response.data.data.name)
-
-            userName.value = response.data.data.name
+            userIsAuthorized.value = true
+            if (!response.data.data.is_banned) {
+              userName.value = response.data.data.name
+              userEmail.value = response.data.data.email
+            }
+            userIsBanned.value = response.data.data.is_banned
           })
           .catch((error) => {
             console.log(`getUserInfo error: ${error}`)
+            userIsAuthorized.value = false
           })
       })
       .catch((error) => {
@@ -39,5 +49,118 @@ export const useUsersStore = defineStore('users', () => {
         console.log(error)
       })
   }
-  return { userEmail, userName, userStatus, getCurrentUserInfo, $reset }
+
+  const login = async (email, password) => {
+    try {
+      const response = await axios_instance.post(URL_API_LOGIN, {
+        email,
+        password,
+      })
+
+      userIsAuthorized.value = true
+      userIsBanned.value = response.data.data.is_banned
+
+      if (!userIsBanned.value) {
+        userName.value = response.data.data.name
+        userEmail.value = response.data.data.email
+
+        return {
+          result: true,
+          response: {
+            name: userName.value,
+            email: userEmail.value,
+            is_banned: userIsBanned,
+          },
+        }
+      }
+
+      return {
+        result: true,
+        response: {
+          name: userName.value,
+          email: userEmail.value,
+          is_banned: userIsBanned,
+        },
+      }
+    } catch (error) {
+      return { result: false, response: error }
+    }
+
+    // axios_instance
+    //   .post(URL_API_LOGIN, {
+    //     email,
+    //     password,
+    //   })
+    //   .then((response) => {
+    //     userIsAuthorized = true
+    //     userIsBanned.value = response.data.data.is_banned
+    //     if (!userIsBanned.value) {
+    //       userName.value = response.data.data.name
+    //       userEmail.value = response.data.data.email
+    //     }
+    //   })
+    //   .catch((error) => {
+    //     console.log('Login error:')
+    //     console.log(error)
+    //   })
+  }
+
+  const logout = async () => {
+    axios_instance
+      .get(URL_API_LOGOUT)
+      .then((response) => {
+        console.log('Logout succesful...')
+        console.log(response.data.data)
+      })
+      .catch((error) => {
+        console.log('Logout error: ')
+        console.log(error)
+      })
+  }
+
+  const register = async (name, email, password) => {
+    try {
+      const response = await axios_instance.post(URL_API_REGISTER, {
+        name: name,
+        email: email,
+        password: password,
+      })
+
+      return { result: true, response: response.data.data }
+    } catch (error) {
+      return { result: false, response: error }
+    }
+
+    // axios_instance
+    //   .post(URL_API_REGISTER, {
+    //     name: name,
+    //     email: email,
+    //     password: password,
+    //   })
+    //   .then((response) => {
+    //     console.log('Registration succesful')
+    //     // console.log(response.data.data)
+    //     registrationIsSuccessful.value = true
+    //     return { result: true, user: response.data.data }
+    //   })
+    //   .catch((error) => {
+    //     console.log('Registration error')
+    //     // console.log(error)
+    //     registrationIsSuccessful.value = false
+    //     return { result: false, error: error }
+    //   })
+  }
+
+  return {
+    userEmail,
+    userName,
+    userIsBanned,
+    userIsAuthorized,
+    getCurrentUserInfo,
+    login,
+    logout,
+    register,
+    registrationIsSuccessful,
+    $reset,
+  }
 })

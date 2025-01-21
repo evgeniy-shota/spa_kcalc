@@ -1,5 +1,5 @@
 <script setup>
-import { onMounted } from 'vue';
+import { computed, onMounted } from 'vue';
 import { RouterView } from 'vue-router';
 import axios_instance from './resource/js/axiosInstance'
 
@@ -11,7 +11,9 @@ import Footer from './components/Footer.vue';
 
 const userStore = useUsersStore();
 
-
+const userIsActive = computed(() => {
+  return userStore.userIsAuthorized && !userStore.userIsBanned
+});
 
 onMounted(() => {
   console.log('App is mounted');
@@ -25,11 +27,12 @@ onMounted(() => {
   <div class="container">
     <!-- nav-bar -->
     <div class="row mb-2">
-      <NavBar />
+      <NavBar :user-is-authorized="userIsActive" :user-name="userStore.userName" />
     </div>
 
     <!-- status bar -->
-    <div v-if="userStore.userName" class="row mb-2">
+    <!-- show if user is not banned and authorized -->
+    <div v-show="userIsActive" class="row mb-2">
       <StatusBar />
     </div>
 

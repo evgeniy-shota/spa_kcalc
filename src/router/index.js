@@ -7,6 +7,7 @@ import ActivityView from '@/views/ActivityView.vue'
 import WelcomView from '@/views/WelcomView.vue'
 import LoginView from '@/views/LoginView.vue'
 import RegistrationView from '@/views/RegistrationView.vue'
+import LogoutView from '@/views/LogoutView.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -55,6 +56,11 @@ const router = createRouter({
       path: '/welcome',
       name: 'welcome',
       component: WelcomView,
+    },
+    {
+      path: '/logout',
+      name: 'logout',
+      component: LogoutView,
     },
   ],
 })
