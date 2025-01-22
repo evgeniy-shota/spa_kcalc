@@ -6,8 +6,8 @@ import { useRouter } from 'vue-router';
 const userStore = useUsersStore();
 const router = useRouter();
 
-const email = ref("");
-const password = ref("");
+const email = ref("user2@mail.com");
+const password = ref("user2");
 const loginResult = ref({ result: false, response: {} });
 
 // need add validation
@@ -23,7 +23,7 @@ function redirectToRoute(path = 'home') {
 watch(loginResult, () => {
     if (loginResult.value.result) {
         console.log('Login successful');
-        redirectToRoute('home');
+        redirectToRoute('/');
     }
 });
 

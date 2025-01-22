@@ -1,5 +1,5 @@
 <script setup>
-import { computed, onMounted } from 'vue';
+import { computed, onBeforeMount, onMounted } from 'vue';
 import { RouterView } from 'vue-router';
 import axios_instance from './resource/js/axiosInstance'
 
@@ -15,8 +15,12 @@ const userIsActive = computed(() => {
   return userStore.userIsAuthorized && !userStore.userIsBanned
 });
 
+onBeforeMount(() => {
+});
+
 onMounted(() => {
   console.log('App is mounted');
+  userStore.getToken();
   userStore.getCurrentUserInfo();
 });
 

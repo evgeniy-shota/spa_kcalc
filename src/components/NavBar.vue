@@ -31,7 +31,8 @@ const props = defineProps({
                         </li>
 
                         <li class="nav-item">
-                            <RouterLink class="nav-link" to="/diet">Диета</RouterLink>
+                            <RouterLink class="nav-link" to="/diet">Диета
+                            </RouterLink>
                         </li>
 
                         <li class="nav-item">

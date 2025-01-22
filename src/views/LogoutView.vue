@@ -1,17 +1,25 @@
 <script setup>
+import { useDietsStore } from '@/stores/dietsStore';
 import { useUsersStore } from '@/stores/usersStore';
 import { onBeforeMount, onMounted, ref } from 'vue';
 import { useRouter } from 'vue-router';
 
 const router = useRouter();
 const userStore = useUsersStore();
+const dietStore = useDietsStore();
 
-const timeInMs = 3000;
-const routerPathToRedirect = "/"
+const timeInMs = 2500;
+const routerPathToRedirect = "/";
 
 
-function logout() {
-    userStore.logout();
+async function logout() {
+    let logoutResponce = await userStore.logout();
+    if (logoutResponce.result) {
+
+        userStore.$reset();
+        dietStore.$reset();
+        setTimeout(redirectToRouterPath, timeInMs, routerPathToRedirect);
+    }
 }
 
 function redirectToRouterPath(path) {
@@ -24,7 +32,6 @@ onBeforeMount(() => {
 
 onMounted(() => {
     logout();
-    setTimeout(redirectToRouterPath, timeInMs, routerPathToRedirect)
 });
 
 </script>

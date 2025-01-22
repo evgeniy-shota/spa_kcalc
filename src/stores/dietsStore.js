@@ -15,8 +15,14 @@ export const useDietsStore = defineStore('diets', () => {
   })
 
   function $reset() {
-    diets = []
-    diet = {}
+    diets.value = new Array()
+    diet.value = {
+      id: 0,
+      name: '',
+      description: '',
+      products: {},
+      summ_val: {},
+    }
   }
 
   // get list of categories
