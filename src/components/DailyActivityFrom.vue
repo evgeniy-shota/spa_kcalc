@@ -1,5 +1,43 @@
 <script setup>
 import { ref } from 'vue';
+import SearchInput from './SearchInput.vue';
+
+const searchResult = ref([
+
+]);
+
+let activitySearchTimerDelayMs = 1500;
+
+function search(searchQuery) {
+    console.log('Search activities: ' + searchQuery);
+    searchResult.value = [
+        {
+            id: 1,
+            type: 'activity',
+            name: 'Бег'
+        },
+        {
+            id: 2,
+            type: 'activity',
+            name: 'Ходьба'
+        },
+        {
+            id: 3,
+            type: 'activity',
+            name: 'Плаванье'
+        },
+        {
+            id: 4,
+            type: 'activity',
+            name: 'Отжимания'
+        }
+    ];
+}
+
+function selectSearchResult(type, id) {
+    console.log('Selected Activity search result - type: ' + type + ', id: ' + id);
+}
+
 </script>
 
 <template>
@@ -7,13 +45,17 @@ import { ref } from 'vue';
         <h6>Дневная активность</h6>
         <form action="" method="">
 
-            <div class="input-group mb-2">
+            <SearchInput @search-event="search" @select-search-result-event="selectSearchResult"
+                :search-result="searchResult" search-label="Поиск активности"
+                :time-delay-ms='activitySearchTimerDelayMs' />
+
+            <!-- <div class="input-group mb-2">
                 <input type="text" class="form-control" placeholder="Recipient's username"
                     aria-label="Recipient's username" aria-describedby="button-addon2">
                 <button class="btn btn-outline-secondary" type="button" id="button-addon2">Button</button>
-            </div>
+            </div> -->
 
-            <div class="row">
+            <!-- <div class="row">
                 <div class="col">
                     <div class="input-group mb-2">
                         <div class="input-group-text">
@@ -35,21 +77,36 @@ import { ref } from 'vue';
                         <span class="input-group-text">раз</span>
                     </div>
                 </div>
-            </div>
+            </div> -->
 
             <ul class="list-group mb-2">
                 <li class="list-group-item">
                     <div class="hstack gap-5">
-                        <div class="">Активность 1</div>
+                        <div class="">Активность</div>
+
+                        <div class="input-group">
+                            <div class="input-group-text">
+                                <input type="radio" name="product-qantity-type" class="btn-check"
+                                    id="radio-product-weight" autocomplete="off" checked>
+                                <label class="btn" for="radio-product-weight">мин.</label>
+
+                                <input type="radio" name="product-qantity-type" class="btn-check"
+                                    id="radio-product-count" autocomplete="off">
+                                <label class="btn" for="radio-product-count">повторения</label>
+                            </div>
+                            <input type="text" class="form-control" aria-label="Text input with radio button">
+                            <!-- <span class="input-group-text">гр.</span> -->
+                        </div>
+
                         <a class=" btn btn-outline-warning btn-sm ms-auto">del</a>
                     </div>
                 </li>
-                <li class="list-group-item">
+                <!-- <li class="list-group-item">
                     <div class="hstack gap-5">
                         <div class="">Активность 1</div>
                         <a class=" btn btn-outline-warning btn-sm ms-auto">del</a>
                     </div>
-                </li>
+                </li> -->
             </ul>
 
             <!-- общее значение активностей -->
