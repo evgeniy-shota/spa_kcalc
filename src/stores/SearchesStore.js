@@ -16,11 +16,11 @@ export const useSearchesStore = defineStore('searches', () => {
     try {
       const response = await axios_instance.get(URL_SEARCH + '?searchQuery=' + searchQuery)
 
-      if (response.data.data.length == 0) {
-        return { result: 'nothing found', searchQuery: searchQuery, response: response.data.data }
+      if (response.data.length == 0) {
+        return { result: 'nothing found', searchQuery: searchQuery, response: response.data }
       }
 
-      return { result: 'success', searchQuery: searchQuery, response: response.data.data }
+      return { result: 'success', searchQuery: searchQuery, response: response.data }
     } catch (error) {
       console.log('Search activities is fail:')
       console.log(error)

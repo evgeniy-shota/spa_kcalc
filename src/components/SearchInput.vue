@@ -22,8 +22,8 @@ const props = defineProps({
 });
 
 const emit = defineEmits({
-    selectSearchResultEvent: (searchResultType, searchResultId) => {
-        if (searchResultType && searchResultId) {
+    selectSearchResultEvent: (selectedElement) => {
+        if (selectedElement) {
             return true;
         }
         console.warn('SearchInput: searchCallback validation fail');
@@ -73,13 +73,14 @@ function clearSearchResult() {
     clearTimeout(searchTimerId);
 }
 
-function selectElement(resultType = 'activity', resultId = 0) {
-    selectedSearchResult.value.type = resultType;
-    selectedSearchResult.value.id = resultId;
+function selectElement(selectedElement) {
+    console.log(selectedElement.type);
+    selectedSearchResult.value.type = selectedElement.type
+    selectedSearchResult.value.id = selectedElement.id;
     searchIsCompleted.value = false;
     searchInProgress.value = false;
     searchInputText.value = '';
-    emit('selectSearchResultEvent', resultType, resultId);
+    emit('selectSearchResultEvent', selectedElement);
 
 }
 
@@ -107,8 +108,8 @@ function search() {
             <div>{{ props.searchResultLabel }} </div>
             <ul class="list-group list-group-flush">
                 <!-- need to change key, can't be unique -->
-                <li v-for="item in searchResult" :key="item.type + 'i' + item.id"
-                    @click="selectElement(item.type, item.id)" class="list-group-item">{{ item.name }}</li>
+                <li v-for="item in searchResult" :key="item.type + 'i' + item.id" @click="selectElement(item)"
+                    class="list-group-item">{{ item.name }}</li>
             </ul>
         </div>
     </div>

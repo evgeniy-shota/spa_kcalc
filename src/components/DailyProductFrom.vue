@@ -22,11 +22,16 @@ watch(searchResponse, () => {
 
 const productSearchTimerDelayMs = ref(1500);
 
-function selectSearchResult(type, id) {
-    console.log("Selected result of product search - type: " + type + ", id: " + id);
+function selectSearchResult(selectedElement) {
+    console.log("Selected result of product search - type: " + selectedElement.type + ", id: " + selectedElement.id);
     let element = {
-        id: id,
-        elementType: type,
+        id: selectedElement.id,
+        elementType: selectedElement.type,
+        name: selectedElement.name,
+        kcal: selectedElement.calory,
+        carb: selectedElement.carbohydrates,
+        prot: selectedElement.proteins,
+        fats: selectedElement.fats,
     };
     selectedProducts.value.push(element);
 }
@@ -40,115 +45,129 @@ async function searchProducts(searchQuery) {
 </script>
 
 <template>
-    <div class="card ps-2 pe-2 pt-2">
-        <h6>Добавление дневного рациона</h6>
-        <form action="" method="">
-
-            <SearchInput @search-event="searchProducts" @select-search-result-event="selectSearchResult"
-                :search-result="searchResult" search-label="Поиск продукта\диеты"
-                :search-result-label="searchResultLabel" :time-delay-ms="productSearchTimerDelayMs" />
-
-            <!-- <div class="row">
-                <div class="col">
-                    <div class="input-group mb-2">
-                        <div class="input-group-text">
-                            <input name="radiogr1" class="form-check-input mt-0" type="radio" value=""
-                                aria-label="Radio button for following text input">
-                        </div>
-                        <input type="text" class="form-control" aria-label="Text input with radio button">
-                        <span class="input-group-text">гр.</span>
-                    </div>
+    <div class="card ps-2 pe-2 pt-2 daily-view-container">
+        <div class="card mb-1 daily-form-container">
+            <div class="card-header">
+                <div class="hstack gap-1 justify-content-between">
+                    <h6 class="mb-1">Добавление дневного рациона</h6>
+                    <small>help</small>
                 </div>
-
-                <div class="col">
-                    <div class="input-group mb-2">
-                        <div class="input-group-text">
-                            <input name="radiogr1" class="form-check-input mt-0" type="radio" value=""
-                                aria-label="Radio button for following text input">
-                        </div>
-                        <input type="text" class="form-control" aria-label="Text input with radio button">
-                        <span class="input-group-text">шт.</span>
-                    </div>
-                </div>
-            </div> -->
-
-            <!-- list of added products -->
-            <ul class="list-group list-height-limit">
-                <li v-for="element in selectedProducts" :key="element.elementType + 'i' + element.id"
-                    class="list-group-item">
-                    <div class="hstack gap-5">
-                        <div class="">{{ element.elementType }} - {{ element.id }}</div>
-
-                        <div class="input-group">
-                            <div class="input-group-text">
-                                <input type="radio" name="product-qantity-type" class="btn-check"
-                                    id="radio-product-weight" autocomplete="off" checked>
-                                <label class="btn" for="radio-product-weight">гр.</label>
-
-                                <input type="radio" name="product-qantity-type" class="btn-check"
-                                    id="radio-product-count" autocomplete="off">
-                                <label class="btn" for="radio-product-count">шт.</label>
-                            </div>
-                            <input type="text" class="form-control" aria-label="Text input with radio button">
-                            <!-- <span class="input-group-text">гр.</span> -->
-                        </div>
-
-                        <a class=" btn btn-outline-warning btn-sm ms-auto">del</a>
-                    </div>
-                </li>
-
-                <li class="list-group-item">
-                    <div class="hstack gap-5">
-                        <div class="">Продукт</div>
-
-                        <div class="input-group">
-                            <div class="input-group-text">
-                                <input type="radio" name="product-qantity-type" class="btn-check"
-                                    id="radio-product-weight" autocomplete="off" checked>
-                                <label class="btn" for="radio-product-weight">гр.</label>
-
-                                <input type="radio" name="product-qantity-type" class="btn-check"
-                                    id="radio-product-count" autocomplete="off">
-                                <label class="btn" for="radio-product-count">шт.</label>
-                            </div>
-                            <input type="text" class="form-control" aria-label="Text input with radio button">
-                            <!-- <span class="input-group-text">гр.</span> -->
-                        </div>
-
-                        <a class=" btn btn-outline-warning btn-sm ms-auto">del</a>
-                    </div>
-                </li>
-
-            </ul>
-
-            <table class="table table-sm">
-                <thead>
-                    <th>Наименование</th>
-                    <th>Значение</th>
-                </thead>
-                <tbody>
-                    <tr>
-                        <td>Кальций</td>
-                        <td>1 гр</td>
-                    </tr>
-                    <tr>
-                        <td>Магний</td>
-                        <td>3 гр</td>
-                    </tr>
-                </tbody>
-            </table>
-
-            <div class="d-grid gap-2 mb-2">
-                <button class="btn btn-primary" type="button">Добавить</button>
             </div>
-        </form>
+            <div class="card-body p-3 pt-2">
+                <form action="" method="">
+
+                    <SearchInput @search-event="searchProducts" @select-search-result-event="selectSearchResult"
+                        :search-result="searchResult" search-label="Поиск продукта\диеты"
+                        :search-result-label="searchResultLabel" :time-delay-ms="productSearchTimerDelayMs" />
+
+                    <!-- list of added products -->
+                    <ul class="list-group list-height-limit">
+                        <li v-for="element in selectedProducts" :key="element.type + 'i' + element.id"
+                            class="list-group-item">
+
+                            <div class="hstack gap-1">
+                                <div style="">
+                                    <div :title="element.name" class="daily-ration-element-name">
+                                        {{ element.name }}
+                                    </div>
+                                    <small>ккал</small>
+                                </div>
+
+                                <div class="input-group input-group-sm">
+
+
+                                    <input type="text" class="form-control" aria-label="Text input with radio button"
+                                        :value="element.count">
+                                    <span class="input-group-text">гр.</span>
+                                </div>
+
+                                <a class=" btn btn-outline-warning btn-sm ">del</a>
+                            </div>
+                        </li>
+
+                    </ul>
+
+                    <div class="position-absolute bottom-0 start-0 end-0 w-100 mb-2 ps-3 pe-3">
+
+                        <div class="d-flex mb-1 ps-2 pe-2 border rounded justify-content-between text-center">
+                            <div>
+                                <small>Калории</small>
+                                <div>540 <small>ккал</small></div>
+                            </div>
+                            <div>
+                                <small>Углеводы</small>
+                                <div>34 <small>гр.</small></div>
+                            </div>
+                            <div>
+                                <small>Белки</small>
+                                <div>14 <small>гр.</small></div>
+                            </div>
+                            <div>
+                                <small>Жиры</small>
+                                <div>7 <small>гр.</small></div>
+                            </div>
+                        </div>
+                        <div class="d-grid">
+                            <button class="btn btn-primary" type="button">Добавить</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+
+        <div class="card mb-2 daily-ration-container">
+            <div class="card-header">
+                <h6>Дневной рацион</h6>
+            </div>
+            <div class="card-body p-1">
+                <ul class="list-group list-group-flush ration-list-height-limit">
+
+                    <li class="list-group-item">
+                        <div class="d-flex justify-content-between">
+                            <h5>Some Product name</h5>
+                            <small>Some action</small>
+                        </div>
+                        <small>Some product value</small>
+                    </li>
+
+
+                </ul>
+            </div>
+        </div>
     </div>
 </template>
 
-<style>
+<style lang="scss">
 .list-height-limit {
-    max-height: 35vh;
+    max-height: 20vh;
+    height: 20vh;
     overflow-y: scroll;
     cursor: auto;
+    scrollbar-width: thin;
+}
+
+.daily-view-container {
+    max-height: 87vh;
+    height: 87vh;
+}
+
+.daily-form-container,
+.daily-ration-container {
+    max-height: 49%;
+    height: 49%;
+}
+
+.ration-list-height-limit {
+    overflow-y: scroll;
+    scrollbar-width: thin;
+    max-height: 36vh;
+}
+
+.daily-ration-element-name {
+    max-width: 20em;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    overflow: hidden;
 }
 </style>
