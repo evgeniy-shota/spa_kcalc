@@ -11,7 +11,7 @@ const searchResult = ref({});
 const searchResultLabel = ref('');
 
 watch(searchResponse, () => {
-    if (!('response' in searchResponse.value) || searchResponse.value.response.length == 0) {
+    if (!('result' in searchResponse.value) || searchResponse.value.result != 'success') {
         searchResult.value = {};
         searchResultLabel.value = 'Поиск не дал результатов';
     } else {

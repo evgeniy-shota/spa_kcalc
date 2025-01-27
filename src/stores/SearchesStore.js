@@ -8,23 +8,29 @@ export const useSearchesStore = defineStore('searches', () => {
   const searchProductsResult = ref({})
 
   function $reset() {
-    const searchActivitiesResult = ref({})
-    const searchProductsResult = ref({})
+    searchActivitiesResult.value = {}
+    searchProductsResult.value = {}
   }
 
   async function searchProducts(searchQuery) {
     try {
       const response = await axios_instance.get(URL_SEARCH + '?searchQuery=' + searchQuery)
 
-      if (response.data.length == 0) {
-        return { result: 'nothing found', searchQuery: searchQuery, response: response.data }
+      console.log(response.data)
+      if (
+        response.data.products.count +
+          response.data.personalUserProducts.count +
+          response.data.diets.count ==
+        0
+      ) {
+        return { result: 'nothing found', response: response.data }
       }
 
-      return { result: 'success', searchQuery: searchQuery, response: response.data }
+      return { result: 'success', response: response.data }
     } catch (error) {
       console.log('Search activities is fail:')
       console.log(error)
-      return { result: 'fail', searchQuery: searchQuery, response: error }
+      return { result: 'fail', response: error }
     }
   }
 

@@ -49,7 +49,9 @@ let searchTimerId = null;
 
 // add showing small search result when no match found
 watch(() => props.searchResult, () => {
-    if (Object.keys(props.searchResult).length != 0) {
+    if (Object.keys(props.searchResult.products.data).length +
+        Object.keys(props.searchResult.diets.data).length +
+        Object.keys(props.searchResult.personalUserProducts.data).length != 0) {
         searchIsCompleted.value = true;
     }
     searchInProgress.value = false;
@@ -106,11 +108,22 @@ function search() {
         <div class="search-result border rounded-bottom border-top-0 position-absolute ms-2 me-2 p-2 pt-1"
             v-show="searchIsCompleted">
             <div>{{ props.searchResultLabel }} </div>
-            <ul class="list-group list-group-flush">
-                <!-- need to change key, can't be unique -->
-                <li v-for="item in searchResult" :key="item.type + 'i' + item.id" @click="selectElement(item)"
+
+            <ul v-for="resuultGroup in searchResult" class="list-group list-group-flush">
+                <h6>{{ resuultGroup.label }} - {{ resuultGroup.count }} результатов: </h6>
+                <li v-for="item in resuultGroup.data" :key="item.type + 'i' + item.id" @click="selectElement(item)"
                     class="list-group-item">{{ item.name }}</li>
             </ul>
+
+            <!-- <ul class="list-group list-group-flush">
+                <li v-for="item in searchResult.personalUserProducts" :key="item.type + 'i' + item.id"
+                    @click="selectElement(item)" class="list-group-item">{{ item.name }}</li>
+            </ul>
+
+            <ul class="list-group list-group-flush">
+                <li v-for="item in searchResult.diets" :key="item.type + 'i' + item.id" @click="selectElement(item)"
+                    class="list-group-item">{{ item.name }}</li>
+            </ul> -->
         </div>
     </div>
 </template>
