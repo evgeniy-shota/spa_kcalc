@@ -1,10 +1,10 @@
 <script setup>
-import { ref, watch } from 'vue';
+import { computed, ref, watch } from 'vue';
 
 const props = defineProps({
-    searchResult: {
-        type: Object,
-        default: {}
+    searchSuccessful: {
+        type: Boolean,
+        default: false
     },
     timeDelayMs: {
         type: Number,
@@ -13,85 +13,31 @@ const props = defineProps({
     searchLabel: {
         type: String,
         default: 'Поиск'
-    },
-    searchResultLabel: {
-        type: String,
-        default: "Результаты поиска"
-    }
-
-});
-
-const emit = defineEmits({
-    selectSearchResultEvent: (selectedElement) => {
-        if (selectedElement) {
-            return true;
-        }
-        console.warn('SearchInput: searchCallback validation fail');
-        return false;
-    },
-    searchEvent: (searchQuery) => {
-        if (searchQuery) {
-            return true;
-        }
-        return false;
     }
 });
 
 const searchInputText = ref("");
-const searchInProgress = ref(false);
-const searchIsCompleted = ref(false);
-const selectedSearchResult = ref({
-    type: '',
-    id: 0
+
+const searchInProgress = computed(() => {
+    return props.searchSuccessful ? true : false;
 });
 
 let searchTimerId = null;
 
 // add showing small search result when no match found
-watch(() => props.searchResult, () => {
-    if (Object.keys(props.searchResult.products.data).length +
-        Object.keys(props.searchResult.diets.data).length +
-        Object.keys(props.searchResult.personalUserProducts.data).length != 0) {
-        searchIsCompleted.value = true;
-    }
-    searchInProgress.value = false;
-});
 
 watch(searchInputText, () => {
     if (searchTimerId != null) {
         clearTimeout(searchTimerId);
-        searchIsCompleted.value = false;
     }
     searchTimerId = setTimeout(search, props.timeDelayMs);
 });
-
-function clearSearchResult() {
-    searchInputText.value = "";
-    searchInProgress.value = false;
-    selectedSearchResult.value.type = '';
-    selectedSearchResult.value.id = 0;
-
-    // need check
-    clearTimeout(searchTimerId);
-}
-
-function selectElement(selectedElement) {
-    console.log(selectedElement.type);
-    selectedSearchResult.value.type = selectedElement.type
-    selectedSearchResult.value.id = selectedElement.id;
-    searchIsCompleted.value = false;
-    searchInProgress.value = false;
-    searchInputText.value = '';
-    emit('selectSearchResultEvent', selectedElement);
-
-}
 
 function search() {
     if (searchInputText.value.length > 2) {
         // console.log(searchInputText.value);
         emit('searchEvent', searchInputText.value);
         searchInProgress.value = true;
-        // searchIsCompleted.value = true;
     }
 }
 
@@ -105,41 +51,10 @@ function search() {
                 :class="{ 'search-in-progress': searchInProgress }" v-bind:placeholder="props.searchLabel" aria-label=""
                 aria-describedby="button-addon2">
         </div>
-        <div class="search-result border rounded-bottom border-top-0 position-absolute ms-2 me-2 p-2 pt-1"
-            v-show="searchIsCompleted">
-            <div>{{ props.searchResultLabel }} </div>
-
-            <ul v-for="resuultGroup in searchResult" class="list-group list-group-flush">
-                <h6>{{ resuultGroup.label }} - {{ resuultGroup.count }} результатов: </h6>
-                <li v-for="item in resuultGroup.data" :key="item.type + 'i' + item.id" @click="selectElement(item)"
-                    class="list-group-item">{{ item.name }}</li>
-            </ul>
-
-            <!-- <ul class="list-group list-group-flush">
-                <li v-for="item in searchResult.personalUserProducts" :key="item.type + 'i' + item.id"
-                    @click="selectElement(item)" class="list-group-item">{{ item.name }}</li>
-            </ul>
-
-            <ul class="list-group list-group-flush">
-                <li v-for="item in searchResult.diets" :key="item.type + 'i' + item.id" @click="selectElement(item)"
-                    class="list-group-item">{{ item.name }}</li>
-            </ul> -->
-        </div>
     </div>
 </template>
 
 <style>
-.search-result {
-    height: 33vh;
-    overflow-y: scroll;
-    background-color: rgb(255, 255, 255);
-    z-index: 10;
-    left: 0;
-    right: 0;
-    cursor: pointer;
-    scrollbar-color: red;
-}
-
 .search-in-progress {
     /* transition: background 0.5s; */
     background: linear-gradient(to right, white 2%, #47bae76e, white 80%);

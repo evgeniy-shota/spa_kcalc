@@ -4,12 +4,16 @@ import axios_instance from '@/resource/js/axiosInstance'
 
 export const useSearchesStore = defineStore('searches', () => {
   const URL_SEARCH = 'api/search/'
-  const searchActivitiesResult = ref({})
-  const searchProductsResult = ref({})
+  const searchActivitiesResult = ref(false)
+  const searchActivitiesResponse = ref(null)
+  const searchRationResult = ref(false)
+  const searchRationResponse = ref(null)
 
   function $reset() {
-    searchActivitiesResult.value = {}
-    searchProductsResult.value = {}
+    searchActivitiesResult = false
+    searchActivitiesResponse = null
+    searchRationResult = false
+    searchRationResponse = null
   }
 
   async function searchProducts(searchQuery) {
@@ -23,18 +27,27 @@ export const useSearchesStore = defineStore('searches', () => {
           response.data.diets.count ==
         0
       ) {
-        return { result: 'nothing found', response: response.data }
+        searchRationResponse.value = response.data
+      } else {
+        searchRationResponse.value = null
       }
 
-      return { result: 'success', response: response.data }
+      searchRationResult.value = true
     } catch (error) {
       console.log('Search activities is fail:')
       console.log(error)
-      return { result: 'fail', response: error }
+      searchRationResult.value = false
+      searchRationResponse.value = null
     }
   }
 
   function searchActivities(searchQuery) {}
 
-  return { searchActivitiesResult, searchProductsResult, searchActivities, searchProducts }
+  return {
+    searchActivitiesResult,
+    searchProductsResult: searchRationResult,
+    searchActivities,
+    searchProducts,
+    $reset,
+  }
 })
