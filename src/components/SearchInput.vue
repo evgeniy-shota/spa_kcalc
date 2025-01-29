@@ -1,11 +1,10 @@
 <script setup>
 import { computed, ref, watch } from 'vue';
+import { useSearchesStore } from '@/stores/SearchesStore';
 
+
+const searchStore = useSearchesStore();
 const props = defineProps({
-    searchSuccessful: {
-        type: Boolean,
-        default: false
-    },
     timeDelayMs: {
         type: Number,
         default: 2000
@@ -16,11 +15,18 @@ const props = defineProps({
     }
 });
 
-const searchInputText = ref("");
+// const emit = defineEmits({
+//     searchEvent(searchQuery) {
+//         if (searchQuery) {
+//             return true;
+//         }
+//         return false;
+//     }
+// });
 
-const searchInProgress = computed(() => {
-    return props.searchSuccessful ? true : false;
-});
+const searchInputText = ref("");
+const searchInProgress = ref(false);
+const searchIsComplete = ref(false);
 
 let searchTimerId = null;
 
@@ -29,18 +35,26 @@ let searchTimerId = null;
 watch(searchInputText, () => {
     if (searchTimerId != null) {
         clearTimeout(searchTimerId);
+        searchTimerId = null;
     }
-    searchTimerId = setTimeout(search, props.timeDelayMs);
+
+    if (searchInputText.value.length > 2) {
+        searchTimerId = setTimeout(search, props.timeDelayMs);
+    }
+
 });
 
-function search() {
-    if (searchInputText.value.length > 2) {
-        // console.log(searchInputText.value);
-        emit('searchEvent', searchInputText.value);
-        searchInProgress.value = true;
-    }
-}
 
+async function search() {
+
+    searchInProgress.value = true;
+    searchIsComplete.value = await searchStore.searchProducts(searchInputText.value);
+
+    if (searchIsComplete.value) {
+        searchInProgress.value = false;
+    }
+
+}
 
 </script>
 

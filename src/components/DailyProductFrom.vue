@@ -10,6 +10,15 @@ const searchResponse = ref({});
 const searchResult = ref({});
 const searchResultLabel = ref('');
 
+const emit = defineEmits({
+    showSearch(searchTitle) {
+        if (searchTitle?.length != 0) {
+            return true;
+        }
+        return false;
+    }
+});
+
 watch(searchResponse, () => {
     if (!('result' in searchResponse.value) || searchResponse.value.result != 'success') {
         searchResult.value = {};
@@ -36,10 +45,15 @@ function selectSearchResult(selectedElement) {
     selectedProducts.value.push(element);
 }
 
-async function searchProducts(searchQuery) {
+// async function searchProducts(searchQuery) {
 
-    searchResponse.value = await searchStore.searchProducts(searchQuery);
+//     searchResponse.value = await searchStore.searchProducts(searchQuery);
 
+// }
+
+function showSearch(event) {
+    let title = 'Поиск продуктов', searchLabel = 'Введите название продукта или диеты', searchedResource = 'products'
+    emit('showSearch', title, searchLabel, searchedResource)
 }
 
 </script>
@@ -56,9 +70,14 @@ async function searchProducts(searchQuery) {
             <div class="card-body p-3 pt-2">
                 <form action="" method="">
 
-                    <SearchInput @search-event="searchProducts" @select-search-result-event="selectSearchResult"
+                    <div class="d-grid">
+                        <button @click="showSearch" class="btn btn-primary" type="button">Добавить продукт \
+                            диету</button>
+                    </div>
+
+                    <!-- <SearchInput @search-event="searchProducts" @select-search-result-event="selectSearchResult"
                         :search-result="searchResult" search-label="Поиск продукта\диеты"
-                        :search-result-label="searchResultLabel" :time-delay-ms="productSearchTimerDelayMs" />
+                        :search-result-label="searchResultLabel" :time-delay-ms="productSearchTimerDelayMs" /> -->
 
                     <!-- list of added products -->
                     <ul class="list-group list-height-limit">
@@ -108,7 +127,7 @@ async function searchProducts(searchQuery) {
                             </div>
                         </div>
                         <div class="d-grid">
-                            <button class="btn btn-primary" type="button">Добавить</button>
+                            <button class="btn btn-primary" type="button">Сохранить рацион</button>
                         </div>
                     </div>
                 </form>
