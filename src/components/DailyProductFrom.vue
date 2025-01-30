@@ -1,14 +1,17 @@
 <script setup>
-import { computed, ref, watch } from 'vue';
+import { computed, onBeforeMount, ref, watch } from 'vue';
 import SearchInput from './SearchInput.vue';
-import { useSearchesStore } from '@/stores/SearchesStore';
+import { useDailyRationsStore } from '@/stores/dailyRationsStore';
+import IconCloseXlg from './icons/IconCloseXlg.vue';
+// const selectedProducts = ref([]);
+// const dailyRationSearchQuery = ref("");
 
-const searchStore = useSearchesStore();
-const selectedProducts = ref([]);
-const dailyRationSearchQuery = ref("");
-const searchResponse = ref({});
-const searchResult = ref({});
-const searchResultLabel = ref('');
+const dailyRationStore = useDailyRationsStore();
+
+onBeforeMount(() => {
+
+    dailyRationStore.getDailyRation(1);
+});
 
 const emit = defineEmits({
     showSearch(searchTitle) {
@@ -19,38 +22,6 @@ const emit = defineEmits({
     }
 });
 
-watch(searchResponse, () => {
-    if (!('result' in searchResponse.value) || searchResponse.value.result != 'success') {
-        searchResult.value = {};
-        searchResultLabel.value = 'Поиск не дал результатов';
-    } else {
-        searchResult.value = searchResponse.value.response;
-        searchResultLabel.value = 'Результаты поиска';
-    }
-});
-
-const productSearchTimerDelayMs = ref(1500);
-
-function selectSearchResult(selectedElement) {
-    console.log("Selected result of product search - type: " + selectedElement.type + ", id: " + selectedElement.id);
-    let element = {
-        id: selectedElement.id,
-        elementType: selectedElement.type,
-        name: selectedElement.name,
-        kcal: selectedElement.calory,
-        carb: selectedElement.carbohydrates,
-        prot: selectedElement.proteins,
-        fats: selectedElement.fats,
-    };
-    selectedProducts.value.push(element);
-}
-
-// async function searchProducts(searchQuery) {
-
-//     searchResponse.value = await searchStore.searchProducts(searchQuery);
-
-// }
-
 function showSearch(event) {
     let title = 'Поиск продуктов', searchLabel = 'Введите название продукта или диеты', searchedResource = 'products'
     emit('showSearch', title, searchLabel, searchedResource)
@@ -59,82 +30,124 @@ function showSearch(event) {
 </script>
 
 <template>
-    <div class="card ps-2 pe-2 pt-2 daily-view-container">
-        <div class="card mb-1 daily-form-container">
-            <div class="card-header">
-                <div class="hstack gap-1 justify-content-between">
-                    <h6 class="mb-1">Добавление дневного рациона</h6>
-                    <small>help</small>
+    <!-- ps-2 pe-2 pt-2  -->
+    <div class="card daily-view-container">
+        <div class="card-header">
+            <div class="hstack gap-1 justify-content-between">
+                <h6 class="mb-1">Дневной рацион</h6>
+                <small>help</small>
+            </div>
+        </div>
+        <!-- daily-form-container -->
+        <div class="card-body p-2">
+
+            <form action="" method="">
+                <div class="d-grid mb-2">
+                    <button @click="showSearch" class="btn btn-primary" type="button">Добавить продукт \
+                        диету</button>
                 </div>
-            </div>
-            <div class="card-body p-3 pt-2">
-                <form action="" method="">
 
-                    <div class="d-grid">
-                        <button @click="showSearch" class="btn btn-primary" type="button">Добавить продукт \
-                            диету</button>
-                    </div>
+                <!-- list of selected products -->
+                <ul class="list-group list-height-limit">
+                    <li v-for="element in dailyRationStore.selectedProducts" :key="element.type + 'i' + element.id"
+                        class="list-group-item">
 
-                    <!-- <SearchInput @search-event="searchProducts" @select-search-result-event="selectSearchResult"
-                        :search-result="searchResult" search-label="Поиск продукта\диеты"
-                        :search-result-label="searchResultLabel" :time-delay-ms="productSearchTimerDelayMs" /> -->
-
-                    <!-- list of added products -->
-                    <ul class="list-group list-height-limit">
-                        <li v-for="element in selectedProducts" :key="element.type + 'i' + element.id"
-                            class="list-group-item">
-
-                            <div class="hstack gap-1">
-                                <div style="">
-                                    <div :title="element.name" class="daily-ration-element-name">
-                                        {{ element.name }}
+                        <div class="row">
+                            <div class="col-11 px-1">
+                                <div class="row">
+                                    <div class="col mb-1">
+                                        <div :title="element.name" class="daily-ration-element-name">
+                                            {{ element.name }}
+                                        </div>
                                     </div>
-                                    <small>ккал</small>
                                 </div>
 
-                                <div class="input-group input-group-sm">
+                                <div class="row">
+                                    <div class="col-3">
+                                        <div class="input-group input-group-sm">
+                                            <input type="text" class="form-control"
+                                                aria-label="Text input with radio button" :value="element.quantity">
+                                            <span class="input-group-text">гр</span>
+                                        </div>
+                                    </div>
 
-
-                                    <input type="text" class="form-control" aria-label="Text input with radio button"
-                                        :value="element.count">
-                                    <span class="input-group-text">гр.</span>
+                                    <div class="col">
+                                        <small>К: {{ element.kcalory }} ккал</small>
+                                        <small>Б: {{ element.proteins }} гр.</small>
+                                        <small>Ж: {{ element.fats }} гр.</small>
+                                        <small>У: {{ element.carbohydrates }} гр.</small>
+                                    </div>
                                 </div>
-
-                                <a class=" btn btn-outline-warning btn-sm ">del</a>
                             </div>
-                        </li>
 
-                    </ul>
+                            <div class="col px-0 my-auto">
+                                <!-- <button type="button" class="btn-close" aria-label="Close"></button> -->
+                                <!-- <div class="d-flex align-item-center justify-content-center"> -->
 
-                    <div class="position-absolute bottom-0 start-0 end-0 w-100 mb-2 ps-3 pe-3">
-
-                        <div class="d-flex mb-1 ps-2 pe-2 border rounded justify-content-between text-center">
-                            <div>
-                                <small>Калории</small>
-                                <div>540 <small>ккал</small></div>
-                            </div>
-                            <div>
-                                <small>Углеводы</small>
-                                <div>34 <small>гр.</small></div>
-                            </div>
-                            <div>
-                                <small>Белки</small>
-                                <div>14 <small>гр.</small></div>
-                            </div>
-                            <div>
-                                <small>Жиры</small>
-                                <div>7 <small>гр.</small></div>
+                                <button type="button" class="btn btn-sm btn-light">
+                                    <IconCloseXlg />
+                                </button>
+                                <!-- </div> -->
                             </div>
                         </div>
-                        <div class="d-grid">
-                            <button class="btn btn-primary" type="button">Сохранить рацион</button>
+
+                    </li>
+                </ul>
+
+                <!-- list of products added to the ration  -->
+                <ul class="list-group list-height-limit">
+                    <li v-for="element in dailyRationStore.dailyRation" :key="element.type + 'i' + element.id"
+                        class="list-group-item">
+
+                        <div class="hstack gap-1">
+                            <div style="">
+                                <div :title="element.name" class="daily-ration-element-name">
+                                    {{ element.name }}
+                                </div>
+                                <small>ккал</small>
+                            </div>
+
+                            <div class="input-group input-group-sm">
+                                <input type="text" class="form-control" aria-label="Text input with radio button"
+                                    :value="element.count">
+                                <span class="input-group-text">гр.</span>
+                            </div>
+                            <a class=" btn btn-outline-warning btn-sm ">del</a>
+                        </div>
+
+                    </li>
+                </ul>
+
+                <!-- ration summary -->
+                <div class="position-absolute bottom-0 start-0 end-0 w-100 mb-2 ps-2 pe-2">
+
+                    <div class="d-flex mb-1 ps-2 pe-2 border rounded justify-content-between text-center">
+                        <div>
+                            <small>Калории</small>
+                            <div>540 <small>ккал</small></div>
+                        </div>
+                        <div>
+                            <small>Углеводы</small>
+                            <div>34 <small>гр.</small></div>
+                        </div>
+                        <div>
+                            <small>Белки</small>
+                            <div>14 <small>гр.</small></div>
+                        </div>
+                        <div>
+                            <small>Жиры</small>
+                            <div>7 <small>гр.</small></div>
                         </div>
                     </div>
-                </form>
-            </div>
+                    <div class="d-grid">
+                        <button class="btn btn-primary" type="button">Сохранить рацион</button>
+                    </div>
+                </div>
+            </form>
         </div>
 
 
+        <!-- 
         <div class="card mb-2 daily-ration-container">
             <div class="card-header">
                 <h6>Дневной рацион</h6>
@@ -153,16 +166,16 @@ function showSearch(event) {
 
                 </ul>
             </div>
-        </div>
+        </div> -->
+
     </div>
 </template>
 
 <style lang="scss">
 .list-height-limit {
-    max-height: 20vh;
-    height: 20vh;
+    max-height: 4i0vh;
+    height: 40vh;
     overflow-y: scroll;
-    cursor: auto;
     scrollbar-width: thin;
 }
 
@@ -184,7 +197,7 @@ function showSearch(event) {
 }
 
 .daily-ration-element-name {
-    max-width: 20em;
+    max-width: 30em;
     text-overflow: ellipsis;
     white-space: nowrap;
     overflow: hidden;

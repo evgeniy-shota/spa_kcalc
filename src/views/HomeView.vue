@@ -6,10 +6,13 @@ import SearchResult from '@/components/SearchResult.vue';
 import SearchModalWindow from '@/components/SearchModalWindow.vue';
 import SearchInput from '@/components/SearchInput.vue';
 import { useSearchesStore } from '@/stores/SearchesStore';
-import { Title } from 'chart.js';
-import { compile } from 'sass';
+import { useDailyRationsStore } from '@/stores/dailyRationsStore';
+// import { Title } from 'chart.js';
+// import { compile } from 'sass';
 
 const searchStore = useSearchesStore();
+const dailyRationStore = useDailyRationsStore();
+
 const searchTitle = ref("");
 const searchInputLabel = ref("");
 const searchedResource = ref("");
@@ -22,15 +25,14 @@ const searchInputProps = computed(() => {
 });
 
 const searchResultProps = computed(() => {
+  console.log(searchStore.searchResponseTotalCount == 0 ? true : false);
   return {
     searchResult: searchStore.searchResult,
     searchResponse: searchStore.searchResponse,
-    searchResultLabel: 'Результаты поиска:'
+    isNothingFound: searchStore.searchResponseTotalCount == 0 && searchStore.searchResult ? true : false,
+    searchResultLabel: 'Результаты поиска:',
+    selectSearchResult: selectElement,
   }
-});
-
-const searchResult = computed(() => {
-  return
 });
 
 const showSearchWindow = ref(false);
@@ -50,8 +52,16 @@ function showSearch(windowTitle, searchLabel, searchedRes) {
 
 function hideSearch() {
   showSearchWindow.value = false;
+}
+
+function selectElement(element) {
+  // console.log('Selected element');
+  // console.log(element);
+  dailyRationStore.selectedProducts.push(element);
+  hideSearch();
 
 }
+
 </script>
 
 <template>
@@ -69,8 +79,8 @@ function hideSearch() {
     </template>
 
     <template #searchOutput="{ propsForSlot }">
-      <SearchResult :search-result-label="propsForSlot.searchResultLabel"
-        :search-result="propsForSlot.searchResponse" />
+      <SearchResult :search-result-label="propsForSlot.searchResultLabel" :search-result="propsForSlot.searchResponse"
+        :is-nothing-found="propsForSlot.isNothingFound" @select-search-result="propsForSlot.selectSearchResult" />
     </template>
 
   </SearchModalWindow>

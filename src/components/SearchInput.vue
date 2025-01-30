@@ -11,8 +11,12 @@ const props = defineProps({
     },
     searchLabel: {
         type: String,
-        default: 'Поиск'
-    }
+        default: ''
+    },
+    searchPlaseholder: {
+        type: String,
+        default: 'Для начала поиска введите не менее 3х символов',
+    },
 });
 
 // const emit = defineEmits({
@@ -60,11 +64,13 @@ async function search() {
 
 <template>
     <div class="mb-2">
-        <div>
-            <input type="text" v-model="searchInputText" class="form-control"
-                :class="{ 'search-in-progress': searchInProgress }" v-bind:placeholder="props.searchLabel" aria-label=""
-                aria-describedby="button-addon2">
+        <div class="mb-1">
+            <label for="inputSearch" v-show="props.searchLabel.length != 0"> {{ props.searchLabel }}</label>
+            <input type="text" id="inputSearch" v-model="searchInputText" class="form-control"
+                :class="{ 'search-in-progress': searchInProgress }" v-bind:placeholder="props.searchPlaseholder"
+                aria-label="" aria-describedby="button-addon2">
         </div>
+
     </div>
 </template>
 
