@@ -2,14 +2,13 @@
 import { computed, onBeforeMount, ref, watch } from 'vue';
 import SearchInput from './SearchInput.vue';
 import { useDailyRationsStore } from '@/stores/dailyRationsStore';
-import IconCloseXlg from './icons/IconCloseXlg.vue';
+import ProductCardMin from './ProductCardMin.vue';
 // const selectedProducts = ref([]);
 // const dailyRationSearchQuery = ref("");
 
 const dailyRationStore = useDailyRationsStore();
 
 onBeforeMount(() => {
-
     dailyRationStore.getDailyRation(1);
 });
 
@@ -27,6 +26,26 @@ function showSearch(event) {
     emit('showSearch', title, searchLabel, searchedResource)
 }
 
+function delAddedProduct(index) {
+    console.log('Delete product: ' + index);
+    dailyRationStore.deleteSelectedProduct(index);
+}
+
+function delProductFromRation(index) {
+    console.log('Delete from ration: ' + index);
+    dailyRationStore.deleteProductFromRation(index);
+}
+
+async function saveCurrentRation() {
+    console.log('Save ration');
+    const respons = await dailyRationStore.saveRation();
+    if (respons) {
+        console.log('Ration saved');
+    } else {
+        console.log('Ration is not saved');
+    }
+}
+
 </script>
 
 <template>
@@ -42,106 +61,88 @@ function showSearch(event) {
         <div class="card-body p-2">
 
             <form action="" method="">
-                <div class="d-grid mb-2">
-                    <button @click="showSearch" class="btn btn-primary" type="button">Добавить продукт \
-                        диету</button>
+
+                <div class="row mb-2">
+                    <div class="col d-grid pe-1">
+                        <button @click="showSearch" class="btn btn-outline-primary" type="button">Добавить
+                            продукт</button>
+                    </div>
+
+                    <div class="col d-grid ps-1">
+                        <button @click="saveCurrentRation" class="btn btn-outline-success" type="button">Сохранить
+                            рацион</button>
+                    </div>
                 </div>
 
-                <!-- list of selected products -->
-                <ul class="list-group list-height-limit">
-                    <li v-for="element in dailyRationStore.selectedProducts" :key="element.type + 'i' + element.id"
-                        class="list-group-item">
+                <div class="border  rounded">
+                    <div class="px-2 py-1">
+                        Общая пищевая ценность рациона
+                    </div>
+                    <div class="d-flex ps-2 pe-2 border-top justify-content-around text-center">
 
-                        <div class="row">
-                            <div class="col-11 px-1">
-                                <div class="row">
-                                    <div class="col mb-1">
-                                        <div :title="element.name" class="daily-ration-element-name">
-                                            {{ element.name }}
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <div class="row">
-                                    <div class="col-3">
-                                        <div class="input-group input-group-sm">
-                                            <input type="text" class="form-control"
-                                                aria-label="Text input with radio button" :value="element.quantity">
-                                            <span class="input-group-text">гр</span>
-                                        </div>
-                                    </div>
-
-                                    <div class="col">
-                                        <small>К: {{ element.kcalory }} ккал</small>
-                                        <small>Б: {{ element.proteins }} гр.</small>
-                                        <small>Ж: {{ element.fats }} гр.</small>
-                                        <small>У: {{ element.carbohydrates }} гр.</small>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div class="col px-0 my-auto">
-                                <!-- <button type="button" class="btn-close" aria-label="Close"></button> -->
-                                <!-- <div class="d-flex align-item-center justify-content-center"> -->
-
-                                <button type="button" class="btn btn-sm btn-light">
-                                    <IconCloseXlg />
-                                </button>
-                                <!-- </div> -->
-                            </div>
+                        <div>
+                            <small>Калории</small>
+                            <div>5540 <small>ккал</small></div>
                         </div>
-
-                    </li>
-                </ul>
-
-                <!-- list of products added to the ration  -->
-                <ul class="list-group list-height-limit">
-                    <li v-for="element in dailyRationStore.dailyRation" :key="element.type + 'i' + element.id"
-                        class="list-group-item">
-
-                        <div class="hstack gap-1">
-                            <div style="">
-                                <div :title="element.name" class="daily-ration-element-name">
-                                    {{ element.name }}
-                                </div>
-                                <small>ккал</small>
-                            </div>
-
-                            <div class="input-group input-group-sm">
-                                <input type="text" class="form-control" aria-label="Text input with radio button"
-                                    :value="element.count">
-                                <span class="input-group-text">гр.</span>
-                            </div>
-                            <a class=" btn btn-outline-warning btn-sm ">del</a>
+                        <div class="vr"></div>
+                        <div>
+                            <small>Углеводы</small>
+                            <div>134 <small>гр.</small></div>
                         </div>
+                        <div class="vr"></div>
+                        <div>
+                            <small>Белки</small>
+                            <div>84 <small>гр.</small></div>
+                        </div>
+                        <div class="vr"></div>
+                        <div>
+                            <small>Жиры</small>
+                            <div>77 <small>гр.</small></div>
+                        </div>
+                    </div>
+                </div>
 
-                    </li>
-                </ul>
+
+
+                <div class="d-grid mb-2">
+                </div>
+
+                <div class="products-lists-container">
+                    <!-- list of selected products -->
+                    <ul class="list-group list-group-flush mb-1">
+                        <li v-for="(element, el_index) in dailyRationStore.selectedProducts"
+                            :key="element.type + 'i' + element.id" class="list-group-item ">
+
+                            <ProductCardMin :product="element" :is-editable="true" :index="el_index"
+                                @on-click-close-btn="delAddedProduct" />
+
+                        </li>
+                    </ul>
+
+                    <div class="vstack products-lists-separator mb-1">
+                        <small class="mx-auto px-2 border border-bottom-0 rounded-top border-info-subtle">Добавляемые
+                            продукты</small>
+                        <div class="horizontal-separator border-top border-info-subtle mb-2"></div>
+                        <div class="horizontal-separator border-bottom border-success-subtle"></div>
+                        <small class="mx-auto px-2 border border-top-0 rounded-bottom border-success-subtle">Продукты в
+                            рационе</small>
+                    </div>
+
+                    <!-- list of products added to the ration  -->
+                    <ul class="list-group list-group-flush">
+                        <li v-for="(element, el_index) in dailyRationStore.dailyRationProducts"
+                            :key="element.daily_ration_id + 'i' + element.id" class="list-group-item">
+
+                            <ProductCardMin :product="element" :is-editable="true" :index="el_index"
+                                @on-click-close-btn="delProductFromRation" />
+
+                        </li>
+                    </ul>
+                </div>
 
                 <!-- ration summary -->
                 <div class="position-absolute bottom-0 start-0 end-0 w-100 mb-2 ps-2 pe-2">
 
-                    <div class="d-flex mb-1 ps-2 pe-2 border rounded justify-content-between text-center">
-                        <div>
-                            <small>Калории</small>
-                            <div>540 <small>ккал</small></div>
-                        </div>
-                        <div>
-                            <small>Углеводы</small>
-                            <div>34 <small>гр.</small></div>
-                        </div>
-                        <div>
-                            <small>Белки</small>
-                            <div>14 <small>гр.</small></div>
-                        </div>
-                        <div>
-                            <small>Жиры</small>
-                            <div>7 <small>гр.</small></div>
-                        </div>
-                    </div>
-                    <div class="d-grid">
-                        <button class="btn btn-primary" type="button">Сохранить рацион</button>
-                    </div>
                 </div>
             </form>
         </div>
@@ -201,5 +202,18 @@ function showSearch(event) {
     text-overflow: ellipsis;
     white-space: nowrap;
     overflow: hidden;
+}
+
+.products-lists-container {
+    height: 65vh;
+    overflow-y: scroll;
+    scrollbar-width: thin;
+
+    .products-lists-separator {
+        .horizontal-separator {
+            width: 100%;
+            height: 2px;
+        }
+    }
 }
 </style>
