@@ -2,9 +2,17 @@
 
 @import '../../node_modules/bootstrap/scss/bootstrap.scss';
 
+@font-face {
+  font-family: 'Fira Sans';
+  font-style: normal;
+  font-display: swap;
+  font-weight: 400;
+  src: url('fonts/fira-sans-cyrillic-400-normal.woff2') format('woff2');
+}
 /* @import "../bootstrap/scss/bootstrap"; */
 
 #app {
+  font-family: 'Fira Sans';
   max-width: 1280px;
   margin: 0 auto;
   padding: 0 0rem;

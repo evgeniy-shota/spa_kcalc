@@ -7,7 +7,7 @@ const searchStore = useSearchesStore();
 const props = defineProps({
     timeDelayMs: {
         type: Number,
-        default: 2000
+        default: 1500
     },
     searchLabel: {
         type: String,

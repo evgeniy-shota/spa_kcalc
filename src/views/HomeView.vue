@@ -57,7 +57,7 @@ function hideSearch() {
 function selectElement(element) {
   // console.log('Selected element');
   // console.log(element);
-  dailyRationStore.selectedProducts.push(element);
+  dailyRationStore.addProduct(element);
   hideSearch();
 
 }

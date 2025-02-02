@@ -21,13 +21,28 @@ export const useDailyRationsStore = defineStore('dailyRations', () => {
 
     for (product in selectedProducts) {
       prValue.kcalory += product.kcalory
-      prValue.carbohydrates += product.carbohydratees
+      prValue.carbohydrates += product.carbohydrates
       prValue.proteins += product.proteins
       prValue.fats += product.fats
     }
 
     return prValue
   })
+
+  function addProduct(product) {
+    let newProduct = {
+      time_of_use: '07:51:02',
+      daily_ration_id: dailyRation.value.id,
+      product_id: product.id,
+      name: product.name,
+      quantity: product.quantity,
+      kcalory: product.kcalory,
+      proteins: product.proteins,
+      carbohydrates: product.carbohydrates,
+      fats: product.fats,
+    }
+    selectedProducts.value.push(newProduct)
+  }
 
   async function saveRation() {
     try {
@@ -102,6 +117,7 @@ export const useDailyRationsStore = defineStore('dailyRations', () => {
     dailyRationValue,
     selectedProductsValue,
     dailyRationProducts,
+    addProduct,
     deleteSelectedProduct,
     deleteProductFromRation,
     saveRation,
