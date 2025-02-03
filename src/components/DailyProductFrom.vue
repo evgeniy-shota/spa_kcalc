@@ -36,6 +36,11 @@ function delProductFromRation(index) {
     dailyRationStore.deleteProductFromRation(index);
 }
 
+function changeProductQuantity(index, quantity) {
+    console.log('Change quantity id -' + index + ':' + quantity);
+    dailyRationStore.changeSelectedProductQuantity(index, quantity)
+}
+
 async function saveCurrentRation() {
     console.log('Save ration');
     const respons = await dailyRationStore.saveRation();
@@ -50,10 +55,10 @@ async function saveCurrentRation() {
 
 <template>
     <!-- ps-2 pe-2 pt-2  -->
-    <div class="card daily-view-container">
-        <div class="card-header">
+    <div class="card daily-view-container border border-light">
+        <div class="card-header bg-light-subtle border-light-suntitle">
             <div class="hstack gap-1 justify-content-between">
-                <h6 class="mb-1">Дневной рацион</h6>
+                <h6 class="mb-1">Дневной рацион \date\ add descr\</h6>
                 <small>help</small>
             </div>
         </div>
@@ -74,30 +79,41 @@ async function saveCurrentRation() {
                     </div>
                 </div>
 
-                <div class="border  rounded">
-                    <div class="px-2 py-1">
+                <div class="border rounded bg-light-subtle border-light-suntitle">
+                    <div class="px-2 py-1 text-center">
                         Общая пищевая ценность рациона
                     </div>
                     <div class="d-flex ps-2 pe-2 border-top justify-content-around text-center">
 
                         <div>
                             <small>Калории</small>
-                            <div>5540 <small>ккал</small></div>
+                            <div>{{ dailyRationStore.dailyRationEnergyValue.kcalory }} <small>ккал</small></div>
+                            <div v-show="dailyRationStore.selectedProducts.length > 0">+ {{
+                                dailyRationStore.selectedProductsValue.kcalory }} <small>ккал</small></div>
                         </div>
                         <div class="vr"></div>
                         <div>
                             <small>Углеводы</small>
-                            <div>134 <small>гр.</small></div>
+                            <div>{{ dailyRationStore.dailyRationEnergyValue.carbohydrates }} <small>гр.</small></div>
+                            <div v-show="dailyRationStore.selectedProducts.length > 0">+ {{
+                                dailyRationStore.selectedProductsValue.carbohydrates }} <small>гр.</small></div>
+
                         </div>
                         <div class="vr"></div>
                         <div>
                             <small>Белки</small>
-                            <div>84 <small>гр.</small></div>
+                            <div>{{ dailyRationStore.dailyRationEnergyValue.proteins }} <small>гр.</small></div>
+                            <div v-show="dailyRationStore.selectedProducts.length > 0">+ {{
+                                dailyRationStore.selectedProductsValue.proteins }} <small>гр.</small></div>
+
                         </div>
                         <div class="vr"></div>
                         <div>
                             <small>Жиры</small>
-                            <div>77 <small>гр.</small></div>
+                            <div>{{ dailyRationStore.dailyRationEnergyValue.fats }} <small>гр.</small></div>
+                            <div v-show="dailyRationStore.selectedProducts.length > 0">+ {{
+                                dailyRationStore.selectedProductsValue.fats }} <small>гр.</small></div>
+
                         </div>
                     </div>
                 </div>
@@ -111,10 +127,11 @@ async function saveCurrentRation() {
                     <!-- list of selected products -->
                     <ul class="list-group list-group-flush mb-1">
                         <li v-for="(element, el_index) in dailyRationStore.selectedProducts"
-                            :key="element.type + 'i' + element.id" class="list-group-item ">
+                            :key="element.type + 'i' + element.id"
+                            class="list-group-item bg-light-subtle border-light-subtle mb-1">
 
                             <ProductCardMin :product="element" :is-editable="true" :index="el_index"
-                                @on-click-close-btn="delAddedProduct" />
+                                @on-click-close-btn="delAddedProduct" @on-cange-quantity="changeProductQuantity" />
 
                         </li>
                     </ul>
@@ -131,7 +148,8 @@ async function saveCurrentRation() {
                     <!-- list of products added to the ration  -->
                     <ul class="list-group list-group-flush">
                         <li v-for="(element, el_index) in dailyRationStore.dailyRationProducts"
-                            :key="element.daily_ration_id + 'i' + element.id" class="list-group-item">
+                            :key="element.daily_ration_id + 'i' + element.id"
+                            class="list-group-item bg-light-subtle border-light-subtle mb-1">
 
                             <ProductCardMin :product="element" :is-editable="true" :index="el_index"
                                 @on-click-close-btn="delProductFromRation" />
@@ -174,8 +192,8 @@ async function saveCurrentRation() {
 
 <style lang="scss">
 .list-height-limit {
-    max-height: 4i0vh;
-    height: 40vh;
+    max-height: 40vh;
+    height: 35vh;
     overflow-y: scroll;
     scrollbar-width: thin;
 }

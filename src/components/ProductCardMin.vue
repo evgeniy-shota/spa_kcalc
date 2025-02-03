@@ -32,6 +32,12 @@ const emit = defineEmits({
         }
         return false;
     },
+    onCangeQuantity: (id, quantity) => {
+        if (id !== null && id !== undefined && quantity >= 0) {
+            return true;
+        }
+        return false;
+    },
 
 });
 
@@ -41,7 +47,7 @@ const emit = defineEmits({
     <div class="row">
         <div class="col-11 px-1">
             <div class="row">
-                <div class="col mb-1">
+                <div class="col mb-2">
                     <div :title="product.name" class="daily-ration-element-name">
                         {{ product.name }}
                     </div>
@@ -52,7 +58,8 @@ const emit = defineEmits({
                 <div class="col-3 pe-1">
                     <div class="input-group input-group-sm">
                         <span class="input-group-text">Вес (гр)</span>
-                        <input type="text" class="form-control px-1" aria-label="Text input with radio button"
+                        <input type="text" @change="emit('onCangeQuantity', productId, $event.target.value)"
+                            class="form-control px-1" aria-label="Text input with radio button"
                             :value="product.quantity">
                     </div>
                 </div>
@@ -62,7 +69,7 @@ const emit = defineEmits({
                     <div class="input-group input-group-sm">
                         <span :title='"Калории: " + product.kcalory + " ккал"' class="input-group-text">К: {{
                             product.kcalory
-                        }}</span>
+                            }}</span>
                         <span class="input-group-text">Б: {{ product.proteins }} гр.</span>
                         <span class="input-group-text">Ж: {{ product.fats }} гр.</span>
                         <span class="input-group-text">У: {{ product.carbohydrates }} гр.</span>

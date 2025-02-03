@@ -10,7 +10,7 @@ const props = defineProps({
 
 <template>
     <header>
-        <nav class="navbar navbar-expand-lg bg-body-tertiary border rounded-bottom-2">
+        <nav class="navbar navbar-expand-lg bg-light-subtle border border-light rounded-bottom-2">
             <div class="container-fluid">
                 <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
                     data-bs-target="#navbarTogglerDemo03" aria-controls="navbarTogglerDemo03" aria-expanded="false"
@@ -18,29 +18,29 @@ const props = defineProps({
                     <span class="navbar-toggler-icon"></span>
                 </button>
 
-                <a class="navbar-brand" href="#">Kcalc</a>
+                <RouterLink class="navbar-brand" to="/">Kcalc</RouterLink>
 
                 <div class="collapse navbar-collapse" id="navbarTogglerDemo03">
                     <ul class="navbar-nav me-auto mb-2 mb-lg-0">
                         <li class="nav-item">
-                            <RouterLink class="nav-link active" aria-current="page" to="/">Главная</RouterLink>
+                            <RouterLink class="nav-link px-3 active" aria-current="page" to="/">Главная</RouterLink>
                         </li>
 
                         <li class="nav-item">
-                            <RouterLink class="nav-link" to="/products">Продукты</RouterLink>
+                            <RouterLink class="nav-link px-3" to="/products">Продукты</RouterLink>
                         </li>
 
                         <li class="nav-item">
-                            <RouterLink class="nav-link" to="/diet">Диета
+                            <RouterLink class="nav-link px-3" to="/diet">Диета
                             </RouterLink>
                         </li>
 
                         <li class="nav-item">
-                            <RouterLink class="nav-link" to="/activity">Активности</RouterLink>
+                            <RouterLink class="nav-link px-3" to="/activity">Активности</RouterLink>
                         </li>
 
                         <li class="nav-item">
-                            <RouterLink class="nav-link disabled" to="/statistic">Статистика</RouterLink>
+                            <RouterLink class="nav-link px-3 disabled" to="/statistic">Статистика</RouterLink>
                         </li>
                     </ul>
 

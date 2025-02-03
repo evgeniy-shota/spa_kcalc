@@ -11,6 +11,12 @@
 }
 /* @import "../bootstrap/scss/bootstrap"; */
 
+body {
+  background-color: rgb(237, 238, 240);
+
+  /* background-color: #edeef0; */
+}
+
 #app {
   font-family: 'Fira Sans';
   max-width: 1280px;
@@ -19,10 +25,7 @@
   font-weight: normal;
 }
 
-/* body {
-  background-color: #edeef0;
-}
-
+/* 
 .col,
 .col-7,
 .col-8,
