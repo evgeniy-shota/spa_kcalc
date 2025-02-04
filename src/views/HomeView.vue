@@ -14,13 +14,15 @@ const searchStore = useSearchesStore();
 const dailyRationStore = useDailyRationsStore();
 
 const searchTitle = ref("");
+const searchText = ref(null);
 const searchInputLabel = ref("");
 const searchedResource = ref("");
 
 const searchInputProps = computed(() => {
   return {
+    searchText: searchText.value,
     searchLabel: searchInputLabel.value,
-    timeDelayMs: 2000,
+    timeDelayMs: 1000,
   }
 });
 
@@ -40,10 +42,11 @@ const showSearchWindow = ref(false);
 function showSearch(windowTitle, searchLabel, searchedRes) {
 
   // reset searcheStore if current search resource differs from previously
-  if (searchedRes != searchStore.searchedResource) {
+  if (searchedRes != searchStore.searchedResourse) {
     searchStore.$reset();
   }
 
+  searchText.value = "";
   searchTitle.value = windowTitle;
   searchInputLabel.value = searchLabel;
   showSearchWindow.value = true;
@@ -55,8 +58,7 @@ function hideSearch() {
 }
 
 function selectElement(element) {
-  // console.log('Selected element');
-  // console.log(element);
+
   dailyRationStore.addProduct(element);
   hideSearch();
 
@@ -75,7 +77,8 @@ function selectElement(element) {
     v-on:hide-window="hideSearch" :window-title="searchTitle">
 
     <template #searchInput="{ propsForSlot }">
-      <SearchInput :search-label="propsForSlot.searchLabel" :time-delay-ms="propsForSlot.timeDelayMs" />
+      <SearchInput :search-label="propsForSlot.searchLabel" :time-delay-ms="propsForSlot.timeDelayMs"
+        :search-text="propsForSlot.searchText" />
     </template>
 
     <template #searchOutput="{ propsForSlot }">

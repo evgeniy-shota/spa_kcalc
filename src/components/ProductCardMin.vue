@@ -1,6 +1,10 @@
 <script setup>
 import { computed, ref } from 'vue';
 import IconCloseXlg from './icons/IconCloseXlg.vue';
+import router from '@/router';
+import roundTo from '@/resource/js/mathFunctions';
+
+let timerId = null;
 
 const props = defineProps({
     product: {
@@ -14,6 +18,19 @@ const props = defineProps({
     index: {
         type: Number,
         default: null
+    },
+    timerDelayMs: {
+        type: Number,
+        default: 300,
+    }
+});
+
+const productEnergyValue = computed(() => {
+    return {
+        kcalory: roundTo(props.product.kcalory_per_unit * props.product.quantity),
+        proteins: roundTo(props.product.proteins_per_unit * props.product.quantity),
+        carbohydrates: roundTo(props.product.carbohydrates_per_unit * props.product.quantity),
+        fats: roundTo(props.product.fats_per_unit * props.product.quantity),
     }
 });
 
@@ -38,8 +55,27 @@ const emit = defineEmits({
         }
         return false;
     },
+    onInputQuantity: (id, quantity) => {
+        if (id !== null && id !== undefined && quantity >= 0) {
+            return true;
+        }
+        return false;
+    },
 
 });
+
+function inputQuantity(event, productId) {
+
+    let quantity = event.target.value.length == 0 ? 0 : event.target.value;
+
+    if (timerId != null) {
+        clearTimeout(timerId);
+        timerId = null;
+    }
+
+    timerId = setTimeout(() => emit('onInputQuantity', productId, quantity), props.timerDelayMs);
+
+}
 
 </script>
 
@@ -58,37 +94,30 @@ const emit = defineEmits({
                 <div class="col-3 pe-1">
                     <div class="input-group input-group-sm">
                         <span class="input-group-text">Вес (гр)</span>
-                        <input type="text" @change="emit('onCangeQuantity', productId, $event.target.value)"
-                            class="form-control px-1" aria-label="Text input with radio button"
-                            :value="product.quantity">
+                        <input type="number" min="0" max="1000"
+                            onkeypress='return event.charCode >= 48 && event.charCode <= 57'
+                            @change="emit('onCangeQuantity', productId, $event.target.value)"
+                            @input="inputQuantity($event, productId)" class="form-control px-1"
+                            aria-label="Text input with radio button" :value="product.quantity">
                     </div>
                 </div>
 
                 <div class="col ps-1">
 
                     <div class="input-group input-group-sm">
-                        <span :title='"Калории: " + product.kcalory + " ккал"' class="input-group-text">К: {{
-                            product.kcalory
-                            }}</span>
-                        <span class="input-group-text">Б: {{ product.proteins }} гр.</span>
-                        <span class="input-group-text">Ж: {{ product.fats }} гр.</span>
-                        <span class="input-group-text">У: {{ product.carbohydrates }} гр.</span>
+                        <span :title='"Калории: " + productEnergyValue.kcalory + " ккал"' class="input-group-text">К: {{
+                            productEnergyValue.kcalory
+                        }}</span>
+                        <span class="input-group-text">Б: {{ productEnergyValue.proteins }} гр.</span>
+                        <span class="input-group-text">Ж: {{ productEnergyValue.fats }} гр.</span>
+                        <span class="input-group-text">У: {{ productEnergyValue.carbohydrates }} гр.</span>
                     </div>
                 </div>
-                <!-- <div class="col">
-                    <div class="hstack gap-1">
-                        <small class="">К: {{ product.kcalory }} ккал</small>
-                        <small class="">Б: {{ product.proteins }} гр.</small>
-                        <small class="">Ж: {{ product.fats }} гр.</small>
-                        <small class="">У: {{ product.carbohydrates }} гр.</small>
-                    </div>
-                </div> -->
+
             </div>
         </div>
 
         <div class="col px-0 my-auto">
-            <!-- <button type="button" class="btn-close" aria-label="Close"></button> -->
-            <!-- <div class="d-flex align-item-center justify-content-center"> -->
 
             <button type="button" class="btn btn-sm btn-light" @click="emit('onClickCloseBtn', productId)">
                 <IconCloseXlg />
@@ -98,4 +127,17 @@ const emit = defineEmits({
     </div>
 </template>
 
-<style lang="scss"></style>
+<style lang="scss">
+/* Chrome, Safari, Edge, Opera */
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+/* Firefox */
+input[type=number] {
+    -moz-appearance: textfield;
+    appearance: textfield;
+}
+</style>

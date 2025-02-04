@@ -1,8 +1,12 @@
 <script setup>
-import { computed, onBeforeMount, ref, watch } from 'vue';
-import SearchInput from './SearchInput.vue';
+import { onBeforeMount } from 'vue';
+// import SearchInput from './SearchInput.vue';
 import { useDailyRationsStore } from '@/stores/dailyRationsStore';
 import ProductCardMin from './ProductCardMin.vue';
+// import IconPlusSquare from './icons/IconPlusSquare.vue';
+import IconPlusLg from './icons/IconPlusLg.vue';
+import IconCheckLg from './icons/IconCheckLg.vue';
+import IconQuestionCircle from './icons/IconQuestionCircle.vue';
 // const selectedProducts = ref([]);
 // const dailyRationSearchQuery = ref("");
 
@@ -22,7 +26,9 @@ const emit = defineEmits({
 });
 
 function showSearch(event) {
-    let title = 'Поиск продуктов', searchLabel = 'Введите название продукта или диеты', searchedResource = 'products'
+    let title = 'Поиск продуктов',
+        searchLabel = 'Введите название продукта или диеты',
+        searchedResource = 'products'
     emit('showSearch', title, searchLabel, searchedResource)
 }
 
@@ -39,6 +45,10 @@ function delProductFromRation(index) {
 function changeProductQuantity(index, quantity) {
     console.log('Change quantity id -' + index + ':' + quantity);
     dailyRationStore.changeSelectedProductQuantity(index, quantity)
+}
+
+function changeRationProductQuantity(index, quantity) {
+    dailyRationStore.changeRationProductQuantity(index, quantity);
 }
 
 async function saveCurrentRation() {
@@ -58,8 +68,11 @@ async function saveCurrentRation() {
     <div class="card daily-view-container border border-light">
         <div class="card-header bg-light-subtle border-light-suntitle">
             <div class="hstack gap-1 justify-content-between">
-                <h6 class="mb-1">Дневной рацион \date\ add descr\</h6>
-                <small>help</small>
+                <!-- add descr -->
+                <h6 class="mb-1">Дневной рацион: {{ dailyRationStore.dailyRation.date }} </h6>
+                <small>
+                    <IconQuestionCircle />
+                </small>
             </div>
         </div>
         <!-- daily-form-container -->
@@ -69,13 +82,17 @@ async function saveCurrentRation() {
 
                 <div class="row mb-2">
                     <div class="col d-grid pe-1">
-                        <button @click="showSearch" class="btn btn-outline-primary" type="button">Добавить
-                            продукт</button>
+                        <button @click="showSearch" class="btn btn-outline-primary" type="button">
+                            <IconPlusLg />
+                            Добавить продукт
+                        </button>
                     </div>
 
                     <div class="col d-grid ps-1">
-                        <button @click="saveCurrentRation" class="btn btn-outline-success" type="button">Сохранить
-                            рацион</button>
+                        <button @click="saveCurrentRation" class="btn btn-outline-success" type="button">
+                            <IconCheckLg />
+                            Сохранить рацион
+                        </button>
                     </div>
                 </div>
 
@@ -130,8 +147,11 @@ async function saveCurrentRation() {
                             :key="element.type + 'i' + element.id"
                             class="list-group-item bg-light-subtle border-light-subtle mb-1">
 
+                            <!-- добавить индикацию измененных элементов -->
+
                             <ProductCardMin :product="element" :is-editable="true" :index="el_index"
-                                @on-click-close-btn="delAddedProduct" @on-cange-quantity="changeProductQuantity" />
+                                @on-click-close-btn="delAddedProduct" @on-cange-quantity="changeProductQuantity"
+                                @on-input-quantity="changeProductQuantity" />
 
                         </li>
                     </ul>
@@ -152,7 +172,8 @@ async function saveCurrentRation() {
                             class="list-group-item bg-light-subtle border-light-subtle mb-1">
 
                             <ProductCardMin :product="element" :is-editable="true" :index="el_index"
-                                @on-click-close-btn="delProductFromRation" />
+                                @on-click-close-btn="delProductFromRation"
+                                @on-input-quantity="changeRationProductQuantity" />
 
                         </li>
                     </ul>

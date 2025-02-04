@@ -2,13 +2,14 @@ import { defineStore } from 'pinia'
 import { computed, ref } from 'vue'
 import axios_instance from '@/resource/js/axiosInstance'
 import getTime from '@/resource/js/dateTime'
+import roundTo from '@/resource/js/mathFunctions'
 
 export const useDailyRationsStore = defineStore('dailyRations', () => {
   const URL_API_DAILYRATION = 'api/daily-rations/'
 
   const dailyRation = ref({})
   const dailyRations = ref([])
-  const dailyRationEnergyValue = ref({ kcalory: 0, carbohydrates: 0, proteins: 0, fats: 0 })
+  // const dailyRationEnergyValue = ref({ kcalory: 0, carbohydrates: 0, proteins: 0, fats: 0 })
   const dailyRationProducts = ref([])
   const selectedProducts = ref([])
 
@@ -23,12 +24,29 @@ export const useDailyRationsStore = defineStore('dailyRations', () => {
     }
 
     for (let product of selectedProducts.value) {
-      prValue.kcalory += Number(product.kcalory)
-      prValue.carbohydrates += product.carbohydrates
-      prValue.proteins += product.proteins
-      prValue.fats += product.fats
+      prValue.kcalory += roundTo(product.kcalory_per_unit * product.quantity)
+      prValue.carbohydrates += roundTo(product.carbohydrates_per_unit * product.quantity)
+      prValue.proteins += roundTo(product.proteins_per_unit * product.quantity)
+      prValue.fats += roundTo(product.fats_per_unit * product.quantity)
     }
 
+    return prValue
+  })
+
+  const dailyRationEnergyValue = computed(() => {
+    let prValue = {
+      kcalory: 0,
+      carbohydrates: 0,
+      proteins: 0,
+      fats: 0,
+    }
+
+    for (let product of dailyRationProducts.value) {
+      prValue.kcalory += roundTo(product.kcalory_per_unit * product.quantity)
+      prValue.carbohydrates += roundTo(product.carbohydrates_per_unit * product.quantity)
+      prValue.proteins += roundTo(product.proteins_per_unit * product.quantity)
+      prValue.fats += roundTo(product.fats_per_unit * product.quantity)
+    }
     return prValue
   })
 
@@ -39,10 +57,10 @@ export const useDailyRationsStore = defineStore('dailyRations', () => {
       product_id: product.id,
       name: product.name,
       quantity: product.quantity,
-      kcalory: product.kcalory,
-      proteins: product.proteins,
-      carbohydrates: product.carbohydrates,
-      fats: product.fats,
+      kcalory_per_unit: roundTo(product.kcalory / product.quantity_to_calculate),
+      proteins_per_unit: roundTo(product.proteins / product.quantity_to_calculate),
+      carbohydrates_per_unit: roundTo(product.carbohydrates / product.quantity_to_calculate),
+      fats_per_unit: roundTo(product.fats / product.quantity_to_calculate),
     }
     selectedProducts.value.push(newProduct)
   }
@@ -59,7 +77,7 @@ export const useDailyRationsStore = defineStore('dailyRations', () => {
         selectedProducts.value.length = 0
         dailyRation.value = response.data.data
         dailyRationProducts.value = dailyRation.value.products
-        dailyRationEnergyValue.value = dailyRation.value.rationEnergyValue
+        // dailyRationEnergyValue.value = dailyRation.value.rationEnergyValue
         return { result: 'success' }
       }
     } catch (error) {
@@ -85,6 +103,12 @@ export const useDailyRationsStore = defineStore('dailyRations', () => {
   function changeSelectedProductQuantity(index, quantity) {
     if (typeof index == 'number' && selectedProducts.value[index] != undefined) {
       selectedProducts.value[index].quantity = quantity
+    }
+  }
+
+  function changeRationProductQuantity(index, quantity) {
+    if (typeof index == 'number' && dailyRationProducts.value[index] != undefined) {
+      dailyRationProducts.value[index].quantity = quantity
     }
   }
 
@@ -140,6 +164,7 @@ export const useDailyRationsStore = defineStore('dailyRations', () => {
     deleteSelectedProduct,
     deleteProductFromRation,
     changeSelectedProductQuantity,
+    changeRationProductQuantity,
     saveRation,
     getDailyRation,
     getDailyRations,

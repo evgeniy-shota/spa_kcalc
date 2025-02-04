@@ -13,6 +13,7 @@ export const useSearchesStore = defineStore('searches', () => {
   const searchResult = ref(false)
   const searchResponse = ref(null)
   const searchResponseTotalCount = ref(0)
+  const searchHistory = ref([])
 
   function $reset() {
     // searchActivitiesResult = false
@@ -67,6 +68,7 @@ export const useSearchesStore = defineStore('searches', () => {
     searchResult,
     searchResponseTotalCount,
     searchedResourse,
+    searchHistory,
     // searchActivitiesResult,
     // searchRationResult,
     searchActivities,

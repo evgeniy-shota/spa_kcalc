@@ -1,6 +1,7 @@
 <script setup>
 import { computed, ref, watch } from 'vue';
 import { useSearchesStore } from '@/stores/SearchesStore';
+import IconSearch from './icons/IconSearch.vue';
 
 
 const searchStore = useSearchesStore();
@@ -16,6 +17,10 @@ const props = defineProps({
     searchPlaseholder: {
         type: String,
         default: 'Для начала поиска введите не менее 3х символов',
+    },
+    searchText: {
+        type: String,
+        default: null,
     },
 });
 
@@ -35,6 +40,16 @@ const searchIsComplete = ref(false);
 let searchTimerId = null;
 
 // add showing small search result when no match found
+
+watch(() => props.searchText, () => {
+    if (props.searchText.length > 0) {
+        searchInputText.value = props.searchText;
+    } else {
+        searchInputText.value = ""
+    }
+});
+
+// нужно сделать очистку поисковой строки
 
 watch(searchInputText, () => {
     if (searchTimerId != null) {
