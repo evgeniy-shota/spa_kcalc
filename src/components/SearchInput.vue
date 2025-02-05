@@ -3,7 +3,6 @@ import { computed, ref, watch } from 'vue';
 import { useSearchesStore } from '@/stores/SearchesStore';
 import IconSearch from './icons/IconSearch.vue';
 
-
 const searchStore = useSearchesStore();
 const props = defineProps({
     timeDelayMs: {
@@ -18,20 +17,12 @@ const props = defineProps({
         type: String,
         default: 'Для начала поиска введите не менее 3х символов',
     },
-    searchText: {
+    searchedResource: {
         type: String,
-        default: null,
+        default: "products",
     },
-});
 
-// const emit = defineEmits({
-//     searchEvent(searchQuery) {
-//         if (searchQuery) {
-//             return true;
-//         }
-//         return false;
-//     }
-// });
+});
 
 const searchInputText = ref("");
 const searchInProgress = ref(false);
@@ -39,17 +30,16 @@ const searchIsComplete = ref(false);
 
 let searchTimerId = null;
 
-// add showing small search result when no match found
+// нужно сделать очистку поисковой строки 
 
-watch(() => props.searchText, () => {
-    if (props.searchText.length > 0) {
-        searchInputText.value = props.searchText;
-    } else {
-        searchInputText.value = ""
-    }
-});
+// searchStore.$subscribe((searchHistory) => {
+//     searchInputText.value = 0;
+// });
 
-// нужно сделать очистку поисковой строки
+watch(searchStore.searchHistory, () => {
+    searchInputText.value = ''
+})
+
 
 watch(searchInputText, () => {
     if (searchTimerId != null) {
@@ -63,6 +53,19 @@ watch(searchInputText, () => {
 
 });
 
+const searchHistory = computed(() => {
+    let history = searchStore.getSearchHistory(props.searchedResource);
+
+    if (history.length > 4) {
+        return history.slice(0, 4)
+    }
+
+    return history;
+});
+
+function setSearchRequeest(text) {
+    searchInputText.value = text
+}
 
 async function search() {
 
@@ -84,6 +87,10 @@ async function search() {
             <input type="text" id="inputSearch" v-model="searchInputText" class="form-control"
                 :class="{ 'search-in-progress': searchInProgress }" v-bind:placeholder="props.searchPlaseholder"
                 aria-label="" aria-describedby="button-addon2">
+        </div>
+        <div> История поиска:
+            <a v-for="elem in searchHistory" @click="setSearchRequeest(elem.request)" class="link-offset-2 me-2">{{
+                elem.request }}</a>
         </div>
 
     </div>

@@ -1,7 +1,7 @@
 import { defineStore } from 'pinia'
 import { computed, ref } from 'vue'
 import axios_instance from '@/resource/js/axiosInstance'
-import getTime from '@/resource/js/dateTime'
+import { getTime, getDate } from '@/resource/js/dateTime'
 import roundTo from '@/resource/js/mathFunctions'
 
 export const useDailyRationsStore = defineStore('dailyRations', () => {
@@ -66,7 +66,6 @@ export const useDailyRationsStore = defineStore('dailyRations', () => {
   }
 
   async function saveRation() {
-    let date = new Date()
     try {
       const response = await axios_instance.patch(URL_API_DAILYRATION + dailyRation.value.id, {
         ration: dailyRation.value,
@@ -112,9 +111,9 @@ export const useDailyRationsStore = defineStore('dailyRations', () => {
     }
   }
 
-  async function getDailyRation(id = 1) {
+  async function getDailyRation(date = getDate()) {
     try {
-      const response = await axios_instance.get(URL_API_DAILYRATION + id)
+      const response = await axios_instance.get(URL_API_DAILYRATION + date)
 
       if (response) {
         dailyRation.value = response.data.data

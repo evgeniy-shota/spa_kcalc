@@ -32,16 +32,16 @@ const emit = defineEmits({
     },
 });
 
-const searchIsComplete = ref(false);
+// const searchIsComplete = ref(false);
 
-watch(() => props.searchResult, () => {
-    if (props.searchResult == null) {
-        searchIsComplete.value = false;
-    }
-    else {
-        searchIsComplete.value = true;
-    }
-});
+// watch(() => props.searchResult, () => {
+//     if (props.searchResult == null) {
+//         searchIsComplete.value = false;
+//     }
+//     else {
+//         searchIsComplete.value = true;
+//     }
+// });
 
 const resultLabel = computed(() => {
     if (props.isNothingFound) {

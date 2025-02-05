@@ -60,6 +60,7 @@ function hideSearch() {
 function selectElement(element) {
 
   dailyRationStore.addProduct(element);
+  searchStore.saveRequestToHistory();
   hideSearch();
 
 }

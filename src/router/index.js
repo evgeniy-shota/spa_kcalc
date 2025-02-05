@@ -1,4 +1,5 @@
 import { createRouter, createWebHistory } from 'vue-router'
+import { useUsersStore } from '@/stores/usersStore'
 import HomeView from '../views/HomeView.vue'
 import ProductsView from '@/views/ProductsView.vue'
 import StatisticView from '@/views/StatisticView.vue'
@@ -8,6 +9,8 @@ import WelcomView from '@/views/WelcomView.vue'
 import LoginView from '@/views/LoginView.vue'
 import RegistrationView from '@/views/RegistrationView.vue'
 import LogoutView from '@/views/LogoutView.vue'
+
+const UNAUTHORUZED_ACSESS_ALLOWED = ['welcome', 'products', 'registration', 'login']
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -63,6 +66,17 @@ const router = createRouter({
       component: LogoutView,
     },
   ],
+})
+
+// redirect to welcome view if user is unauthorized or route name != login, registration, welcome
+router.beforeEach((to, from) => {
+  const userStore = useUsersStore()
+
+  if (userStore.userIsAuthorized || UNAUTHORUZED_ACSESS_ALLOWED.includes(to.name)) {
+    return true
+  }
+
+  return { name: 'welcome' }
 })
 
 export default router

@@ -13,7 +13,7 @@ import IconQuestionCircle from './icons/IconQuestionCircle.vue';
 const dailyRationStore = useDailyRationsStore();
 
 onBeforeMount(() => {
-    dailyRationStore.getDailyRation(1);
+    dailyRationStore.getDailyRation();
 });
 
 const emit = defineEmits({

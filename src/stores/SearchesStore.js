@@ -9,7 +9,8 @@ export const useSearchesStore = defineStore('searches', () => {
   // const searchRationResult = ref(false)
   // const searchRationResponse = ref(null)
 
-  const searchedResourse = ref('')
+  const searchRequest = ref('')
+  const searchedResource = ref('')
   const searchResult = ref(false)
   const searchResponse = ref(null)
   const searchResponseTotalCount = ref(0)
@@ -20,16 +21,18 @@ export const useSearchesStore = defineStore('searches', () => {
     // searchActivitiesResponse = null
     // searchRationResult = false
     // searchRationResponse = null
-
-    searchedResourse.value = ''
+    searchRequest.value = ''
+    searchedResource.value = ''
     searchResult.value = false
     searchResponse.value = null
     searchResponseTotalCount.value = 0
+    searchHistory.value = []
   }
 
   async function searchProducts(searchQuery) {
     try {
-      searchedResourse.value = 'products'
+      searchedResource.value = 'products'
+      searchRequest.value = searchQuery
       const response = await axios_instance.get(URL_SEARCH + '?searchQuery=' + searchQuery)
 
       if (response.data.totalCountSearchResult != 0) {
@@ -60,17 +63,35 @@ export const useSearchesStore = defineStore('searches', () => {
   }
 
   function searchActivities(searchQuery) {
-    searchedResourse.value = 'activities'
+    searchedResource.value = 'activities'
+    searchRequest.value = searchQuery
+  }
+
+  function saveRequestToHistory() {
+    if (searchRequest.value.length > 2 && searchedResource.value.length != 0) {
+      searchHistory.value.push({
+        request: searchRequest.value,
+        resource: searchedResource.value,
+      })
+    }
+  }
+
+  function getSearchHistory(resource) {
+    let res = searchHistory.value.filter((item) => item.resource == resource)
+    return res.reverse()
   }
 
   return {
+    searchRequest,
     searchResponse,
     searchResult,
     searchResponseTotalCount,
-    searchedResourse,
+    searchedResourse: searchedResource,
     searchHistory,
     // searchActivitiesResult,
     // searchRationResult,
+    saveRequestToHistory,
+    getSearchHistory,
     searchActivities,
     searchProducts,
     $reset,
