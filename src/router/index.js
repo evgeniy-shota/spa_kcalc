@@ -69,13 +69,30 @@ const router = createRouter({
 })
 
 // redirect to welcome view if user is unauthorized or route name != login, registration, welcome
-router.beforeEach((to, from) => {
+router.beforeEach(async (to, from) => {
   const userStore = useUsersStore()
 
-  if (userStore.userIsAuthorized || UNAUTHORUZED_ACSESS_ALLOWED.includes(to.name)) {
+  const userIsAuthorized = await userStore.checkUserStatus()
+
+  // console.log(userIsAuthorized)
+
+  if (userIsAuthorized) {
+    if (to.name == 'welcome') {
+      if (from.name == 'welcome') {
+        return { name: 'home' }
+      }
+      // console.log('Not to welcome')
+      return { name: from.name }
+    }
     return true
   }
 
+  if (UNAUTHORUZED_ACSESS_ALLOWED.includes(to.name)) {
+    // console.log('AUTHORUZED or UNAUTHORUZED_ACSESS_ALLOWED')
+    return true
+  }
+
+  console.log('redirect to welcome')
   return { name: 'welcome' }
 })
 

@@ -37,6 +37,7 @@ let searchTimerId = null;
 // });
 
 watch(searchStore.searchHistory, () => {
+    console.log('history!')
     searchInputText.value = ''
 })
 

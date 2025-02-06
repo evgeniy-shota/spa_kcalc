@@ -72,6 +72,7 @@ export const useSearchesStore = defineStore('searches', () => {
       searchHistory.value.push({
         request: searchRequest.value,
         resource: searchedResource.value,
+        result: searchResponse.value.length > 0 ? true : false,
       })
     }
   }
@@ -79,6 +80,11 @@ export const useSearchesStore = defineStore('searches', () => {
   function getSearchHistory(resource) {
     let res = searchHistory.value.filter((item) => item.resource == resource)
     return res.reverse()
+  }
+
+  function clearSearchRes() {
+    searchResult.value = false
+    searchResponse.value = null
   }
 
   return {
@@ -90,6 +96,7 @@ export const useSearchesStore = defineStore('searches', () => {
     searchHistory,
     // searchActivitiesResult,
     // searchRationResult,
+    clearSearchRes,
     saveRequestToHistory,
     getSearchHistory,
     searchActivities,

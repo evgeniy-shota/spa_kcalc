@@ -1,6 +1,7 @@
 import { defineStore } from 'pinia'
-import { ref } from 'vue'
+import { computed, ref } from 'vue'
 import axios_instance from '../resource/js/axiosInstance'
+import { compile } from 'sass'
 
 const URL_API_USERS = 'api/users'
 const URL_API_LOGIN = '/api/login'
@@ -19,6 +20,23 @@ export const useUsersStore = defineStore('users', () => {
     userName.value = ''
     userIsBanned.value = false
     userIsAuthorized.value = false
+  }
+
+  async function checkUserStatus() {
+    try {
+      const response = await axios_instance.get(URL_API_USERS)
+
+      if (response.data.is_banned == true) {
+        return false
+      }
+
+      userIsAuthorized.value = true
+      return true
+    } catch (error) {
+      console.log('checkUserStatus fail')
+      userIsAuthorized.value = false
+      return false
+    }
   }
 
   const getToken = async () => {
@@ -184,6 +202,7 @@ export const useUsersStore = defineStore('users', () => {
     userName,
     userIsBanned,
     userIsAuthorized,
+    checkUserStatus,
     getToken,
     getCurrentUserInfo,
     login,

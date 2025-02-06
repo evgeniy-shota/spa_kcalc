@@ -40,7 +40,7 @@ const props = defineProps({
                         </li>
 
                         <li class="nav-item">
-                            <RouterLink class="nav-link px-3 disabled" to="/statistic">Статистика</RouterLink>
+                            <RouterLink class="nav-link px-3" to="/statistic">Статистика</RouterLink>
                         </li>
                     </ul>
 
