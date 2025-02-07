@@ -1,8 +1,17 @@
 <script setup>
+import { onMounted } from 'vue';
 import IconArrowLeftShort from './icons/IconArrowLeftShort.vue';
 import IconArrowRightShort from './icons/IconArrowRightShort.vue';
 import IconCloseX from './icons/IconCloseX.vue';
 import LineChart from './LineChart.vue';
+import { useStatisticStore } from '@/stores/statisticStore';
+
+const statisticStore = useStatisticStore();
+
+onMounted(() => {
+    statisticStore.getStatistic();
+});
+
 </script>
 
 <template>
