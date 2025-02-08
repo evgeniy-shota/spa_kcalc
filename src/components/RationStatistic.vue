@@ -1,5 +1,5 @@
 <script setup>
-import { onMounted } from 'vue';
+import { onBeforeMount, onMounted, ref } from 'vue';
 import IconArrowLeftShort from './icons/IconArrowLeftShort.vue';
 import IconArrowRightShort from './icons/IconArrowRightShort.vue';
 import IconCloseX from './icons/IconCloseX.vue';
@@ -8,8 +8,11 @@ import { useStatisticStore } from '@/stores/statisticStore';
 
 const statisticStore = useStatisticStore();
 
-onMounted(() => {
-    statisticStore.getStatistic();
+const fromDay = ref('2025-02-02');
+const toDay = ref('2025-02-09');
+
+onBeforeMount(() => {
+    statisticStore.getStatistic(fromDay.value, toDay.value);
 });
 
 </script>
@@ -56,7 +59,8 @@ onMounted(() => {
             <div class="row">
                 <div class="col">
                     <div class="chart-container">
-                        <LineChart />
+                        <LineChart v-if="statisticStore.statistics.data.length > 0"
+                            :dataset="statisticStore.statistics.data" />
                     </div>
                 </div>
             </div>
