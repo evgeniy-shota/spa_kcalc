@@ -19,7 +19,7 @@ onBeforeMount(() => {
 
 <template>
 
-    <div class="card">
+    <div class="card border border-light">
         <div class="card-header">Статистика питания</div>
         <div class="card-body">
 
@@ -27,14 +27,14 @@ onBeforeMount(() => {
             <div class="row">
                 <div class="col me-1">
                     <!-- input-group-sm -->
-                    <div class="input-group mb-2">
+                    <div class="input-group mb-2 ">
                         <span class="input-group-text" id="inputGroup-sizing-default">Период</span>
                         <select class="form-select" aria-label="Default select example">
                             <option selected value="1">День</option>
                             <option value="2">Неделя</option>
                             <option value="3">Месяц</option>
                         </select>
-                        <button class="btn btn-outline-secondary" type="button" id="button-addon1">
+                        <button class="btn btn-outline-secondary " type="button" id="button-addon1">
                             <IconCloseX :size="24" />
                         </button>
                     </div>

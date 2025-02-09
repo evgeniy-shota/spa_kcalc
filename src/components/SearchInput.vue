@@ -5,6 +5,14 @@ import IconSearch from './icons/IconSearch.vue';
 
 const searchStore = useSearchesStore();
 const props = defineProps({
+    searchRequest: {
+        type: String,
+        default: '',
+    },
+    searchIsComplete: {
+        type: Boolean,
+        default: false,
+    },
     timeDelayMs: {
         type: Number,
         default: 1500
@@ -21,12 +29,31 @@ const props = defineProps({
         type: String,
         default: "products",
     },
+    searchHistory: {
+        type: Array,
+        default: [],
+    }
 
+});
+
+const emit = defineEmits({
+    search: (request) => {
+        if (request) {
+            return true;
+        }
+        return false;
+    },
+    getSearchHistory: (searchedResource) => {
+        if (searchedResource) {
+            return true
+        }
+        return false
+    }
 });
 
 const searchInputText = ref("");
 const searchInProgress = ref(false);
-const searchIsComplete = ref(false);
+// const searchIsComplete = ref(false);
 
 let searchTimerId = null;
 
@@ -36,11 +63,10 @@ let searchTimerId = null;
 //     searchInputText.value = 0;
 // });
 
-watch(searchStore.searchHistory, () => {
-    console.log('history!')
-    searchInputText.value = ''
+watch(() => props.searchHistory.length, () => {
+    console.log('history!');
+    searchInputText.value = "";
 })
-
 
 watch(searchInputText, () => {
     if (searchTimerId != null) {
@@ -54,14 +80,20 @@ watch(searchInputText, () => {
 
 });
 
-const searchHistory = computed(() => {
-    let history = searchStore.getSearchHistory(props.searchedResource);
+watch(() => props.searchIsComplete, () => {
+    if (props.searchIsComplete) {
+        searchInProgress.value = false;
+    }
+});
 
-    if (history.length > 4) {
-        return history.slice(0, 4)
+const searchHistory = computed(() => {
+    // let history = searchStore.getSearchHistory(props.searchedResource);
+
+    if (props.searchHistory.length > 4) {
+        return props.searchHistory.slice(0, 4)
     }
 
-    return history;
+    return props.searchHistory;
 });
 
 function setSearchRequeest(text) {
@@ -71,11 +103,8 @@ function setSearchRequeest(text) {
 async function search() {
 
     searchInProgress.value = true;
-    searchIsComplete.value = await searchStore.searchProducts(searchInputText.value);
-
-    if (searchIsComplete.value) {
-        searchInProgress.value = false;
-    }
+    // searchIsComplete.value = await searchStore.searchProducts(searchInputText.value);
+    emit('search', searchInputText.value);
 
 }
 

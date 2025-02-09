@@ -7,7 +7,7 @@ import ProductInfo from '@/components/ProductInfo.vue';
 
 <template>
     <!-- big col -->
-    <div class="col-7">
+    <div class="col">
         <ProductsList />
     </div>
 

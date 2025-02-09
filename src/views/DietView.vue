@@ -57,7 +57,7 @@ onUpdated(() => {
 <template>
     <!-- diets list -->
     <div class="col-5">
-        <div class="card pt-2 ps-2 pe-2">
+        <div class="card pt-2 ps-2 pe-2 border border-light">
 
             <div class="d-flex flex-row mb-2">
                 <input class="form-control form-control-sm" type="text" placeholder=".form-control-sm"
@@ -92,7 +92,7 @@ onUpdated(() => {
     </div>
     <!-- diet info -->
     <div class="col">
-        <div class="card pt-2 ps-2 pe-2">
+        <div class="card pt-2 ps-2 pe-2 border border-light">
 
             <form action="">
                 <input class="form-control mb-2" placeholder="Название диеты\рациона" type="text" name="diet_name"
@@ -118,7 +118,7 @@ onUpdated(() => {
                 <h6 class="m-2">Общая калорийность</h6>
                 <div class="card mb-2">
                     <div class="row card-body">
-                        <div class="col text-center"> 
+                        <div class="col text-center">
                             <div>Калории</div>
                             <div>{{ kcalSelectedDiet }} ккал </div>
                         </div>

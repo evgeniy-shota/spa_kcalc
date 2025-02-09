@@ -11,6 +11,7 @@ import IconQuestionCircle from './icons/IconQuestionCircle.vue';
 // const dailyRationSearchQuery = ref("");
 
 const dailyRationStore = useDailyRationsStore();
+// const searchRueqest = ref('')
 
 onBeforeMount(() => {
     dailyRationStore.getDailyRation();

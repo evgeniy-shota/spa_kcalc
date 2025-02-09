@@ -39,7 +39,7 @@ onUpdated(() => {
 </script>
 
 <template>
-    <div class="card ps-2 pe-2 pt-2">
+    <div class="card ps-2 pe-2 pt-2 border border-light">
         <div class="hstack gap-2 mb-2">
 
             <div class="input-group input-group-sm">

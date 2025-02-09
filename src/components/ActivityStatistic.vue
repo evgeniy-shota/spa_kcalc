@@ -2,7 +2,7 @@
 
 <template>
 
-    <div class="card">
+    <div class="card border border-light">
         <div class="card-header">Статистика активности</div>
         <div class="card-body"></div>
     </div>

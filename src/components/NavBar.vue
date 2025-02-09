@@ -1,6 +1,9 @@
 <script setup>
 import { ref } from 'vue';
 import { RouterLink } from 'vue-router';
+import IconPersonFill from './icons/IconPersonFill.vue';
+import IconBoxArrowRight from './icons/IconBoxArrowRight.vue';
+import IconBoxArrowInRight from './icons/IconBoxArrowInRight.vue';
 
 const props = defineProps({
     userIsAuthorized: { type: Boolean, required: true, default: false },
@@ -10,7 +13,7 @@ const props = defineProps({
 
 <template>
     <header>
-        <nav class="navbar navbar-expand-lg bg-light-subtle border border-light rounded-bottom-2">
+        <nav class="navbar navbar-expand-lg bg-light-subtle border border-light  rounded-bottom-2">
             <div class="container-fluid">
                 <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
                     data-bs-target="#navbarTogglerDemo03" aria-controls="navbarTogglerDemo03" aria-expanded="false"
@@ -46,11 +49,20 @@ const props = defineProps({
 
                     <form class="d-flex">
                         <div v-if="props.userIsAuthorized">
-                            <div class="btn btn-outline-primary me-2">{{ props.userName }}</div>
-                            <RouterLink class="btn btn-outline-dark" to="/logout">Выйти</RouterLink>
+                            <div class="btn btn-outline-primary me-2">
+                                <IconPersonFill />
+                                {{ props.userName }}
+                            </div>
+                            <RouterLink class="btn btn-outline-dark" to="/logout">
+                                <IconBoxArrowRight />
+                                Выйти
+                            </RouterLink>
                         </div>
                         <div v-else>
-                            <RouterLink class="btn btn-outline-success me-2" to="/login">Войти</RouterLink>
+                            <RouterLink class="btn btn-outline-success me-2" to="/login">
+                                <IconBoxArrowInRight />
+                                Войти
+                            </RouterLink>
                             <RouterLink class="btn btn-outline-success" to="/registration">Зарегистрироваться
                             </RouterLink>
                         </div>

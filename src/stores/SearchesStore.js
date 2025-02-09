@@ -92,7 +92,7 @@ export const useSearchesStore = defineStore('searches', () => {
     searchResponse,
     searchResult,
     searchResponseTotalCount,
-    searchedResourse: searchedResource,
+    searchedResource,
     searchHistory,
     // searchActivitiesResult,
     // searchRationResult,

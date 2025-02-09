@@ -15,6 +15,7 @@ const dailyRationStore = useDailyRationsStore();
 
 const searchTitle = ref("");
 const searchText = ref(null);
+const searchIsComplete = ref(false);
 const searchInputLabel = ref("");
 const searchedResource = ref("");
 
@@ -23,6 +24,9 @@ const searchInputProps = computed(() => {
     searchText: searchText.value,
     searchLabel: searchInputLabel.value,
     timeDelayMs: 1000,
+    searchIsComplete: searchIsComplete.value,
+    searchHistory: searchStore.searchHistory,
+    search: search,
   }
 });
 
@@ -39,10 +43,18 @@ const searchResultProps = computed(() => {
 
 const showSearchWindow = ref(false);
 
+async function search(request) {
+
+  searchIsComplete.value = false;
+  const response = await searchStore.searchProducts(request);
+
+  searchIsComplete.value = true
+}
+
 function showSearch(windowTitle, searchLabel, searchedRes) {
 
   // reset searcheStore if current search resource differs from previously
-  if (searchedRes != searchStore.searchedResourse) {
+  if (searchedRes != searchStore.searchedResource) {
     searchStore.$reset();
   }
 
@@ -51,6 +63,7 @@ function showSearch(windowTitle, searchLabel, searchedRes) {
   searchInputLabel.value = searchLabel;
   showSearchWindow.value = true;
   searchedResource.value = searchedRes;
+  searchIsComplete.value = true;
 }
 
 function hideSearch() {
@@ -80,7 +93,8 @@ function selectElement(element) {
 
     <template #searchInput="{ propsForSlot }">
       <SearchInput :search-label="propsForSlot.searchLabel" :time-delay-ms="propsForSlot.timeDelayMs"
-        :search-text="propsForSlot.searchText" />
+        :search-text="propsForSlot.searchText" :search-history="propsForSlot.searchHistory"
+        @search="propsForSlot.search" :search-is-complete="propsForSlot.searchIsComplete" />
     </template>
 
     <template #searchOutput="{ propsForSlot }">

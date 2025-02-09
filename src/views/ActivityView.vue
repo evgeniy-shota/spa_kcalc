@@ -14,7 +14,7 @@ function getActivityInfo(id) {
 
 <template>
     <div class="col-7">
-        <div class="card">
+        <div class="card border border-light">
             <div class="list-group list-height-limit">
 
                 <a v-for="activity in activitiesStore.activities" :key="activity.id"
@@ -28,7 +28,7 @@ function getActivityInfo(id) {
         </div>
     </div>
     <div class="col">
-        <div class="card">
+        <div class="card border border-light">
             <p>Информация об актичности, затраты относительно дневной нормы</p>
 
         </div>
