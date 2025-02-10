@@ -3,6 +3,8 @@
 // import { defineStore } from 'pinia';
 import { ref, onMounted, onUpdated } from 'vue';
 import { useProductsStore } from '../stores/productsStore';
+import IconSearch from './icons/IconSearch.vue';
+import IconPlusLg from './icons/IconPlusLg.vue';
 
 const productsStore = useProductsStore();
 productsStore.getCategories();
@@ -27,6 +29,11 @@ function getProductInfo(product_id) {
     idSelectedProduct.value = product_id;
 }
 
+function addNewProduct() {
+    console.log('add new pr');
+
+}
+
 onMounted(() => {
     console.log("onMounted!");
     console.log("onMounted done!");
@@ -40,12 +47,34 @@ onUpdated(() => {
 
 <template>
     <div class="card ps-2 pe-2 pt-2 border border-light">
-        <div class="hstack gap-2 mb-2">
+
+        <div class="row mb-2">
+            <div class="col">
+                <button class="btn btn-sm btn-outline-secondary me-2" type="button" id="button-addon1">
+                    <IconSearch /> Поиск
+                </button>
+                <button type="button" class="btn btn-sm btn-secondary me-2">Фильтр</button>
+                <button type="button" class="btn btn-sm btn-outline-danger ">Сбросить</button>
+            </div>
+            <div class="col">
+                <div class="d-grid">
+
+                    <button @click="addNewProduct" class="btn btn-sm btn-primary">
+                        <IconPlusLg />
+                        <span>Добавить продукт</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- <div class="hstack gap-2 mb-2">
 
             <div class="input-group input-group-sm">
                 <input type="text" class="form-control" placeholder="" aria-label="Example text with button addon"
                     aria-describedby="button-addon1">
-                <button class="btn btn-sm btn-outline-secondary" type="button" id="button-addon1">Поиск</button>
+                <button class="btn btn-sm btn-outline-secondary" type="button" id="button-addon1">
+                    <IconSearch /> Поиск
+                </button>
             </div>
 
             <div class="vr"></div>
@@ -53,7 +82,11 @@ onUpdated(() => {
             <button type="button" class="btn btn-sm btn-secondary">Фильтр</button>
             <button type="button" class="btn btn-sm btn-secondary">Избранное</button>
             <button type="button" class="btn btn-sm btn-outline-danger ">Сбросить</button>
-        </div>
+            <div class="vr"></div>
+            <button class="btn btn-primary">
+                <IconPlusLg /> Добавить продукт
+            </button>
+        </div> -->
 
         <div class="list-group mb-2 cat-list-height-limit">
 
@@ -80,7 +113,7 @@ onUpdated(() => {
                                     class="list-group-item list-group-item-action" style="cursor: pointer;"
                                     aria-current="true" v-on:click="getProductInfo(product.id)">
                                     <p class="mb-1">{{ product.name }}</p>
-                                    <small>Калорийность: {{ product.calory }}</small>
+                                    <small>Калорийность: {{ product.kcalory }}</small>
                                 </a>
 
                             </div>
@@ -117,7 +150,7 @@ onUpdated(() => {
 
 <style>
 .cat-list-height-limit {
-    max-height: 85vh;
+    max-height: 80vh;
     overflow-y: scroll;
 }
 

@@ -16,7 +16,7 @@ export const useProductsStore = defineStore('products', () => {
     name: '',
     product_composition: {},
     description: '',
-    calory: 0,
+    kcalory: 0,
     proteins: 0,
     carbohydrates: 0,
     fats: 0,

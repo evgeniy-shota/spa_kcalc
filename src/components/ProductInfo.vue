@@ -43,7 +43,7 @@ const productNutrAndVitArray = computed(() => {
 
                 <div class="input-group mb-2">
                     <div class="form-floating">
-                        <input type="text" :value="productsStore.product.calory" class="form-control"
+                        <input type="text" :value="productsStore.product.kcalory" class="form-control"
                             id="product-val-cal" placeholder="Наименование продукта">
                         <label for="product-val-cal">Калории</label>
                     </div>
@@ -108,7 +108,7 @@ const productNutrAndVitArray = computed(() => {
 
 <style>
 .pr-info-container {
-    max-height: 85vh;
+    max-height: 86vh;
     overflow-y: scroll;
 }
 </style>

@@ -1,58 +1,107 @@
 <script setup>
-import { onBeforeMount, onMounted, ref } from 'vue';
+import { onBeforeMount, onMounted, ref, watch } from 'vue';
 import IconArrowLeftShort from './icons/IconArrowLeftShort.vue';
 import IconArrowRightShort from './icons/IconArrowRightShort.vue';
 import IconCloseX from './icons/IconCloseX.vue';
+import DatePicker from './DatePicker.vue';
 import LineChart from './LineChart.vue';
 import { useStatisticStore } from '@/stores/statisticStore';
+import { getDate } from '@/resource/js/dateTime';
+import { offset } from '@popperjs/core';
 
 const statisticStore = useStatisticStore();
 
-const fromDay = ref('2025-02-02');
-const toDay = ref('2025-02-09');
+const defaultOffsetFromDay = -6;
+
+let timerId = null;
+const defaultDelayMs = 450;
+// const chartData = ref({});
+const fromDay = ref('');
+const toDay = ref('');
 
 onBeforeMount(() => {
-    statisticStore.getStatistic(fromDay.value, toDay.value);
+    setDefaultDateSettings();
+    getStatistic();
 });
+
+watch([fromDay, toDay], () => {
+
+    if (timerId != null) {
+        clearTimeout(timerId);
+        timerId = null
+    }
+
+    timerId = setTimeout(() => getStatistic(), defaultDelayMs)
+});
+
+function getStatistic() {
+    statisticStore.getStatistic(fromDay.value, toDay.value);
+}
+
+function changeFromDay(offset) {
+    fromDay.value = getDate(offset, fromDay.value);
+}
+
+function changeToDay(offset) {
+    toDay.value = getDate(offset, toDay.value);
+}
+
+function setDefaultDateSettings() {
+    fromDay.value = getDate(defaultOffsetFromDay);
+    toDay.value = getDate();
+}
 
 </script>
 
 <template>
 
-    <div class="card border border-light">
+    <div class="card border border-light ration-statistic-container">
         <div class="card-header">Статистика питания</div>
         <div class="card-body">
 
-            <!-- filter -->
+            <!-- filtersi -->
             <div class="row">
-                <div class="col me-1">
+                <div class="col">
+                    <!-- date from -->
+                    <DatePicker :date="fromDay" @change-date="changeFromDay" :can-increase="fromDay < toDay" />
+                </div>
+
+                <div class="col">
+                    <!-- date to -->
+                    <DatePicker :date="toDay" @change-date="changeToDay" :can-reduced="fromDay < toDay" />
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col">
+
                     <!-- input-group-sm -->
                     <div class="input-group mb-2 ">
-                        <span class="input-group-text" id="inputGroup-sizing-default">Период</span>
-                        <select class="form-select" aria-label="Default select example">
-                            <option selected value="1">День</option>
-                            <option value="2">Неделя</option>
-                            <option value="3">Месяц</option>
-                        </select>
-                        <button class="btn btn-outline-secondary " type="button" id="button-addon1">
-                            <IconCloseX :size="24" />
-                        </button>
+                        <span class="input-group-text border border-light-subtle">Группировка</span>
+
+                        <input type="radio" class="btn-check" name="options-base" checked id="Days" autocomplete="off">
+                        <label class="btn btn-outline-secondary border-light-subtle" for="Days">Дни</label>
+
+                        <input type="radio" class="btn-check" name="options-base" id="Weeks" autocomplete="off">
+                        <label class="btn btn-outline-secondary border-light-subtle" for="Weeks">Недели</label>
+
+                        <input type="radio" class="btn-check" name="options-base" id="Months" autocomplete="off">
+                        <label class="btn btn-outline-secondary border-light-subtle" for="Months">Месяцы</label>
+
                     </div>
+
+                    <div class="btn btn-outline-warning">Сброс</div>
+
                 </div>
-                <div class="col">
-                    <!-- input-group-sm -->
+                <!-- preset filter -->
+                <!-- <div class="col">
                     <div class="input-group mb-2">
-                        <button class="btn btn-outline-secondary" type="button" id="button-addon1">
-                            <IconArrowLeftShort :size="24" />
-                        </button>
-                        <input type="text" readonly class="form-control" value="14.02 - 21.02" placeholder="Username"
-                            aria-label="Username" aria-describedby="basic-addon1">
-                        <!-- <span class="input-group-text" id="inputGroup-sizing-default">14.02 - 21.02</span> -->
-                        <button class="btn btn-outline-secondary" type="button" id="button-addon1">
-                            <IconArrowRightShort :size="24" />
-                        </button>
+                        <button class="btn btn-outline-secondary border-light-subtle" type="button"
+                            id="button-addon1">Неделя</button>
+                        <button class="btn btn-outline-secondary border-light-subtle" type="button"
+                            id="button-addon1">Месяц</button>
                     </div>
-                </div>
+                </div> -->
             </div>
 
             <!-- chart -->
@@ -60,7 +109,11 @@ onBeforeMount(() => {
                 <div class="col">
                     <div class="chart-container">
                         <LineChart v-if="statisticStore.statistics.data.length > 0"
-                            :dataset="statisticStore.statistics.data" />
+                            :dataset="statisticStore.statisticToChart.kcalory" />
+                    </div>
+                    <div class="chart-container">
+                        <LineChart v-if="statisticStore.statistics.data.length > 0"
+                            :dataset="statisticStore.statisticToChart.prot_carb_fats" />
                     </div>
                 </div>
             </div>
@@ -70,6 +123,11 @@ onBeforeMount(() => {
 </template>
 
 <style lang="scss">
+.ration-statistic-container {
+    height: 100%;
+    max-height: 87vh;
+}
+
 .chart-container {
     min-height: 25vh;
     max-height: 30vh;

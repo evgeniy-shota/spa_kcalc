@@ -11,12 +11,22 @@ function getTime() {
   return `${resHourse}:${resMinutes}:${resSeconds}`
 }
 
-function getDate() {
-  let date = new Date()
+function getDate(offsetNum = 0, defaultDate = '', offsetScale = 'd') {
+  let msInSec = 1000
+  let msInHour = msInSec * 60 * 60
+  let msInDay = msInHour * 24
+  let msInWeek = msInDay * 7
+  let offsetMs =
+    offsetNum * (offsetScale == 'd' ? msInDay : offsetScale == 'w' ? msInDay * 7 : msInDay * 30)
 
-  let year = String(date.getFullYear())
-  let month = String(date.getMonth() + 1)
-  let day = String(date.getDate())
+  // console.log(new Date(Date.now() + offsetMs))
+  let currentDate = new Date(
+    (defaultDate.length > 0 ? new Date(defaultDate).getTime() : Date.now()) + offsetMs,
+  )
+
+  let year = String(currentDate.getFullYear())
+  let month = String(currentDate.getMonth() + 1)
+  let day = String(currentDate.getDate())
 
   let resMonth = month.length == 1 ? '0' + month : month
   let resDay = day.length == 1 ? '0' + day : day
