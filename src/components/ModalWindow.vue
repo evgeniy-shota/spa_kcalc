@@ -19,6 +19,10 @@ const props = defineProps({
     heightVh: {
         type: Number,
         default: 70
+    },
+    propsForSlots: {
+        type: Object,
+        default: {},
     }
 });
 
@@ -35,11 +39,15 @@ function closeWindow(event,) {
 }
 
 const modalWindowSize = computed(() => {
+    const appWigth = document.getElementById('app').clientWidth;
+    let adaptiveWidth = appWigth < 550 ? 100 : props.widthVh;
+    let adaptiveLeftOffset = appWigth < 550 ? 0 : (100 - props.widthVh) / 2;
+
     return {
         height: props.heightVh + 'vh',
-        width: props.widthVh + 'vw',
+        width: adaptiveWidth + 'vw',
         top: (100 - props.heightVh) / 2 + 'vh',
-        left: (100 - props.widthVh) / 2 + 'vw',
+        left: adaptiveLeftOffset + 'vw',
     }
 });
 
@@ -58,10 +66,13 @@ const modalWindowSize = computed(() => {
                     </button>
                 </div>
             </div>
+
             <div class="card-body">
+
                 <slot name="header"></slot>
-                <slot name="main"></slot>
+                <slot name="main" :propsForSlot=props.propsForSlots></slot>
                 <slot name="footer"></slot>
+
             </div>
         </div>
     </div>
@@ -74,6 +85,7 @@ const modalWindowSize = computed(() => {
 .modal-window-container {
 
     position: absolute;
+    padding: 0;
     top: 0;
     bottom: 0;
     left: 0;
@@ -90,5 +102,6 @@ const modalWindowSize = computed(() => {
     left: 0;
     right: 0;
     z-index: 4;
+    overflow-y: scroll;
 }
 </style>

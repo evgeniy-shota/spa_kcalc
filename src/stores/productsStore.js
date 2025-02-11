@@ -65,5 +65,34 @@ export const useProductsStore = defineStore('products', () => {
       })
   }
 
-  return { categories, products, product, getCategories, getProducts, getProduct, $reset }
+  async function addNewProduct(product, category) {
+    try {
+      const response = await axios_instance.post(URL_API_PRODUCT, {
+        product: product,
+        category: category,
+      })
+
+      if (response.status == 201) {
+        console.log('New product addeded')
+        console.log(response)
+        return true
+      }
+      return false
+    } catch (error) {
+      console.log('Add new product fail')
+      console.log(error)
+      return false
+    }
+  }
+
+  return {
+    categories,
+    products,
+    product,
+    getCategories,
+    getProducts,
+    getProduct,
+    addNewProduct,
+    $reset,
+  }
 })

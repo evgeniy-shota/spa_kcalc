@@ -12,6 +12,19 @@ productsStore.getCategories();
 const idSelectedCategory = ref(0);
 const idSelectedProduct = ref(0);
 
+const props = defineProps({
+    userIsAuthorized: {
+        type: Boolean,
+        default: false,
+    }
+});
+
+const emit = defineEmits({
+    onClickAddNewProduct: () => {
+        return true
+    }
+});
+
 // Get list of products if don't click to the same category
 function getProductsList(category_id) {
     if (category_id != idSelectedCategory.value) {
@@ -30,8 +43,7 @@ function getProductInfo(product_id) {
 }
 
 function addNewProduct() {
-    console.log('add new pr');
-
+    emit('onClickAddNewProduct');
 }
 
 onMounted(() => {
@@ -56,7 +68,8 @@ onUpdated(() => {
                 <button type="button" class="btn btn-sm btn-secondary me-2">Фильтр</button>
                 <button type="button" class="btn btn-sm btn-outline-danger ">Сбросить</button>
             </div>
-            <div class="col">
+
+            <div v-show="userIsAuthorized" class="col">
                 <div class="d-grid">
 
                     <button @click="addNewProduct" class="btn btn-sm btn-primary">
