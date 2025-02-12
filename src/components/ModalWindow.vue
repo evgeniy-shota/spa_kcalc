@@ -1,5 +1,5 @@
 <script setup>
-import { bottom } from '@popperjs/core';
+
 import { computed, ref } from 'vue';
 import IconCloseXlg from './icons/IconCloseXlg.vue';
 

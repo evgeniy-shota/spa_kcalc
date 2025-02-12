@@ -1,5 +1,5 @@
 <script setup>
-import { ref } from 'vue';
+import { onBeforeMount, ref } from 'vue';
 import ProductsList from '@/components/ProductsList.vue';
 import ProductInfo from '@/components/ProductInfo.vue';
 import ModalWindow from '@/components/ModalWindow.vue';
@@ -9,6 +9,10 @@ import { useUsersStore } from '@/stores/usersStore';
 
 const productsStore = useProductsStore();
 const userStore = useUsersStore();
+
+onBeforeMount(() => {
+    // productsStore.getCategories();
+});
 
 const isShowNewProductWindow = ref(false);
 const saveNewProductResult = ref(false);
@@ -23,7 +27,7 @@ const propsForModalWindowSlots = ref({
         carbohydrates: 47,
         fats: 18,
     },
-    categories: [],
+    categories: productsStore.categories,
     saveNewProductResult: saveNewProductResult
 });
 
@@ -55,7 +59,7 @@ async function saveNewProduct(product, category) {
         :props-for-slots="propsForModalWindowSlots">
         <template #main="{ propsForSlot }">
             <ProductForm @submit-form="propsForSlot.saveNewProduct" :product="propsForSlot.product"
-                :product-saved-successful="propsForSlot.saveNewProductResult" />
+                :product-saved-successful="propsForSlot.saveNewProductResult" :categories="propsForSlot.categories" />
         </template>
     </ModalWindow>
 
