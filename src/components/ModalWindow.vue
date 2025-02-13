@@ -59,7 +59,7 @@ const modalWindowSize = computed(() => {
             <div class="card-header">
                 <div class="hstack">
                     <div class="me-auto">
-                        {{ props.title }}
+                        <h5>{{ props.title }}</h5>
                     </div>
                     <button closeModalWindow id="closeModalWindow" class="btn btn-light">
                         <IconCloseXlg :size="16" />
@@ -67,10 +67,11 @@ const modalWindowSize = computed(() => {
                 </div>
             </div>
 
-            <div class="card-body">
+            <div class="card-body modal-window-body">
 
                 <slot name="header"></slot>
-                <slot name="main" :propsForSlot=props.propsForSlots></slot>
+                <!-- <slot name="main" :propsForSlot=props.propsForSlots></slot> -->
+                <slot name="main" v-bind=props.propsForSlots></slot>
                 <slot name="footer"></slot>
 
             </div>
@@ -102,6 +103,9 @@ const modalWindowSize = computed(() => {
     left: 0;
     right: 0;
     z-index: 4;
+}
+
+.modal-window-body {
     overflow-y: scroll;
 }
 </style>

@@ -57,7 +57,7 @@ export default {
               generateLabels: function (chart) {
                 const original = ChartJS.overrides.pie.plugins.legend.labels.generateLabels;
                 const labelsOriginal = original.call(this, chart);
-                console.log(labelsOriginal);
+                // console.log(labelsOriginal);
                 // Build an array of colors used in the datasets of the chart
                 let datasetColors = chart.data.datasets.map(function (e) {
                   return e.backgroundColor;

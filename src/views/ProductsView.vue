@@ -1,5 +1,5 @@
 <script setup>
-import { onBeforeMount, ref } from 'vue';
+import { computed, onBeforeMount, onMounted, ref } from 'vue';
 import ProductsList from '@/components/ProductsList.vue';
 import ProductInfo from '@/components/ProductInfo.vue';
 import ModalWindow from '@/components/ModalWindow.vue';
@@ -10,25 +10,31 @@ import { useUsersStore } from '@/stores/usersStore';
 const productsStore = useProductsStore();
 const userStore = useUsersStore();
 
+
 onBeforeMount(() => {
-    // productsStore.getCategories();
+    productsStore.getCategories();
+    console.log(productsStore.categories);
 });
 
 const isShowNewProductWindow = ref(false);
 const saveNewProductResult = ref(false);
 
-const propsForModalWindowSlots = ref({
-    saveNewProduct: saveNewProduct,
-    product: {
-        name: 'some product',
-        description: 'description some product',
-        kcalory: 200,
-        proteins: 14,
-        carbohydrates: 47,
-        fats: 18,
-    },
-    categories: productsStore.categories,
-    saveNewProductResult: saveNewProductResult
+const propsForModalWindowSlots = computed(() => {
+    return {
+        saveNewProduct: saveNewProduct,
+        // product: {
+        //     name: 'some product',
+        //     description: 'description some product',
+        //     kcalory: 200,
+        //     proteins: 14,
+        //     carbohydrates: 47,
+        //     fats: 18,
+        // },
+        categories: productsStore.categories,
+        saveNewProductResult: saveNewProductResult.value,
+        isReadonly: false,
+    }
+
 });
 
 function showNewProductWindow() {
@@ -55,12 +61,20 @@ async function saveNewProduct(product, category) {
 
 <template>
 
-    <ModalWindow :show-window="isShowNewProductWindow" @close-window="hideNewProductWindow"
-        :props-for-slots="propsForModalWindowSlots">
-        <template #main="{ propsForSlot }">
+    <ModalWindow :show-window="isShowNewProductWindow" title="Добавление нового продукта"
+        @close-window="hideNewProductWindow" :props-for-slots="propsForModalWindowSlots">
+
+        <!-- <template #main="{ propsForSlot }">
             <ProductForm @submit-form="propsForSlot.saveNewProduct" :product="propsForSlot.product"
-                :product-saved-successful="propsForSlot.saveNewProductResult" :categories="propsForSlot.categories" />
+                :product-saved-successful="propsForSlot.saveNewProductResult" :categories="propsForSlot.categories"
+                :is-readonly="propsForSlot.isReadonly" />
+        </template> -->
+
+        <template #main="{ saveNewProduct, product, categories, saveNewProductResult, isReadonly }">
+            <ProductForm @submit-form="saveNewProduct" :product="product"
+                :product-saved-successful="saveNewProductResult" :categories="categories" :is-readonly="isReadonly" />
         </template>
+
     </ModalWindow>
 
     <div class="col">

@@ -7,7 +7,7 @@ import IconSearch from './icons/IconSearch.vue';
 import IconPlusLg from './icons/IconPlusLg.vue';
 
 const productsStore = useProductsStore();
-productsStore.getCategories();
+// productsStore.getCategories();
 
 const idSelectedCategory = ref(0);
 const idSelectedProduct = ref(0);
@@ -46,14 +46,14 @@ function addNewProduct() {
     emit('onClickAddNewProduct');
 }
 
-onMounted(() => {
-    console.log("onMounted!");
-    console.log("onMounted done!");
-});
+// onMounted(() => {
+//     console.log("onMounted!");
+//     console.log("onMounted done!");
+// });
 
-onUpdated(() => {
-    console.log("Component has updated");
-});
+// onUpdated(() => {
+//     console.log("Component has updated");
+// });
 
 </script>
 

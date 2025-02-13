@@ -3,7 +3,7 @@ import { ref, watch } from 'vue';
 import { useUsersStore } from '@/stores/usersStore';
 import { useRouter } from 'vue-router';
 
-import validateFormData from '@/resource/js/dataValidation';
+import { validateFormData } from '@/resource/js/dataValidation';
 
 const userStore = useUsersStore();
 const router = useRouter();
