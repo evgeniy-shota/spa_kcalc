@@ -5,6 +5,8 @@ import { ref, onMounted, onUpdated } from 'vue';
 import { useProductsStore } from '../stores/productsStore';
 import IconSearch from './icons/IconSearch.vue';
 import IconPlusLg from './icons/IconPlusLg.vue';
+import IconThreeDotsVertical from './icons/IconThreeDotsVertical.vue';
+import IconStar from './icons/IconStar.vue';
 
 const productsStore = useProductsStore();
 // productsStore.getCategories();
@@ -110,24 +112,87 @@ function addNewProduct() {
                     v-on:click="getProductsList(category.id)" class="accordion-item">
 
                     <h2 class="accordion-header">
-                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
-                            v-bind:data-bs-target="'#collapse-' + category.id" aria-expanded="true"
-                            aria-controls="collapseOne">
-                            {{ category.name }}
-                        </button>
+
+                        <div class="row m-0 p-0">
+                            <div class="col p-0 m-0 me-1">
+                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+                                    v-bind:data-bs-target="'#collapse-' + category.id" aria-expanded="true"
+                                    aria-controls="collapseOne">
+                                    {{ category.name }}
+                                </button>
+                            </div>
+
+                            <div class="col-1 px-0 m-0 ">
+
+                                <div class="dropdown">
+                                    <button class="btn btn-light px-2" type="button" data-bs-toggle="dropdown"
+                                        aria-expanded="false">
+                                        <IconThreeDotsVertical />
+                                    </button>
+                                    <ul class="dropdown-menu">
+                                        <li><a class="dropdown-item" href="#">Переименовать</a></li>
+                                        <li><a class="dropdown-item" href="#">Добавить в избранное</a></li>
+                                        <li><a class="dropdown-item" href="#">Скрыть</a></li>
+                                        <li><a class="dropdown-item" href="#">Удалить</a></li>
+                                    </ul>
+                                </div>
+
+                            </div>
+                        </div>
+
                     </h2>
+
                     <div :id="'collapse-' + category.id" class="accordion-collapse collapse"
                         data-bs-parent="#accordionExample">
-                        <div class="accordion-body">
+                        <div class="accordion-body px-2">
 
                             <div class="list-group list-height-limit">
 
-                                <a v-for="product in productsStore.products" :key="product.id"
-                                    class="list-group-item list-group-item-action" style="cursor: pointer;"
-                                    aria-current="true" v-on:click="getProductInfo(product.id)">
-                                    <p class="mb-1">{{ product.name }}</p>
-                                    <small>Калорийность: {{ product.kcalory }}</small>
-                                </a>
+                                <div v-for="product in productsStore.products" :key="product.id"
+                                    class="list-group-item list-group-item-action px-1 py-1">
+
+                                    <div class="row p-0 m-0">
+                                        <!-- list-group-item -->
+                                        <div class="col p-0 m-0">
+
+                                            <button class="btn product-list-item px-1" style="cursor: pointer;"
+                                                aria-current="true" v-on:click="getProductInfo(product.id)">
+                                                <p class="mb-1">{{ product.name }}</p>
+                                                <div class="row p-0 m-0">
+                                                    <div class="col p-0 m-0">
+                                                        <small>К: {{ product.kcalory
+                                                            }} ккал.</small>
+                                                    </div>
+                                                    <div class="col p-0 m-0">
+                                                        <small>Б: {{ product.proteins
+                                                            }} гр.</small>
+                                                    </div>
+                                                    <div class="col p-0 m-0">
+                                                        <small>Ж: {{ product.fats
+                                                            }} гр.</small>
+                                                    </div>
+                                                    <div class="col p-0 m-0">
+                                                        <small>У: {{ product.carbohydrates
+                                                            }} гр.</small>
+                                                    </div>
+                                                </div>
+                                                <!-- <small>Калорийность: {{ product.kcalory }}</small> -->
+                                            </button>
+
+                                        </div>
+
+                                        <!-- <div class="col-1 p-0 m-0">
+
+                                            <div class="item-btn-group m-0 p-auto px-1">
+
+                                            </div>
+
+                                        </div> -->
+                                    </div>
+
+
+                                </div>
+
 
                             </div>
                         </div>
@@ -170,5 +235,37 @@ function addNewProduct() {
 .cat-list-height-limit .list-height-limit {
     max-height: 55vh;
     overflow-y: scroll;
+}
+
+.privat-category::before {
+    content: '*';
+}
+
+.dropdown-toggle::after {
+    content: '';
+}
+
+.product-list-item {
+    width: 100%;
+    text-decoration: none;
+    text-align: start;
+    /* background-color: aqua; */
+}
+
+.item-btn-group {
+    /* background-color: blueviolet; */
+    text-align: center;
+
+    height: 100%;
+    width: 100%;
+}
+
+.item-btn {
+    /* background-color: aqua; */
+    display: block;
+
+    :hover {
+        color: red;
+    }
 }
 </style>
