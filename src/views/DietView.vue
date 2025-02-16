@@ -1,14 +1,18 @@
 <script setup>
 import { computed, onMounted, onUpdated, ref } from 'vue';
 import { useDietsStore } from '@/stores/dietsStore';
+import { useSearchesStore } from '@/stores/SearchesStore';
+import ModalWindow from '@/components/ModalWindow.vue';
+import SearchInput from '@/components/SearchInput.vue';
+import SearchResult from '@/components/SearchResult.vue';
 import DietList from '@/components/DietList.vue';
 import DietFrom from '@/components/DietFrom.vue';
-// import axios from 'axios';
 
-const selected_products = ref([]);
+
 const idTheLastSelectedDiet = ref(0);
-
+const isShowSearchWindow = ref(false);
 const dietsStore = useDietsStore();
+const searchStore = useDietsStore();
 
 
 function selectDiet(diet_id) {
@@ -22,41 +26,36 @@ function selectDiet(diet_id) {
     idTheLastSelectedDiet.value = diet_id;
 }
 
-const productsInDiet = computed(() => {
-    let data = Object.entries(dietsStore.diet.products);
-    console.log(`data: ${data}`);
+function saveDiet(diet) {
+    console.log('save diet: ');
+    console.log(diet);
+}
 
-    return data;
-});
+function showSearchWindow() {
+    isShowSearchWindow.value = true;
+}
 
-const kcalSelectedDiet = computed(() => {
-    return dietsStore.diet.summ_val.kcal;
-});
-
-const carbSelectedDiet = computed(() => {
-    return dietsStore.diet.summ_val.carb;
-});
-
-const protSelectedDiet = computed(() => {
-    return dietsStore.diet.summ_val.prot;
-});
-
-const fatsSelectedDiet = computed(() => {
-    return dietsStore.diet.summ_val.fats;
-});
+function hideSearchWindow() {
+    isShowSearchWindow.value = false;
+};
 
 onMounted(() => {
     dietsStore.getDiets();
 });
 
-onUpdated(() => {
-    console.log('diets: ');
-    console.log(dietsStore.diets);
-    console.log('diet: ');
-});
 </script>
 
 <template>
+
+    <ModalWindow title="Поиск продуктов" :show-window="isShowSearchWindow" @close-window="hideSearchWindow">
+        <template #header>
+            <SearchInput />
+        </template>
+        <template #main>
+            <SearchResult />
+        </template>
+    </ModalWindow>
+
     <!-- diets list -->
     <div class="col">
         <DietList :diets="dietsStore.diets" @select-item="selectDiet" />
@@ -64,7 +63,7 @@ onUpdated(() => {
 
     <!-- diet info -->
     <div class="col">
-        <DietFrom />
+        <DietFrom @save-diet="saveDiet" @add-product="showSearchWindow" />
     </div>
 
 </template>

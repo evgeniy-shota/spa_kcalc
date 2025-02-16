@@ -1,6 +1,7 @@
 <script setup>
 import { computed, ref, watch } from 'vue';
 import IconPlusLg from './icons/IconPlusLg.vue';
+import ProductCardMin from './ProductCardMin.vue';
 
 
 const dietName = ref('');
@@ -61,6 +62,9 @@ const emit = defineEmits({
         }
         return false;
     },
+    addProduct: () => {
+        return true;
+    },
 });
 
 watch(() => props.diet, () => {
@@ -75,10 +79,27 @@ watch(() => props.diet, () => {
 
 function addProduct() {
     console.log('add product');
+    emit('addProduct');
 }
+
+function changeProductQuantity() {
+    console.log('change product quantity');
+};
+
+function delAddedProduct() {
+    console.log('delete product');
+};
 
 function saveDiet() {
     console.log('save diet');
+
+    let diet = {
+        name: dietName.value,
+        description: dietDescription.value,
+        products: productsInDiet.value,
+    };
+
+    emit('saveDiet', diet);
 }
 
 function clearDiet() {
@@ -96,32 +117,13 @@ function deleteDiet() {
     <div class="card pt-2 ps-2 pe-2 border border-light diet-container">
 
         <form action="">
-            <input class="form-control mb-2" placeholder="Название диеты\рациона" type="text" name="diet_name"
+            <label for="dietName" class="form-label mb-0">Название диеты</label>
+            <input class="form-control mb-2" placeholder="Введите название диеты" type="text" name="diet_name"
                 id="dietName" :value="dietName">
 
-            <textarea id="dietDescription" class="form-control mb-2" v-model="dietDescription"></textarea>
-
-            <!-- <h6 class="m-2">Общая калорийность</h6>
-            <div class="card mb-2">
-                <div class="row card-body">
-                    <div class="col text-center">
-                        <div>Калории</div>
-                        <div>{{ dietKcalory }} ккал </div>
-                    </div>
-                    <div class="col text-center">
-                        <div>Углеводы</div>
-                        <div>{{ dietCarbohydrates }} гр.</div>
-                    </div>
-                    <div class="col text-center">
-                        <div>Белки</div>
-                        <div>{{ dietProteins }} гр.</div>
-                    </div>
-                    <div class="col text-center">
-                        <div>Жиры</div>
-                        <div>{{ dietFats }} гр.</div>
-                    </div>
-                </div>
-            </div> -->
+            <label for="dietDescription" class="form-label mb-0">Описание диеты</label>
+            <textarea id="dietDescription" placeholder="Описание диеты" class="form-control mb-2"
+                v-model="dietDescription"></textarea>
 
             <div class="border rounded bg-light-subtle border-light-suntitle mb-2">
                 <div class="px-2 py-1 text-center">
@@ -153,8 +155,8 @@ function deleteDiet() {
                 </div>
             </div>
 
-            <input class="form-control mb-2" type="text" placeholder="Начните вводить название продукта..."
-                aria-label="default input example">
+            <!-- <input class="form-control mb-2" type="text" placeholder="Начните вводить название продукта..."
+                aria-label="default input example"> -->
 
             <div class="col d-grid pe-1 mb-2">
                 <button @click="addProduct" class="btn btn-outline-primary" type="button">
@@ -163,29 +165,16 @@ function deleteDiet() {
                 </button>
             </div>
 
-            <!-- <div class="row mb-2">
-                <div class="col d-grid ps-1">
-                    <button @click="saveCurrentRation" class="btn btn-outline-success" type="button">
-                        <IconCheckLg />
-                        Сохранить рацион
-                    </button>
-                </div>
-            </div> -->
-
             <ul class="list-group mb-2 products-list-container">
-                <li v-for="product in productsInDiet" class="list-group-item">
-                    <div class="d-flex flex-row">
-                        <div class="p-1 flex-grow-1">{{ product[0] }}</div>
-                        <div class="p-1">
-                            <input :value="product[1]" class="form-control" type="number" name="productNumber"
-                                id="productNumber">
-                        </div>
+                <li v-for="(product, product_index) in productsInDiet"
+                    class="list-group-item bg-light-subtle border-light-subtle mb-1">
 
-                        <button type="button" class="btn p-1" aria-label="Remove">X</button>
+                    <ProductCardMin :product="product" :is-editable="true" :index="product_index"
+                        @on-click-close-btn="delAddedProduct" @on-cange-quantity="changeProductQuantity"
+                        @on-input-quantity="changeProductQuantity" />
 
-                    </div>
                 </li>
-                <li>
+                <!-- <li>
                     <p>some line</p>
                     <p>some line</p>
                     <p>some line</p>
@@ -196,9 +185,8 @@ function deleteDiet() {
                     <p>some line</p>
                     <p>some line</p>
                     <p>some line</p>
-                </li>
+                </li> -->
             </ul>
-
 
             <div class="d-grid gap-2 mb-2">
                 <button @click="saveDiet" class="btn btn-primary" type="button">Сохранить</button>
