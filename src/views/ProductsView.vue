@@ -6,10 +6,14 @@ import ModalWindow from '@/components/ModalWindow.vue';
 import ProductForm from '@/components/ProductForm.vue';
 import { useProductsStore } from '@/stores/productsStore';
 import { useUsersStore } from '@/stores/usersStore';
+import Offcanvas from '@/components/Offcanvas.vue';
+import Offcanv from '@/components/Offcanv.vue';
+import Carosel from '@/components/Carosel.vue';
 
 const productsStore = useProductsStore();
 const userStore = useUsersStore();
 
+const showTwoCol = ref(true);
 
 onBeforeMount(() => {
     productsStore.getCategories();
@@ -17,6 +21,7 @@ onBeforeMount(() => {
 });
 
 const isShowNewProductWindow = ref(false);
+const isShowProductInfoWindow = ref(false);
 const saveNewProductResult = ref(false);
 
 const propsForModalWindowSlots = computed(() => {
@@ -44,6 +49,14 @@ function showNewProductWindow() {
 
 function hideNewProductWindow() {
     isShowNewProductWindow.value = false;
+}
+
+function showProductInfoWindow() {
+    isShowProductInfoWindow.value = true;
+}
+
+function hideProductInfoWindow() {
+    isShowProductInfoWindow.value = false;
 }
 
 async function saveNewProduct(product, category) {
@@ -77,13 +90,35 @@ async function saveNewProduct(product, category) {
 
     </ModalWindow>
 
+    <!-- <Offcanvas title="test offcanvas" /> -->
+
     <div class="col">
-        <ProductsList @on-click-add-new-product="showNewProductWindow"
-            :user-is-authorized="userStore.userIsAuthorized" />
+        <Carosel></Carosel>
+
+        <!-- <ProductsList @on-click-add-new-product="showNewProductWindow" @show-product-info="showProductInfoWindow"
+            :user-is-authorized="userStore.userIsAuthorized" /> -->
+
+        <Offcanv v-if="!showTwoCol" title="Информация о продукте" :hidden="!isShowProductInfoWindow"
+            @hide="hideProductInfoWindow">
+            <template #main>
+                <ProductInfo />
+            </template>
+        </Offcanv>
     </div>
 
+    <!-- <ModalWindow title="Информаация о продукте" :show-window="isShowProductInfoWindow"
+        @close-window="hideProductInfoWindow">
+        <template #main>
+            <ProductInfo />
+        </template>
+    </ModalWindow> -->
+
     <!-- small col -->
-    <div class="col">
+
+    <div v-if="showTwoCol" class="col">
         <ProductInfo />
     </div>
+
+
+
 </template>

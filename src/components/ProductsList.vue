@@ -23,8 +23,11 @@ const props = defineProps({
 
 const emit = defineEmits({
     onClickAddNewProduct: () => {
-        return true
-    }
+        return true;
+    },
+    showProductInfo: () => {
+        return true;
+    },
 });
 
 // Get list of products if don't click to the same category
@@ -42,6 +45,7 @@ function getProductInfo(product_id) {
         productsStore.getProduct(product_id);
     }
     idSelectedProduct.value = product_id;
+    emit('showProductInfo');
 }
 
 function addNewProduct() {

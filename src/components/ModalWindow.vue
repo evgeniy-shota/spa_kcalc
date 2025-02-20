@@ -12,6 +12,10 @@ const props = defineProps({
         type: Boolean,
         default: false,
     },
+    size: {
+        type: String,
+        default: null,
+    },
     widthVh: {
         type: Number,
         default: 60,

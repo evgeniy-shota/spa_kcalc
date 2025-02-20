@@ -28,7 +28,7 @@ onMounted(() => {
 
 
 <template>
-  <div class="container">
+  <div id="appContainer" class="container">
     <!-- nav-bar -->
     <div class="row mb-2">
       <NavBar :user-is-authorized="userIsActive" :user-name="userStore.userName" />
@@ -40,7 +40,7 @@ onMounted(() => {
       <StatusBar />
     </div>
 
-    <div class="row mb-2">
+    <div class="row mb-2" id="mainRow">
       <RouterView />
     </div>
 
@@ -52,4 +52,8 @@ onMounted(() => {
   </div>
 </template>
 
-<style scoped></style>
+<style scoped lang="scss">
+#mainRow {
+  height: 86vh;
+}
+</style>

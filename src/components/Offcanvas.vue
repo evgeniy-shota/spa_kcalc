@@ -4,7 +4,7 @@ import { ref, computed } from 'vue';
 const props = defineProps({
     placement: {
         type: String,
-        default: null,
+        default: 'end',
     },
     title: {
         type: String,
@@ -40,16 +40,33 @@ const offcanvasPlacement = computed(() => {
 
     <div class="offcanvas" :class="offcanvasPlacement" tabindex="-1" id="offcanvasTop"
         aria-labelledby="offcanvasTopLabel">
-        <div class="offcanvas-header">
-            <h5 class="offcanvas-title" id="offcanvasTopLabel">{{ props.title }}</h5>
-            <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+
+        <div class="offcanvas-content-container">
+            <div class="offcanvas-header">
+                <h5 class="offcanvas-title" id="offcanvasTopLabel">{{ props.title }}</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+            </div>
+
+            <div class="offcanvas-body">
+                <slot name="header" :propsForSlot="props.propsForSlot"></slot>
+                <slot name="main" :propsForSlot="props.propsForSlot"></slot>
+                <slot name="footer" :propsForSlot="props.propsForSlot"></slot>
+            </div>
         </div>
-        <div class="offcanvas-body">
-            <slot name="header" :propsForSlot="props.propsForSlot"></slot>
-            <slot name="main" :propsForSlot="props.propsForSlot"></slot>
-            <slot name="footer" :propsForSlot="props.propsForSlot"></slot>
-        </div>
+
     </div>
 </template>
 
-<style lang="scss"></style>
+<style lang="scss">
+.offcanvas {
+    $offcanvas-bg-color: red;
+}
+
+.offcanvas-content-container {
+    position: relative;
+    background-color: aquamarine;
+    // width: 80vw;
+    // margin-left: auto;
+    // margin-right: auto;
+}
+</style>

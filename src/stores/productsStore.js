@@ -2,8 +2,9 @@ import { ref } from 'vue'
 import { defineStore } from 'pinia'
 import axios_instance from '@/resource/js/axiosInstance'
 
-const FAKE_API = 'https://jsonplaceholder.typicode.com/todos'
-const URL_API_CATEGORIES = 'api/categories'
+// const FAKE_API = 'https://jsonplaceholder.typicode.com/todos'
+const URL_API_CATEGORY_GROUPS = 'api/category-groups/'
+const URL_API_CATEGORIES = 'api/categories/'
 const URL_API_PRODUCTS = 'api/categories/'
 const URL_API_PRODUCT = 'api/products/'
 
@@ -37,7 +38,8 @@ export const useProductsStore = defineStore('products', () => {
   // get list of categories
   const getCategories = async () => {
     axios_instance
-      .get(URL_API_CATEGORIES)
+      // .get(URL_API_CATEGORIES)
+      .get(URL_API_CATEGORY_GROUPS)
       .then((response) => {
         categories.value = response.data.data
       })

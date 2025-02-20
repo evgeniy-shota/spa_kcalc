@@ -9,7 +9,7 @@ const productsStore = useProductsStore();
 </script>
 
 <template>
-    <div class="card ps-2 pe-2 pt-2 pr-info-container border border-light">
+    <div class="card pr-info-container ps-2 pe-2 pt-2 border border-light">
         <div class="hstack gap-1 mb-2">
             <div class="btn-group btn-group-sm" role="group" aria-label="Basic radio toggle button group">
                 <input type="radio" class="btn-check" name="btnradio" id="btnradio1" autocomplete="off" checked>
