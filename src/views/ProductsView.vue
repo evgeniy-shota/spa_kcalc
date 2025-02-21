@@ -6,18 +6,17 @@ import ModalWindow from '@/components/ModalWindow.vue';
 import ProductForm from '@/components/ProductForm.vue';
 import { useProductsStore } from '@/stores/productsStore';
 import { useUsersStore } from '@/stores/usersStore';
-import Offcanvas from '@/components/Offcanvas.vue';
 import Offcanv from '@/components/Offcanv.vue';
 import Carosel from '@/components/Carosel.vue';
 
 const productsStore = useProductsStore();
-const userStore = useUsersStore();
+// const userStore = useUsersStore();
 
 const showTwoCol = ref(true);
 
-onBeforeMount(() => {
-    productsStore.getCategories();
-    console.log(productsStore.categories);
+onMounted(() => {
+    // productsStore.getCategories();
+    // console.log(productsStore.categories);
 });
 
 const isShowNewProductWindow = ref(false);
@@ -42,6 +41,27 @@ const propsForModalWindowSlots = computed(() => {
 
 });
 
+const categoriesGroup = computed(() => {
+    if (productsStore.categoriesGroup) {
+        return productsStore.categoriesGroup
+    }
+    return [];
+});
+
+const categories = computed(() => {
+    if (productsStore.categories) {
+        return productsStore.categories
+    }
+    return []
+});
+
+const products = computed(() => {
+    if (productsStore.products) {
+        return productsStore.products
+    }
+    return []
+});
+
 function showNewProductWindow() {
     saveNewProductResult.value = false;
     isShowNewProductWindow.value = true;
@@ -57,6 +77,20 @@ function showProductInfoWindow() {
 
 function hideProductInfoWindow() {
     isShowProductInfoWindow.value = false;
+}
+
+async function getCategories(id) {
+    productsStore.categories.length = 0
+    productsStore.getCategories(id);
+}
+
+function getProducts(id) {
+    productsStore.products.length = 0
+    productsStore.getProducts(id);
+}
+
+function getProduct(id) {
+    productsStore.getProduct();
 }
 
 async function saveNewProduct(product, category) {
@@ -93,7 +127,11 @@ async function saveNewProduct(product, category) {
     <!-- <Offcanvas title="test offcanvas" /> -->
 
     <div class="col">
-        <Carosel></Carosel>
+
+        <Carosel :category-groups="categoriesGroup" :categories="categories" :products="products"
+            @get-category-gropus="productsStore.getCategoryGroups();" @get-categories="getCategories"
+            @get-products="getProducts" @get-product="getProduct">
+        </Carosel>
 
         <!-- <ProductsList @on-click-add-new-product="showNewProductWindow" @show-product-info="showProductInfoWindow"
             :user-is-authorized="userStore.userIsAuthorized" /> -->
@@ -118,7 +156,5 @@ async function saveNewProduct(product, category) {
     <div v-if="showTwoCol" class="col">
         <ProductInfo />
     </div>
-
-
 
 </template>

@@ -16,12 +16,12 @@ const userIsActive = computed(() => {
 });
 
 onBeforeMount(() => {
+  userStore.getToken();
+  userStore.getCurrentUserInfo();
 });
 
 onMounted(() => {
   console.log('App is mounted');
-  userStore.getToken();
-  userStore.getCurrentUserInfo();
 });
 
 </script>
@@ -55,5 +55,6 @@ onMounted(() => {
 <style scoped lang="scss">
 #mainRow {
   height: 86vh;
+  max-height: 86vh;
 }
 </style>
