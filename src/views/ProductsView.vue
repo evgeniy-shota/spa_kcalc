@@ -7,7 +7,7 @@ import ProductForm from '@/components/ProductForm.vue';
 import { useProductsStore } from '@/stores/productsStore';
 import { useUsersStore } from '@/stores/usersStore';
 import Offcanv from '@/components/Offcanv.vue';
-import Carosel from '@/components/Carosel.vue';
+import CategoryAndProductList from '@/components/CategoryAndProductList.vue';
 
 const productsStore = useProductsStore();
 // const userStore = useUsersStore();
@@ -48,6 +48,10 @@ const categoriesGroup = computed(() => {
     return [];
 });
 
+const isCategoryGroupsFound = computed(() => {
+    return productsStore.isCategoriesGroupFound;
+});
+
 const categories = computed(() => {
     if (productsStore.categories) {
         return productsStore.categories
@@ -55,11 +59,19 @@ const categories = computed(() => {
     return []
 });
 
+const isCategoriesFound = computed(() => {
+    return productsStore.isCategoriesFound;
+});
+
 const products = computed(() => {
     if (productsStore.products) {
         return productsStore.products
     }
     return []
+});
+
+const isProductsFound = computed(() => {
+    return productsStore.isProductsFound;
 });
 
 function showNewProductWindow() {
@@ -90,7 +102,7 @@ function getProducts(id) {
 }
 
 function getProduct(id) {
-    productsStore.getProduct();
+    productsStore.getProduct(id);
 }
 
 async function saveNewProduct(product, category) {
@@ -126,12 +138,13 @@ async function saveNewProduct(product, category) {
 
     <!-- <Offcanvas title="test offcanvas" /> -->
 
-    <div class="col">
+    <div class="col" style="max-height: 100%;">
 
-        <Carosel :category-groups="categoriesGroup" :categories="categories" :products="products"
-            @get-category-gropus="productsStore.getCategoryGroups();" @get-categories="getCategories"
-            @get-products="getProducts" @get-product="getProduct">
-        </Carosel>
+        <CategoryAndProductList :category-groups="categoriesGroup" :categories="categories" :products="products"
+            :is-category-groups-found="isCategoryGroupsFound" :is-categories-found="isCategoriesFound"
+            :is-products-found="isProductsFound" @get-category-gropus="productsStore.getCategoryGroups();"
+            @get-categories="getCategories" @get-products="getProducts" @get-product="getProduct">
+        </CategoryAndProductList>
 
         <!-- <ProductsList @on-click-add-new-product="showNewProductWindow" @show-product-info="showProductInfoWindow"
             :user-is-authorized="userStore.userIsAuthorized" /> -->
@@ -153,7 +166,7 @@ async function saveNewProduct(product, category) {
 
     <!-- small col -->
 
-    <div v-if="showTwoCol" class="col">
+    <div v-if="showTwoCol" style="max-height: 100%;" class="col">
         <ProductInfo />
     </div>
 

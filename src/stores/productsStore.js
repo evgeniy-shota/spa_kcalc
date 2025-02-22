@@ -10,8 +10,11 @@ const URL_API_PRODUCT = 'api/products/'
 
 export const useProductsStore = defineStore('products', () => {
   const categoriesGroup = ref([])
+  const isCategoriesGroupFound = ref(true)
   const categories = ref([])
+  const isCategoriesFound = ref(true)
   const products = ref([])
+  const isProductsFound = ref(true)
   const product = ref({
     id: 0,
     category_id: 0,
@@ -30,37 +33,48 @@ export const useProductsStore = defineStore('products', () => {
     is_visible: true,
   })
 
+  const isProductFound = ref(true)
+
   function $reset() {
     categoriesGroup.value = []
     categories.value = []
     products.value = []
     product.value = {}
+    isCategoriesGroupFound = true
+    isCategoriesFound = true
+    isProductsFound = true
+    isProductFound = true
   }
 
   async function getCategoryGroups() {
+    isCategoriesGroupFound.value = true
     try {
       const response = await axios_instance.get(URL_API_CATEGORY_GROUPS)
 
       if (response) {
-        // console.log(response.data.data)
+        isCategoriesGroupFound.value = response.data.count > 0 ? true : false
         categoriesGroup.value = response.data.data
       }
     } catch (error) {
       console.log('Get category groups fail')
+      isCategoriesGroupFound.value = false
     }
   }
 
   async function getCategories(id) {
+    isCategoriesFound.value = true
     try {
       const response = await axios_instance.get(URL_API_CATEGORY_GROUPS + id)
 
       if (response) {
         // console.log(response.data.data.categories.data)
+        isCategoriesFound.value = response.data.data.categories.count > 0 ? true : false
         categories.value = response.data.data.categories.data
       }
     } catch (error) {
       console.log('Get categories if fail')
       console.log(error)
+      isCategoriesFound.value = false
     }
   }
 
@@ -79,27 +93,34 @@ export const useProductsStore = defineStore('products', () => {
 
   // get list of products in category
   async function getProducts(category_id) {
+    isProductsFound.value = true
     try {
       const response = await axios_instance.get(URL_API_PRODUCTS + category_id)
 
       if (response) {
-        // console.log(response.data.data)
+        isProductsFound.value = response.data.count > 0 ? true : false
         products.value = response.data.data
       }
     } catch (error) {
       console.log(error)
+      isProductsFound.value = false
     }
   }
 
-  const getProduct = async (product_id = 0) => {
-    axios_instance
-      .get(URL_API_PRODUCT + `${product_id}`)
-      .then((response) => {
+  async function getProduct(product_id = 0) {
+    isProductFound.value = true
+    try {
+      const response = await axios_instance.get(URL_API_PRODUCT + `${product_id}`)
+      if (response) {
+        isProductFound.value = true
         product.value = response.data.data
-      })
-      .catch((error) => {
-        console.log(error)
-      })
+      } else {
+        isProductFound.value = false
+      }
+    } catch (error) {
+      console.log(error)
+      isProductFound.value = false
+    }
   }
 
   async function addNewProduct(product, category) {
@@ -127,6 +148,9 @@ export const useProductsStore = defineStore('products', () => {
     products,
     product,
     categoriesGroup,
+    isCategoriesGroupFound,
+    isCategoriesFound,
+    isProductsFound,
     getCategoryGroups,
     getCategories,
     getAllCategories,

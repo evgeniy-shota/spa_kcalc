@@ -1,5 +1,5 @@
 <script setup>
-import { computed, onBeforeMount, ref } from 'vue';
+import { computed, onBeforeMount, ref, watch } from 'vue';
 import ListWithControls from './ListWithControls.vue';
 import IconArrowLeftShort from './icons/IconArrowLeftShort.vue';
 
@@ -12,13 +12,25 @@ const props = defineProps({
         type: Array,
         default: [],
     },
+    isCategoryGroupsFound: {
+        type: Boolean,
+        default: false,
+    },
     categories: {
         type: Array,
         default: [],
     },
+    isCategoriesFound: {
+        type: Boolean,
+        default: false,
+    },
     products: {
         type: Array,
         default: [],
+    },
+    isProductsFound: {
+        type: Boolean,
+        default: false,
     },
 });
 
@@ -46,20 +58,8 @@ const emit = defineEmits({
     },
 });
 
-const caruselOffsset = ref(0);
 const currentSlide = ref(0);
 const slideLimit = 2;
-
-const currentOffset = computed(() => {
-    return { transform: 'translateX(' + caruselOffsset.value + 'px)' };
-});
-
-const slideSize = computed(() => {
-    // let elementWidth = document.getElementById('productsCarosel').clientWidth;
-    // let elementHeight = document.getElementById('productsCarosel').clientHeight;
-    return { width: '100px', height: '100%' }
-    return { width: elementWidth, height: elementHeight }
-});
 
 function slideTo(slideNum) {
 
@@ -75,22 +75,19 @@ function slideTo(slideNum) {
         return;
     }
 
-    let containerWidth = document.getElementById('productsCarosel').clientWidth;
-    caruselOffsset.value += containerWidth * (currentSlide.value - slideNum);
-    console.log('Offset ' + caruselOffsset.value);
     currentSlide.value = slideNum;
 }
 
 function selectGroup(id) {
     emit('getCategories', id);
-    setTimeout(() => slideTo(1), 1000);
-    // slideTo(1);
+    // setTimeout(() => slideTo(1), 800);
+    slideTo(1);
 }
 
 function selectCategory(id) {
     emit('getProducts', id);
-    setTimeout(() => slideTo(2), 1000);
-    // slideTo(2);
+    // setTimeout(() => slideTo(2), 800);
+    slideTo(2);
 }
 
 function selectProduct(id) {
@@ -100,7 +97,7 @@ function selectProduct(id) {
 </script>
 
 <template>
-    <div id="productscarusel" class="card py-2 border border-light carusel-container">
+    <div class="carusel-container card py-2 border-light ">
 
         <div class="carusel-controll d-flex gap-2 px-2 pb-1 mb-1 border-bottom">
 
@@ -139,16 +136,19 @@ function selectProduct(id) {
             </div>
         </div>
 
-        <div id="productsCarosel" class="carusel ">
-            <div class="slides active-slide" :style="currentOffset">
-                <div id="groupsSlide" class="slide ps-2 pe-2">
-                    <ListWithControls :data="props.categoryGroups" @select-element="selectGroup" />
+        <div id="productsCarosel" class="carusel">
+            <div class="slides">
+                <div id="groupsSlide" v-show="currentSlide == 0" class="slide ps-2 pe-2">
+                    <ListWithControls :data="props.categoryGroups" :is-data-found="props.isCategoryGroupsFound"
+                        @select-element="selectGroup" />
                 </div>
-                <div id="categoriesSlide" class="slide ps-2 pe-2">
-                    <ListWithControls :data="props.categories" @select-element="selectCategory" />
+                <div id="categoriesSlide" v-show="currentSlide == 1" class="slide ps-2 pe-2">
+                    <ListWithControls :data="props.categories" :is-data-found="props.isCategoriesFound"
+                        @select-element="selectCategory" />
                 </div>
-                <div id="productsSlide" class="slide ps-2 pe-2">
-                    <ListWithControls :data="props.products" @select-element="selectProduct" />
+                <div id="productsSlide" v-show="currentSlide == 2" class="slide ps-2 pe-2">
+                    <ListWithControls :data="props.products" :is-data-found="props.isProductsFound"
+                        @select-element="selectProduct" />
                 </div>
             </div>
         </div>
@@ -158,50 +158,32 @@ function selectProduct(id) {
 
 <style lang="scss">
 .carusel-container {
+    min-height: 100%;
     max-height: 100%;
-    height: 100%;
+    max-width: 100%;
+    // height: 100%;
 }
 
 .carusel {
-    display: block;
-    overflow: hidden;
+    height: 100%;
     max-height: 100%;
-    max-width: 100%;
+    width: 100%;
+    overflow-y: scroll;
+    // max-width: 100%;
 }
 
 .slides {
-    // position: relative;
-    // display: flex;
-    display: block;
-    // flex-wrap: nowrap;
-    // align-items: stretch;
-    overflow: visible;
-    // flex-shrink: 0;
-    width: auto;
-    max-height: 100%;
+    height: 100%;
+    overflow-y: hidden;
     transition: transform .5s;
 }
 
 .slide {
-    // position: relative;
-    display: inline-block;
-    // display: block;
-    // float: left;
-    // margin-right: 1vw;
-    // display: none;
-    // background-color: aquamarine;
-    max-height: 100%;
+    width: 100%;
+    height: 100%;
+    box-sizing: border-box;
     overflow-y: scroll;
-    min-width: 100%;
-    max-width: 100%;
-    // overflow-y: scroll;
 }
-
-.active-slide {
-    // display: inline-block;
-    transform: translateX(0px);
-}
-
 
 
 .carusel-controll {

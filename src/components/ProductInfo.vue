@@ -38,7 +38,7 @@ const productsStore = useProductsStore();
 
 <style>
 .pr-info-container {
-    max-height: 86vh;
+    max-height: 100%;
     overflow-y: scroll;
 }
 </style>
