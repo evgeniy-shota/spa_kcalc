@@ -50,8 +50,10 @@ const props = defineProps({
                     <form class="d-flex">
                         <div v-if="props.userIsAuthorized">
                             <div class="btn btn-outline-primary me-2">
-                                <IconPersonFill />
-                                {{ props.userName }}
+                                <RouterLink class="nav-link px-3" to="/profile">
+                                    <IconPersonFill />
+                                    {{ props.userName }}
+                                </RouterLink>
                             </div>
                             <RouterLink class="btn btn-outline-dark" to="/logout">
                                 <IconBoxArrowRight />

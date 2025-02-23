@@ -9,6 +9,7 @@ import WelcomView from '@/views/WelcomView.vue'
 import LoginView from '@/views/LoginView.vue'
 import RegistrationView from '@/views/RegistrationView.vue'
 import LogoutView from '@/views/LogoutView.vue'
+import ProfileView from '@/views/ProfileView.vue'
 
 const UNAUTHORUZED_ACSESS_ALLOWED = ['welcome', 'products', 'registration', 'login']
 
@@ -43,7 +44,7 @@ const router = createRouter({
     {
       path: '/profile',
       name: 'profile',
-      component: HomeView,
+      component: ProfileView,
     },
     {
       path: '/registration',
