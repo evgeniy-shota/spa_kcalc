@@ -11,8 +11,16 @@ const URL_API_REGISTER = '/api/registration'
 export const useUsersStore = defineStore('users', () => {
   const userEmail = ref('')
   const userName = ref('')
+  const dateOfRegistration = ref('')
   const userIsBanned = ref(false)
   const userIsAuthorized = ref(false)
+  const gender = ref('')
+  const dateOfBirth = ref('')
+  const trainingLevel = ref('')
+  const activityLevel = ref('')
+  const height = ref(0)
+  const targetWeight = ref(0)
+  const weigth = ref([])
   const registrationIsSuccessful = ref(false)
 
   function $reset() {
@@ -21,6 +29,10 @@ export const useUsersStore = defineStore('users', () => {
     userIsBanned.value = false
     userIsAuthorized.value = false
   }
+
+  const currentWeight = computed(() => {
+    return weigth.value[weigth.value.length - 1]
+  })
 
   async function checkUserStatus() {
     try {
@@ -57,6 +69,7 @@ export const useUsersStore = defineStore('users', () => {
 
       userIsAuthorized.value = true
       userIsBanned.value = response.data.data.is_banned
+
       if (!userIsBanned.value) {
         userName.value = response.data.data.name
         userEmail.value = response.data.data.email
@@ -72,32 +85,15 @@ export const useUsersStore = defineStore('users', () => {
       userIsAuthorized.value = false
       return { result: false, response: error }
     }
+  }
 
-    // axios_instance
-    //   .get('sanctum/csrf-cookie')
-    //   .then((response) => {
-    //     console.log('csrf-token request successful')
-
-    //     axios_instance
-    //       .get(URL_API_USERS)
-    //       .then((response) => {
-    //         console.log('getUserInfo response:')
-    //         userIsAuthorized.value = true
-    //         if (!response.data.data.is_banned) {
-    //           userName.value = response.data.data.name
-    //           userEmail.value = response.data.data.email
-    //         }
-    //         userIsBanned.value = response.data.data.is_banned
-    //       })
-    //       .catch((error) => {
-    //         console.log(`getUserInfo error: ${error}`)
-    //         userIsAuthorized.value = false
-    //       })
-    //   })
-    //   .catch((error) => {
-    //     console.log('getUserInfo error')
-    //     console.log(error)
-    //   })
+  async function updateUserInfo() {
+    try {
+      const response = axios_instance.patch(URL_API_USERS)
+    } catch (error) {
+      console.log('Updating user info fail...')
+      console.log(error)
+    }
   }
 
   const login = async (email, password) => {
@@ -135,24 +131,6 @@ export const useUsersStore = defineStore('users', () => {
     } catch (error) {
       return { result: false, response: error }
     }
-
-    // axios_instance
-    //   .post(URL_API_LOGIN, {
-    //     email,
-    //     password,
-    //   })
-    //   .then((response) => {
-    //     userIsAuthorized = true
-    //     userIsBanned.value = response.data.data.is_banned
-    //     if (!userIsBanned.value) {
-    //       userName.value = response.data.data.name
-    //       userEmail.value = response.data.data.email
-    //     }
-    //   })
-    //   .catch((error) => {
-    //     console.log('Login error:')
-    //     console.log(error)
-    //   })
   }
 
   const logout = async () => {
