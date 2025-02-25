@@ -32,13 +32,13 @@ const router = createRouter({
       component: StatisticView,
     },
     {
-      path: '/diet',
-      name: 'diet',
+      path: '/diets',
+      name: 'diets',
       component: DietView,
     },
     {
-      path: '/activity',
-      name: 'activity',
+      path: '/activities',
+      name: 'activities',
       component: ActivityView,
     },
     {

@@ -1,11 +1,19 @@
 <script setup>
-import { computed } from 'vue';
+import { computed, watch, ref } from 'vue';
 import LineChart from './LineChart.vue';
 import IconPersonFill from './icons/IconPersonFill.vue';
 import IconCloseX from './icons/IconCloseX.vue';
 import IconClipboardPlus from './icons/IconClipboardPlus.vue';
 import IconEnvelope from './icons/IconEnvelope.vue';
 import IconEnvelopeCheck from './icons/IconEnvelopeCheck.vue';
+
+const weight = ref();
+const targetWeight = ref()
+const height = ref()
+const gender = ref('');
+const dateOfBirth = ref('');
+const trainingLevel = ref('');
+const activityLevel = ref('');
 
 const props = defineProps({
     name: {
@@ -18,7 +26,7 @@ const props = defineProps({
     },
     isVerified: {
         type: Boolean,
-        default: true,
+        default: false,
     },
     dateOfRegistration: {
         type: String,
@@ -54,26 +62,117 @@ const props = defineProps({
     },
 });
 
-const emit = defineEmits({
-    updateInfo: () => { },
+watch([
+    props.gender,
+    props.dateOfBirth,
+    props.trainingLevel,
+    props.activityLevel,
+    props.height,
+    props.weight,
+    props.targetWeight
+], () => {
+
+    if (props.gender !== null) {
+        gender.value = props.gender;
+    }
+
+    if (props.dateOfBirth !== null) {
+        dateOfBirth.value = props.dateOfBirth;
+    }
+
+    if (props.trainingLevel !== null) {
+        trainingLevel.value = props.trainingLevel;
+    }
+
+    if (props.activityLevel !== null) {
+        activityLevel.value = props.activityLevel;
+    }
+
+    if (props.height !== null) {
+        height.value = props.height;
+    }
+
+    if (props.weight !== null) {
+        weight.value = props.weight;
+    }
+
+    if (props.targetWeight !== null) {
+        targetWeight.value = props.targetWeight;
+    }
+
 });
 
-const dateOfBirth = computed(() => {
-    return props.data
+const emit = defineEmits({
+    saveInfo: () => { },
 });
+
+const dataIsModified = computed(() => {
+
+    if (gender.value !== props.gender) {
+        return true
+    }
+
+    if (dateOfBirth.value !== props.dateOfBirth) {
+        return true
+    }
+
+    if (trainingLevel.value !== props.trainingLevel) {
+        return true
+    }
+
+    if (activityLevel.value !== props.activityLevel) {
+        return true
+    }
+
+    if (height.value !== props.height) {
+        return true
+    }
+
+    if (weight.value !== props.weight) {
+        return true
+    }
+
+    if (targetWeight.value !== props.targetWeight) {
+        return true
+    }
+
+    return false
+});
+
+function saveInfo() {
+    let info = {
+        gender: gender.value,
+        dateOfBirth: dateOfBirth.value,
+        trainingLevel: trainingLevel.value,
+        activityLevel: activityLevel.value,
+        height: height.value,
+        weight: weight.value,
+        targetWeight: targetWeight.value
+    };
+
+    emit('saveInfo', info);
+}
 
 </script>
 
 <template>
     <div class="card border-light" style="height: 100%; overflow-y: scroll;">
         <div class="card-body">
+            <div class="d-flex justify-content-between align-items-center mb-1">
+                <div>
+                    <h5>Профиль</h5>
+                </div>
+
+                <div @click="saveInfo" :disabled="!dataIsModified" class="btn btn-primary">Сохранить</div>
+            </div>
+
             <div class="mb-1 border-bottom pb-1">
                 <div class="d-flex justify-content-between">
                     <div>
-                        <IconPersonFill :size="20" class="me-1" />Логин: {{ props.name }}
+                        <IconPersonFill :size="20" class="me-1" />{{ props.name }}
                         <div>
                             <IconEnvelopeCheck v-if="props.isVerified" class="me-1" :size="20" />
-                            <IconEnvelope v-else :size="20" />
+                            <IconEnvelope class="me-1" :size="20" />
                             <span>email: {{ props.email }}</span>
                         </div>
                     </div>

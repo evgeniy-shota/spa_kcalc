@@ -1,9 +1,11 @@
 <script setup>
 import { ref } from 'vue';
-import { RouterLink } from 'vue-router';
+import { RouterLink, useRoute } from 'vue-router';
 import IconPersonFill from './icons/IconPersonFill.vue';
 import IconBoxArrowRight from './icons/IconBoxArrowRight.vue';
 import IconBoxArrowInRight from './icons/IconBoxArrowInRight.vue';
+
+const route = useRoute();
 
 const props = defineProps({
     userIsAuthorized: { type: Boolean, required: true, default: false },
@@ -26,24 +28,29 @@ const props = defineProps({
                 <div class="collapse navbar-collapse" id="navbarTogglerDemo03">
                     <ul class="navbar-nav me-auto mb-2 mb-lg-0">
                         <li class="nav-item">
-                            <RouterLink class="nav-link px-3 active" aria-current="page" to="/">Главная</RouterLink>
+                            <RouterLink class="nav-link px-3" :class="{ 'active': route.name == 'home' }"
+                                aria-current="page" to="/">Главная</RouterLink>
                         </li>
 
                         <li class="nav-item">
-                            <RouterLink class="nav-link px-3" to="/products">Продукты</RouterLink>
+                            <RouterLink class="nav-link px-3" :class="{ 'active': route.name == 'products' }"
+                                to="/products">Продукты</RouterLink>
                         </li>
 
                         <li class="nav-item">
-                            <RouterLink class="nav-link px-3" to="/diet">Диета
+                            <RouterLink class="nav-link px-3" :class="{ 'active': route.name == 'diets' }" to="/diets">
+                                Диета
                             </RouterLink>
                         </li>
 
                         <li class="nav-item">
-                            <RouterLink class="nav-link px-3" to="/activity">Активности</RouterLink>
+                            <RouterLink class="nav-link px-3" :class="{ 'active': route.name == 'activities' }"
+                                to="/activities">Активности</RouterLink>
                         </li>
 
                         <li class="nav-item">
-                            <RouterLink class="nav-link px-3" to="/statistic">Статистика</RouterLink>
+                            <RouterLink class="nav-link px-3" :class="{ 'active': route.name == 'statistic' }"
+                                to="/statistic">Статистика</RouterLink>
                         </li>
                     </ul>
 
@@ -74,3 +81,5 @@ const props = defineProps({
         </nav>
     </header>
 </template>
+
+<style lang="scss"></style>
