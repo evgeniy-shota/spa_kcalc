@@ -1,7 +1,7 @@
 <script setup>
 import { computed, onBeforeMount, onMounted } from 'vue';
 import { RouterView } from 'vue-router';
-import axios_instance from './resource/js/axiosInstance'
+// import axios_instance from './resource/js/axiosInstance'
 
 import { useUsersStore } from './stores/usersStore';
 
@@ -17,7 +17,7 @@ const userIsActive = computed(() => {
 
 onBeforeMount(() => {
   userStore.getToken();
-  userStore.getCurrentUserInfo();
+  userStore.getUserInfo();
 });
 
 onMounted(() => {

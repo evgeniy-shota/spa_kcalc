@@ -19,9 +19,9 @@ const props = defineProps({
   dataset: {
     type: Object,
     default: {
-      labels: ['some', 'some', 'some', 'some', 'some', 'some', 'some'],
+      labels: ['some', 'some', 'some'],
       dataset: {
-        data: [40, 39, 10, 40, 39, 80, 40],
+        data: [40, 39, 10],
         label: 'label-1',
       },
     },
@@ -34,6 +34,7 @@ const chartOptions = ref({
 })
 
 const chartData = computed(() => {
+  console.log('chartDate');
 
   if (props.dataset.datasets.length > 0) {
 

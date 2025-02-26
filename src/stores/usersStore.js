@@ -3,12 +3,13 @@ import { computed, ref } from 'vue'
 import axios_instance from '../resource/js/axiosInstance'
 import { compile } from 'sass'
 
-const URL_API_USERS = 'api/users'
+const URL_API_USERS = 'api/users/'
 const URL_API_LOGIN = '/api/login'
 const URL_API_LOGOUT = '/api/logout'
 const URL_API_REGISTER = '/api/registration'
 
 export const useUsersStore = defineStore('users', () => {
+  const userId = ref()
   const userEmail = ref('')
   const userName = ref('')
   const dateOfRegistration = ref('')
@@ -20,18 +21,28 @@ export const useUsersStore = defineStore('users', () => {
   const activityLevel = ref('')
   const height = ref(0)
   const targetWeight = ref(0)
-  const weigth = ref([])
+  const weight = ref([])
   const registrationIsSuccessful = ref(false)
 
   function $reset() {
+    userId = null
     userEmail.value = ''
     userName.value = ''
+    dateOfRegistration.value = ''
     userIsBanned.value = false
     userIsAuthorized.value = false
+    gender.value = ''
+    dateOfBirth.value = ''
+    trainingLevel.value = ''
+    activityLevel.value = ''
+    height.value = 0
+    targetWeight.value = 0
+    weight.value = []
+    registrationIsSuccessful.value = false
   }
 
   const currentWeight = computed(() => {
-    return weigth.value[weigth.value.length - 1]
+    return weight.value.length > 0 ? weight.value[weight.value.length - 1] : null
   })
 
   async function checkUserStatus() {
@@ -63,7 +74,7 @@ export const useUsersStore = defineStore('users', () => {
       })
   }
 
-  const getCurrentUserInfo = async () => {
+  const getUserInfo = async () => {
     try {
       const response = await axios_instance.get(URL_API_USERS)
 
@@ -71,9 +82,17 @@ export const useUsersStore = defineStore('users', () => {
       userIsBanned.value = response.data.data.is_banned
 
       if (!userIsBanned.value) {
+        userId.value = response.data.data.id
         userName.value = response.data.data.name
         userEmail.value = response.data.data.email
-
+        dateOfRegistration.value = response.data.data.date_of_registration
+        gender.value = response.data.data.profile.gender
+        dateOfBirth.value = response.data.data.profile.date_of_birth
+        trainingLevel.value = response.data.data.profile.level_of_training
+        activityLevel.value = response.data.data.profile.daily_activity_level
+        height.value = response.data.data.profile.height
+        targetWeight.value = response.data.data.profile.target_weight
+        weight.value = response.data.data.profile.weight
         return {
           result: true,
           response: { name: userName.value, email: userEmail.value, is_banned: userIsBanned.value },
@@ -87,9 +106,24 @@ export const useUsersStore = defineStore('users', () => {
     }
   }
 
-  async function updateUserInfo() {
+  async function updateUserInfo(info) {
+    if (info.dateUpdatedWeight !== weight.value[weight.value.length - 1].date) {
+      weight.value.push({
+        value: info.dateUpdatedWeight,
+        date: info.updatedWeight,
+      })
+    }
+
     try {
-      const response = axios_instance.patch(URL_API_USERS)
+      const response = axios_instance.patch(URL_API_USERS + userId.value, {
+        gender: info.gender,
+        dateOfBirth: info.dateOfBirth,
+        level_of_training: info.level_of_training,
+        level_of_activity: info.level_of_activity,
+        height: info.height,
+        weight: weight.value,
+        target_weight: info.targetWeight,
+      })
     } catch (error) {
       console.log('Updating user info fail...')
       console.log(error)
@@ -176,17 +210,28 @@ export const useUsersStore = defineStore('users', () => {
   }
 
   return {
+    userId,
     userEmail,
     userName,
+    dateOfRegistration,
     userIsBanned,
     userIsAuthorized,
+    gender,
+    dateOfBirth,
+    trainingLevel,
+    activityLevel,
+    height,
+    targetWeight,
+    weight,
+    currentWeight,
+    registrationIsSuccessful,
     checkUserStatus,
     getToken,
-    getCurrentUserInfo,
+    getUserInfo,
+    updateUserInfo,
     login,
     logout,
     register,
-    registrationIsSuccessful,
     $reset,
   }
 })
