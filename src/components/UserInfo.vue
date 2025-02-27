@@ -1,6 +1,9 @@
 <script setup>
 import { computed, watch, ref } from 'vue';
+import { getDate } from '@/resource/js/dateTime';
+import { validateDate } from '@/resource/js/dataValidation';
 import LineChart from './LineChart.vue';
+import Calendar from './Calendar.vue';
 import IconPersonFill from './icons/IconPersonFill.vue';
 import IconCloseX from './icons/IconCloseX.vue';
 import IconClipboardPlus from './icons/IconClipboardPlus.vue';
@@ -59,14 +62,55 @@ const props = defineProps({
 });
 
 const weight = ref(props.weight);
-const currentWeight = ref(props.currentWeight.value);
-const currentWeightDate = ref(props.currentWeight.date);
+const currentWeight = ref(props.currentWeight ? props.currentWeight.value : null);
+const currentWeightDate = ref(props.currentWeight ? props.currentWeight.date : '');
 const targetWeight = ref(props.targetWeight)
 const height = ref(props.height)
 const gender = ref(props.gender);
 const dateOfBirth = ref(props.dateOfBirth);
 const trainingLevel = ref(props.trainingLevel);
 const activityLevel = ref(props.activityLevel);
+
+const validationResult = ref({
+    userGender: {
+        isChanged: false,
+        isValid: true,
+    },
+    userTrainingLevel: {
+        isChanged: false,
+        isValid: true,
+    },
+    userActivityLevel: {
+        isChanged: false,
+        isValid: true,
+    },
+    userDateOfBirth: {
+        isChanged: false,
+        isValid: true,
+    },
+    userHeight: {
+        isChanged: false,
+        isValid: true,
+    },
+    userWeight: {
+        isChanged: false,
+        isValid: true,
+    },
+    userTargetWeight: {
+        isChanged: false,
+        isValid: true,
+    },
+})
+
+function dataIsValid(inputId) {
+    if (!validationResult.value[inputId].isValid) {
+        return 'border-danger'
+    }
+    if (validationResult.value[inputId].isChanged) {
+        return 'border-info'
+    }
+    return ''
+}
 
 watch([
     () => props.gender,
@@ -115,6 +159,98 @@ watch([
 
 });
 
+watch(gender, () => {
+    if (gender.value !== props.gender) {
+        validationResult.value.userGender.isChanged = true
+    } else {
+        validationResult.value.userGender.isChanged = false
+    }
+});
+
+watch(dateOfBirth, () => {
+    if (dateOfBirth.value !== props.dateOfBirth) {
+        validationResult.value.userDateOfBirth.isChanged = true
+
+        if (validateDate(dateOfBirth.value, 'yyyy-mm-dd').isValid) {
+            validationResult.value.userDateOfBirth.isValid = true
+        } else {
+            validationResult.value.userDateOfBirth.isValid = false
+        }
+
+    } else {
+        validationResult.value.userDateOfBirth.isChanged = false
+        validationResult.value.userDateOfBirth.isValid = true
+
+    }
+});
+
+watch(trainingLevel, () => {
+    if (trainingLevel.value !== props.trainingLevel) {
+        validationResult.value.userTrainingLevel.isChanged = true
+    } else {
+        validationResult.value.userTrainingLevel.isChanged = false
+    }
+});
+
+watch(activityLevel, () => {
+    if (activityLevel.value !== props.activityLevel) {
+        validationResult.value.userActivityLevel.isChanged = true
+    } else {
+        validationResult.value.userActivityLevel.isChanged = false
+    }
+});
+
+watch(height, () => {
+    if (height.value !== props.height) {
+        validationResult.value.userHeight.isChanged = true
+
+        if (height.value < 100 || height.value > 250) {
+            validationResult.value.userHeight.isValid = false
+        } else {
+            validationResult.value.userHeight.isValid = true
+        }
+
+    } else {
+        validationResult.value.userHeight.isChanged = false
+        validationResult.value.userHeight.isValid = true
+    }
+});
+
+watch(currentWeight, () => {
+    if (currentWeight.value !== props.currentWeight.value) {
+        validationResult.value.userWeight.isChanged = true
+
+        if (currentWeight.value < 35 || currentWeight.value > 200) {
+            validationResult.value.userWeight.isValid = false
+
+        } else {
+            validationResult.value.userWeight.isValid = true
+        }
+
+    } else {
+        validationResult.value.userWeight.isChanged = false
+        validationResult.value.userWeight.isValid = true
+
+    }
+});
+
+watch(targetWeight, () => {
+    if (targetWeight.value !== props.targetWeight) {
+        validationResult.value.userTargetWeight.isChanged = true
+
+        if (targetWeight.value < 35 || targetWeight.value > 200) {
+            validationResult.value.userTargetWeight.isValid = false
+        } else {
+            validationResult.value.userTargetWeight.isValid = true
+        }
+
+    } else {
+        validationResult.value.userTargetWeight.isChanged = false
+        validationResult.value.userTargetWeight.isValid = true
+
+    }
+});
+
 const emit = defineEmits({
     saveInfo: () => { },
 });
@@ -122,31 +258,31 @@ const emit = defineEmits({
 const dataIsModified = computed(() => {
     console.log('modifaed');
 
-    if (gender.value !== props.gender) {
+    if (validationResult.value.userTargetWeight.isChanged && validationResult.value.userTargetWeight.isValid) {
         return true
     }
 
-    if (dateOfBirth.value !== props.dateOfBirth) {
+    if (validationResult.value.userGender.isChanged && validationResult.value.userGender.isValid) {
         return true
     }
 
-    if (trainingLevel.value !== props.trainingLevel) {
+    if (validationResult.value.userDateOfBirth.isChanged && validationResult.value.userDateOfBirth.isValid) {
         return true
     }
 
-    if (activityLevel.value !== props.activityLevel) {
+    if (validationResult.value.userTrainingLevel.isChanged && validationResult.value.userTrainingLevel.isValid) {
         return true
     }
 
-    if (height.value !== props.height) {
+    if (validationResult.value.userActivityLevel.isChanged && validationResult.value.userActivityLevel.isValid) {
         return true
     }
 
-    if (targetWeight.value !== props.targetWeight) {
+    if (validationResult.value.userWeight.isChanged && validationResult.value.userWeight.isValid) {
         return true
     }
 
-    if (currentWeight.value !== props.currentWeight.value) {
+    if (validationResult.value.userHeight.isChanged && validationResult.value.userHeight.isValid) {
         return true
     }
 
@@ -172,7 +308,8 @@ function saveInfo() {
         level_of_activity: activityLevel.value,
         height: height.value,
         updatedWeight: currentWeight.value,
-        dateUpdatedWeight: currentWeightDate.value,
+        // dateUpdatedWeight: currentWeightDate.value,
+        dateUpdatedWeight: getDate(),
         targetWeight: targetWeight.value
     };
 
@@ -212,20 +349,26 @@ function saveInfo() {
 
             <div class="mb-2">
                 <label for="userGender" class="form-label mb-1">Пол</label>
-                <select name="userGender" v-model="gender" id="userGender" class="form-select">
+                <select name="userGender" v-model="gender" id="userGender" class="form-select"
+                    :class="dataIsValid('userGender')">
                     <option selected value="unknow">Не указан</option>
                     <option value="man">Мужской</option>
                     <option value="woman">Женкий</option>
                 </select>
             </div>
+            <!-- <div class="mb-2">
+                <Calendar />
+            </div> -->
             <div class="mb-2">
                 <label for="userDateOfBirth" class="form-label mb-1">Дата рождения</label>
-                <input type="date" v-model="dateOfBirth" name="userDateOfBirth" id="userDateOfBirth"
-                    class="form-control">
+                <input type="text" v-model="dateOfBirth" onekeyup="" name="userDateOfBirth" id="userDateOfBirth"
+                    class="form-control" :class="dataIsValid('userDateOfBirth')" placeholder="гггг-мм-дд">
             </div>
+
             <div class="mb-2">
                 <label for="userTrainingLevel" class="form-label mb-1">Уровень тренированости</label>
-                <select name="userTrainingLevel" v-model="trainingLevel" id="userTrainingLevel" class="form-select">
+                <select name="userTrainingLevel" v-model="trainingLevel" id="userTrainingLevel" class="form-select"
+                    :class="dataIsValid('userTrainingLevel')">
                     <option select value="unknow">Неизвестно</option>
                     <option value="low">Низкий</option>
                     <option value="medium">Средний</option>
@@ -233,9 +376,11 @@ function saveInfo() {
                     <option value="veryHigh">Очень высокий</option>
                 </select>
             </div>
+
             <div class="mb-2">
                 <label for="userActivityLevel" class="form-label mb-1">Уровень дневной активности</label>
-                <select name="userActivityLevel" v-model="activityLevel" id="userActivityLevel" class="form-select">
+                <select name="userActivityLevel" v-model="activityLevel" id="userActivityLevel" class="form-select"
+                    :class="dataIsValid('userActivityLevel')">
                     <option select value="unknow">Неизвестно</option>
                     <option value="low">Низкий</option>
                     <option value="medium">Средний</option>
@@ -243,28 +388,35 @@ function saveInfo() {
                     <option value="veryHigh">Очень высокий</option>
                 </select>
             </div>
+
             <div class="mb-2">
                 <label for="userHeight" class="form-label mb-1">Рост, см</label>
-                <input type="number" v-model="height" name="userHeight" id="userHeight" class="form-control">
+                <input type="number" onkeypress='return event.charCode >= 48 && event.charCode <= 57' min="100"
+                    max="250" v-model="height" name="userHeight" id="userHeight" class="form-control"
+                    :class="dataIsValid('userHeight')">
             </div>
+
             <div class="row">
                 <div class="col-12 col-md-6">
                     <div class="mb-2">
                         <label for="userWeight" class="form-label mb-1 me-1">Вес от {{ currentWeightDate }}, кг</label>
                         <div class="d-flex justify-content-between gap-1">
-                            <input type="number" v-model="currentWeight" name="userWeight" id="userWeight"
-                                class="form-control">
-                            <div class="btn btn-sm btn-light">
+                            <input type="number" onkeypress='return event.charCode >= 48 && event.charCode <= 57'
+                                v-model="currentWeight" name="userWeight" id="userWeight" class="form-control"
+                                :class="dataIsValid('userWeight')">
+                            <!-- <div class="btn btn-sm btn-light">
                                 <IconClipboardPlus :size="20" />
-                            </div>
+                            </div> -->
                         </div>
                     </div>
                 </div>
+
                 <div class="col-12 col-md-6">
                     <div class="mb-2">
                         <label for="userTargetWeight" class="form-label mb-1">Целевой вес, кг</label>
-                        <input type="number" v-model="targetWeight" name="userTargetWeight" id="userTargetWeight"
-                            class="form-control">
+                        <input type="number" onkeypress='return event.charCode >= 48 && event.charCode <= 57'
+                            v-model="targetWeight" name="userTargetWeight" id="userTargetWeight" class="form-control"
+                            :class="dataIsValid('userTargetWeight')">
                     </div>
                 </div>
             </div>

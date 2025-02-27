@@ -1,7 +1,6 @@
 import { defineStore } from 'pinia'
 import { computed, ref } from 'vue'
 import axios_instance from '../resource/js/axiosInstance'
-import { compile } from 'sass'
 
 const URL_API_USERS = 'api/users/'
 const URL_API_LOGIN = '/api/login'
@@ -9,7 +8,7 @@ const URL_API_LOGOUT = '/api/logout'
 const URL_API_REGISTER = '/api/registration'
 
 export const useUsersStore = defineStore('users', () => {
-  const userId = ref()
+  const userId = ref(null)
   const userEmail = ref('')
   const userName = ref('')
   const dateOfRegistration = ref('')
@@ -19,13 +18,13 @@ export const useUsersStore = defineStore('users', () => {
   const dateOfBirth = ref('')
   const trainingLevel = ref('')
   const activityLevel = ref('')
-  const height = ref(0)
-  const targetWeight = ref(0)
+  const height = ref(null)
+  const targetWeight = ref(null)
   const weight = ref([])
   const registrationIsSuccessful = ref(false)
 
   function $reset() {
-    userId = null
+    userId.value = null
     userEmail.value = ''
     userName.value = ''
     dateOfRegistration.value = ''
@@ -35,13 +34,16 @@ export const useUsersStore = defineStore('users', () => {
     dateOfBirth.value = ''
     trainingLevel.value = ''
     activityLevel.value = ''
-    height.value = 0
-    targetWeight.value = 0
+    height.value = null
+    targetWeight.value = null
     weight.value = []
     registrationIsSuccessful.value = false
   }
 
+  // const currentWeight = ref({ date: '2025-02-25', value: 111 })
   const currentWeight = computed(() => {
+    console.log(weight.value)
+
     return weight.value.length > 0 ? weight.value[weight.value.length - 1] : null
   })
 
@@ -89,7 +91,7 @@ export const useUsersStore = defineStore('users', () => {
         gender.value = response.data.data.profile.gender
         dateOfBirth.value = response.data.data.profile.date_of_birth
         trainingLevel.value = response.data.data.profile.level_of_training
-        activityLevel.value = response.data.data.profile.daily_activity_level
+        activityLevel.value = response.data.data.profile.level_of_daily_activity
         height.value = response.data.data.profile.height
         targetWeight.value = response.data.data.profile.target_weight
         weight.value = response.data.data.profile.weight
@@ -109,21 +111,39 @@ export const useUsersStore = defineStore('users', () => {
   async function updateUserInfo(info) {
     if (info.dateUpdatedWeight !== weight.value[weight.value.length - 1].date) {
       weight.value.push({
-        value: info.dateUpdatedWeight,
-        date: info.updatedWeight,
+        date: info.dateUpdatedWeight,
+        value: info.updatedWeight,
       })
+    } else {
+      weight.value[weight.value.length - 1].value = info.updatedWeight
     }
 
     try {
-      const response = axios_instance.patch(URL_API_USERS + userId.value, {
+      const response = await axios_instance.patch(URL_API_USERS + userId.value, {
         gender: info.gender,
         dateOfBirth: info.dateOfBirth,
         level_of_training: info.level_of_training,
-        level_of_activity: info.level_of_activity,
+        level_of_daily_activity: info.level_of_activity,
         height: info.height,
         weight: weight.value,
         target_weight: info.targetWeight,
       })
+
+      if (response) {
+        console.log('some fucking dial')
+
+        userId.value = response.data.data.id
+        userName.value = response.data.data.name
+        userEmail.value = response.data.data.email
+        dateOfRegistration.value = response.data.data.date_of_registration
+        gender.value = response.data.data.profile.gender
+        dateOfBirth.value = response.data.data.profile.date_of_birth
+        trainingLevel.value = response.data.data.profile.level_of_training
+        activityLevel.value = response.data.data.profile.level_of_daily_activity
+        height.value = response.data.data.profile.height
+        targetWeight.value = response.data.data.profile.target_weight
+        weight.value = response.data.data.profile.weight
+      }
     } catch (error) {
       console.log('Updating user info fail...')
       console.log(error)
@@ -141,12 +161,23 @@ export const useUsersStore = defineStore('users', () => {
       userIsBanned.value = response.data.data.is_banned
 
       if (!userIsBanned.value) {
+        userId.value = response.data.data.id
         userName.value = response.data.data.name
         userEmail.value = response.data.data.email
+
+        dateOfRegistration.value = response.data.data.date_of_registration
+        gender.value = response.data.data.profile.gender
+        dateOfBirth.value = response.data.data.profile.date_of_birth
+        trainingLevel.value = response.data.data.profile.level_of_training
+        activityLevel.value = response.data.data.profile.level_of_daily_activity
+        height.value = response.data.data.profile.height
+        targetWeight.value = response.data.data.profile.target_weight
+        weight.value = response.data.data.profile.weight
 
         return {
           result: true,
           response: {
+            id: userId.value,
             name: userName.value,
             email: userEmail.value,
             is_banned: userIsBanned,

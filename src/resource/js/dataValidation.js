@@ -135,4 +135,36 @@ function validatePassword(password, minPasswordLen = 8, maxPasswordLen = 16) {
   return { isValid: validationError.length > 0 ? false : true, errors: validationError }
 }
 
-export { validateFormData, validateName, validateEmail, validatePassword, validateText }
+function validateDate(date, format = 'YYYY-mm-dd', minValue = null, maxValue = null) {
+  // let validRegex = /\d{4}-\d{2}-\d{2}/
+  let validationError = []
+
+  if (date.length < 7 || date.length > 10 || format.length < 7 || format.length > 10) {
+    console.log('Validation error, date or format is invalid...')
+    return { isValid: false, errors: [''] }
+  }
+
+  // let separator = new RegExp(`\\${format[format.search(/[\.-]/)]}`)
+  let separator = format[format.search(/[\.-]/)]
+
+  let formatSplited = format.split(separator)
+
+  let dateReg = new RegExp(
+    `^(\\d{${formatSplited[0].length}}\\${separator}\\d{${formatSplited[1].length}}\\${separator}\\d{${formatSplited[2].length}})$`,
+  )
+
+  if (!date.match(dateReg)) {
+    validationError.push('Дата не соответствует формату')
+  }
+
+  return { isValid: validationError.length > 0 ? false : true, errors: validationError }
+}
+
+export {
+  validateFormData,
+  validateName,
+  validateEmail,
+  validatePassword,
+  validateText,
+  validateDate,
+}

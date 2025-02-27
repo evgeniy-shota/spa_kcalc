@@ -118,7 +118,7 @@ export const useDailyRationsStore = defineStore('dailyRations', () => {
       if (response) {
         dailyRation.value = response.data.data
         dailyRationProducts.value = dailyRation.value.products
-        dailyRationEnergyValue.value = dailyRation.value.rationEnergyValue
+        // dailyRationEnergyValue.value = dailyRation.value.rationEnergyValue
       }
       console.log('Daily ration: ')
       console.log(dailyRation.value)

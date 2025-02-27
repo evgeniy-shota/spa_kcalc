@@ -8,7 +8,11 @@ const usersStore = useUsersStore();
 
 const currentWeight = computed(() => {
     console.log('curr weight: ')
-    return { ...usersStore.currentWeight };
+    return usersStore.currentWeight;
+});
+
+const userGender = computed(() => {
+    return usersStore.gender
 });
 
 function updateUserInfo(info) {
@@ -22,7 +26,7 @@ function updateUserInfo(info) {
     <!-- <div class="row"> -->
     <div class="col-12 col-md-6 mb-2" style="height: 100%;">
         <UserInfo :name="usersStore.userName" :email="usersStore.userEmail"
-            :date-of-registration="usersStore.dateOfRegistration" :gender="usersStore.gender"
+            :date-of-registration="usersStore.dateOfRegistration" :gender="userGender"
             :date-of-birth="usersStore.dateOfBirth" :training-level="usersStore.trainingLevel"
             :activity-level="usersStore.activityLevel" :height="usersStore.height"
             :target-weight="usersStore.targetWeight" :current-weight="currentWeight" :weight="usersStore.weight"
