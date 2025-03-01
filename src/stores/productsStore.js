@@ -61,7 +61,7 @@ export const useProductsStore = defineStore('products', () => {
     }
   }
 
-  async function getCategories(id) {
+  async function getCategories(id, filters = null) {
     isCategoriesFound.value = true
     try {
       const response = await axios_instance.get(URL_API_CATEGORY_GROUPS + id)
@@ -92,7 +92,7 @@ export const useProductsStore = defineStore('products', () => {
   }
 
   // get list of products in category
-  async function getProducts(category_id) {
+  async function getProducts(category_id, filters = null) {
     isProductsFound.value = true
     try {
       const response = await axios_instance.get(URL_API_PRODUCTS + category_id)

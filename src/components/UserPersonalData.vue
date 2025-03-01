@@ -1,10 +1,18 @@
 <script setup>
-import { ref } from 'vue';
+import { onBeforeMount, ref } from 'vue';
 import ListWithControls from './ListWithControls.vue';
+import { useProductsStore } from '@/stores/productsStore';
+
+const productStore = useProductsStore();
 
 const currentSlide = ref(0);
 const slideLimit = 2;
 
+
+
+onBeforeMount(() => {
+
+});
 
 function slideTo(slideNum) {
     if (slideNum == currentSlide.value || slideNum < 0 || slideNum > slideLimit) {
