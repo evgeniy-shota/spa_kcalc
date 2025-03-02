@@ -15,6 +15,19 @@ export const useProductsStore = defineStore('products', () => {
   const isCategoriesFound = ref(true)
   const products = ref([])
   const isProductsFound = ref(true)
+  const productsFilter = ref({
+    name: null,
+    category_id: null,
+    is_personal: null,
+    is_abstract: null,
+    manufacturer: null,
+    country_of_manufacture: null,
+    quantity: null,
+    kcalory: null,
+    proteins: null,
+    carbohydrates: null,
+    fats: null,
+  })
   const product = ref({
     id: 0,
     category_id: 0,
@@ -40,10 +53,39 @@ export const useProductsStore = defineStore('products', () => {
     categories.value = []
     products.value = []
     product.value = {}
-    isCategoriesGroupFound = true
-    isCategoriesFound = true
-    isProductsFound = true
-    isProductFound = true
+    isCategoriesGroupFound.value = true
+    isCategoriesFound.value = true
+    isProductsFound.value = true
+    isProductFound.value = true
+    productsFilter.value = {
+      name: null,
+      category_id: null,
+      is_personal: null,
+      is_abstract: null,
+      manufacturer: null,
+      country_of_manufacture: null,
+      quantity: null,
+      kcalory: null,
+      proteins: null,
+      carbohydrates: null,
+      fats: null,
+    }
+  }
+
+  function clearProductFilter() {
+    productsFilter.value = ref({
+      name: null,
+      category_id: null,
+      is_personal: null,
+      is_abstract: null,
+      manufacturer: null,
+      country_of_manufacture: null,
+      quantity: null,
+      kcalory: null,
+      proteins: null,
+      carbohydrates: null,
+      fats: null,
+    })
   }
 
   async function getCategoryGroups() {
@@ -79,20 +121,17 @@ export const useProductsStore = defineStore('products', () => {
   }
 
   // get list of categories
-  const getAllCategories = async () => {
-    axios_instance
-      // .get(URL_API_CATEGORIES)
-      .get(URL_API_CATEGORY_GROUPS)
-      .then((response) => {
-        categories.value = response.data.data
-      })
-      .catch((error) => {
-        console.log(error)
-      })
+  async function getAllCategories(filters) {
+    try {
+      const response = axios_instance.get(URL_API_CATEGORIES)
+    } catch (error) {
+      console.log('Get all categories fail')
+      console.log(error)
+    }
   }
 
   // get list of products in category
-  async function getProducts(category_id, filters = null) {
+  async function getProducts(category_id) {
     isProductsFound.value = true
     try {
       const response = await axios_instance.get(URL_API_PRODUCTS + category_id)
@@ -104,6 +143,20 @@ export const useProductsStore = defineStore('products', () => {
     } catch (error) {
       console.log(error)
       isProductsFound.value = false
+    }
+  }
+
+  async function getFilteredProducts() {
+    try {
+      const response = await axios_instance.post(URL_API_PRODUCT, productsFilter.value)
+
+      if (response) {
+        isProductsFound.value = response.data.count > 0 ? true : false
+        products.value = response.data.data
+      }
+    } catch (error) {
+      console.log('Get filtered product fail')
+      console.log(error)
     }
   }
 
@@ -151,11 +204,14 @@ export const useProductsStore = defineStore('products', () => {
     isCategoriesGroupFound,
     isCategoriesFound,
     isProductsFound,
+    productsFilter,
+    clearProductFilter,
     getCategoryGroups,
     getCategories,
     getAllCategories,
     getProducts,
     getProduct,
+    getFilteredProducts,
     addNewProduct,
     $reset,
   }

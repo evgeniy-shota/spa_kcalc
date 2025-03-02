@@ -56,10 +56,13 @@ const emit = defineEmits({
         }
         return false;
     },
+    showFilter: () => {
+        return true;
+    },
 });
 
-const currentSlide = ref(0);
-const slideLimit = 2;
+const currentSlide = ref(1);
+const slideLimit = 3;
 
 function slideTo(slideNum) {
 
@@ -81,17 +84,21 @@ function slideTo(slideNum) {
 function selectGroup(id) {
     emit('getCategories', id);
     // setTimeout(() => slideTo(1), 800);
-    slideTo(1);
+    slideTo(2);
 }
 
 function selectCategory(id) {
     emit('getProducts', id);
     // setTimeout(() => slideTo(2), 800);
-    slideTo(2);
+    slideTo(3);
 }
 
 function selectProduct(id) {
     emit('getProduct', id);
+}
+
+function showFilter() {
+    emit('showFilter');
 }
 
 </script>
@@ -101,8 +108,14 @@ function selectProduct(id) {
 
         <div class="carusel-controll d-flex gap-2 px-2 pb-1 mb-1 border-bottom">
 
-            <div class="controll-item">
+            <div v-show="currentSlide == 0" class="controll-item">
                 <div class="btn btn-light" @click="slideTo(0)">
+                    Результаты поиска
+                </div>
+            </div>
+
+            <div v-show="currentSlide > 0" class="controll-item">
+                <div class="btn btn-light" @click="slideTo(1)">
                     Группы
                 </div>
                 <!-- <div class="btn-group">
@@ -123,12 +136,12 @@ function selectProduct(id) {
                 </div> -->
             </div>
 
-            <div v-show="currentSlide > 1" class="controll-item">
-                <div class="btn btn-light" @click="slideTo(1)">
+            <div v-show="currentSlide > 2" class="controll-item">
+                <div class="btn btn-light" @click="slideTo(2)">
                     Категории
                 </div>
             </div>
-            <div v-show="currentSlide > 0" class="controll-item">
+            <div v-show="currentSlide > 1" class="controll-item">
                 <div class="btn btn-light" @click="slideTo(currentSlide - 1)">
                     <IconArrowLeftShort :size="20" />
                     Назад
@@ -136,17 +149,28 @@ function selectProduct(id) {
             </div>
         </div>
 
+        <!-- filter -->
+
+        <div class="filter-container px-2 pb-1 mb-1">
+            <div @click="showFilter" class="btn btn-sm btn-info">Фильтр</div>
+        </div>
+
+
         <div id="productsCarosel" class="carusel">
             <div class="slides">
-                <div id="groupsSlide" v-show="currentSlide == 0" class="slide ps-2 pe-2">
+                <div id="filterResiltSlide" v-show="currentSlide == 0" class="slide ps-2 pe-2">
+                    <ListWithControls :data="props.products" :is-data-found="props.isProductsFound"
+                        @select-element="selectProduct" />
+                </div>
+                <div id="groupsSlide" v-show="currentSlide == 1" class="slide ps-2 pe-2">
                     <ListWithControls :data="props.categoryGroups" :is-data-found="props.isCategoryGroupsFound"
                         @select-element="selectGroup" />
                 </div>
-                <div id="categoriesSlide" v-show="currentSlide == 1" class="slide ps-2 pe-2">
+                <div id="categoriesSlide" v-show="currentSlide == 2" class="slide ps-2 pe-2">
                     <ListWithControls :data="props.categories" :is-data-found="props.isCategoriesFound"
                         @select-element="selectCategory" />
                 </div>
-                <div id="productsSlide" v-show="currentSlide == 2" class="slide ps-2 pe-2">
+                <div id="productsSlide" v-show="currentSlide == 3" class="slide ps-2 pe-2">
                     <ListWithControls :data="props.products" :is-data-found="props.isProductsFound"
                         @select-element="selectProduct" />
                 </div>

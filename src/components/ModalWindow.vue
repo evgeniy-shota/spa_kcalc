@@ -71,12 +71,20 @@ const modalWindowSize = computed(() => {
                 </div>
             </div>
 
-            <div class="card-body modal-window-body">
+            <div class="card-body modal-window-body pt-2">
 
-                <slot name="header"></slot>
+                <div class="modal-header">
+                    <slot name="header"></slot>
+                </div>
+
                 <!-- <slot name="main" :propsForSlot=props.propsForSlots></slot> -->
-                <slot name="main" v-bind=props.propsForSlots></slot>
-                <slot name="footer"></slot>
+                <div class="modal-main">
+                    <slot name="main" v-bind=props.propsForSlots></slot>
+                </div>
+
+                <div class="modal-footer">
+                    <slot name="footer"></slot>
+                </div>
 
             </div>
         </div>
@@ -109,7 +117,17 @@ const modalWindowSize = computed(() => {
     z-index: 4;
 }
 
-.modal-window-body {
+// .modal-window-body {
+//     overflow-y: scroll;
+// }
+.modal-header,
+.modal-footer {
+    height: 8%;
+}
+
+.modal-main {
+    height: 84%;
     overflow-y: scroll;
+    overflow-x: hidden;
 }
 </style>

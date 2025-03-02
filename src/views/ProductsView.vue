@@ -2,6 +2,7 @@
 import { computed, onBeforeMount, onMounted, ref } from 'vue';
 import ProductsList from '@/components/ProductsList.vue';
 import ProductInfo from '@/components/ProductInfo.vue';
+import ProductFilter from '@/components/ProductFilter.vue';
 import ModalWindow from '@/components/ModalWindow.vue';
 import ProductForm from '@/components/ProductForm.vue';
 import { useProductsStore } from '@/stores/productsStore';
@@ -18,7 +19,7 @@ onMounted(() => {
     // productsStore.getCategories();
     // console.log(productsStore.categories);
 });
-
+const isShowProductFilter = ref(false)
 const isShowNewProductWindow = ref(false);
 const isShowProductInfoWindow = ref(false);
 const saveNewProductResult = ref(false);
@@ -91,6 +92,13 @@ function hideProductInfoWindow() {
     isShowProductInfoWindow.value = false;
 }
 
+function showProductFilter() {
+    isShowProductFilter.value = true;
+}
+function hideProductFilter() {
+    isShowProductFilter.value = false;
+}
+
 async function getCategories(id) {
     productsStore.categories.length = 0
     productsStore.getCategories(id);
@@ -136,6 +144,17 @@ async function saveNewProduct(product, category) {
 
     </ModalWindow>
 
+    <ModalWindow :show-window="isShowProductFilter" title="Расширенный фильтр" @close-window="hideProductFilter">
+        <template #header>
+            <div class="btn btn-primary me-2">Применить</div>
+            <div class="btn btn-secondary">Очистить</div>
+        </template>
+
+        <template #main>
+            <ProductFilter />
+        </template>
+    </ModalWindow>
+
     <!-- <Offcanvas title="test offcanvas" /> -->
 
     <div class="col" style="max-height: 100%;">
@@ -143,7 +162,8 @@ async function saveNewProduct(product, category) {
         <CategoryAndProductList :category-groups="categoriesGroup" :categories="categories" :products="products"
             :is-category-groups-found="isCategoryGroupsFound" :is-categories-found="isCategoriesFound"
             :is-products-found="isProductsFound" @get-category-gropus="productsStore.getCategoryGroups();"
-            @get-categories="getCategories" @get-products="getProducts" @get-product="getProduct">
+            @get-categories="getCategories" @get-products="getProducts" @get-product="getProduct"
+            @show-filter="showProductFilter">
         </CategoryAndProductList>
 
         <!-- <ProductsList @on-click-add-new-product="showNewProductWindow" @show-product-info="showProductInfoWindow"

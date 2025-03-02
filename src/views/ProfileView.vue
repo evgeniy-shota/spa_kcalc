@@ -1,10 +1,17 @@
 <script setup>
 import UserInfo from '@/components/UserInfo.vue';
 import UserPersonalData from '@/components/UserPersonalData.vue';
+import { useProductsStore } from '@/stores/productsStore';
 import { useUsersStore } from '@/stores/usersStore';
-import { computed } from 'vue';
+import { computed, onMounted } from 'vue';
 
+const productStore = useProductsStore();
 const usersStore = useUsersStore();
+
+onMounted(() => {
+    productStore.productsFilter.is_personal = false;
+    productStore.getFilteredProducts();
+});
 
 const currentWeight = computed(() => {
     console.log('curr weight: ')
@@ -33,8 +40,9 @@ function updateUserInfo(info) {
             @save-info="updateUserInfo" />
     </div>
 
-    <div class="col-12 col-md-6" style="max-height: 100%;">
-        <UserPersonalData />
+    <div class="col-12 col-md-6" style="height: 100%;">
+        <UserPersonalData :products="productStore.products" :is-products-found="productStore.isProductsFound"
+            :categories="productStore.categories" :is-categories-found="productStore.isCategoriesFound" />
     </div>
     <!-- </div> -->
 </template>
