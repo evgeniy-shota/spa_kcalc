@@ -15,6 +15,7 @@ export const useProductsStore = defineStore('products', () => {
   const isCategoriesFound = ref(true)
   const products = ref([])
   const isProductsFound = ref(true)
+  const allCategories = ref([])
   const productsFilter = ref({
     name: null,
     category_id: null,

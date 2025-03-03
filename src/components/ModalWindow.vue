@@ -55,6 +55,24 @@ const modalWindowSize = computed(() => {
     }
 });
 
+function mainSlotSize(slotHeader, slotFooter) {
+    let height = 90;
+    // console.log('main slot size');
+    // console.log(slotHeader);
+    // console.log(slotFooter);
+    if (slotHeader) {
+        height -= 8;
+    }
+
+    if (slotFooter) {
+        height -= 8;
+    }
+
+    return {
+        height: height + '%',
+    }
+}
+
 </script>
 
 <template>
@@ -71,32 +89,29 @@ const modalWindowSize = computed(() => {
                 </div>
             </div>
 
-            <div class="card-body modal-window-body pt-2">
+            <div class="card-body modal-window-body pt-1 pb-1">
 
-                <div class="modal-header">
-                    <slot name="header"></slot>
+                <div v-if="$slots.header" class="modal-header">
+                    <slot name="header" v-bind="props.propsForSlots"></slot>
                 </div>
 
                 <!-- <slot name="main" :propsForSlot=props.propsForSlots></slot> -->
-                <div class="modal-main">
+                <div v-if="$slots.main" :style="mainSlotSize($slots.header, $slots.footer)" class="modal-main">
                     <slot name="main" v-bind=props.propsForSlots></slot>
                 </div>
 
-                <div class="modal-footer">
-                    <slot name="footer"></slot>
+                <div v-if="$slots.footer" class="modal-footer py-2">
+                    <slot name="footer" v-bind="props.propsForSlots"></slot>
                 </div>
 
             </div>
         </div>
     </div>
 
-
-
 </template>
 
 <style lang="scss">
 .modal-window-container {
-
     position: absolute;
     padding: 0;
     top: 0;
@@ -120,13 +135,17 @@ const modalWindowSize = computed(() => {
 // .modal-window-body {
 //     overflow-y: scroll;
 // }
+.modal-window-body {
+    height: 100%;
+}
+
 .modal-header,
 .modal-footer {
     height: 8%;
 }
 
 .modal-main {
-    height: 84%;
+    // height: 74%;
     overflow-y: scroll;
     overflow-x: hidden;
 }

@@ -9,8 +9,11 @@ import { useProductsStore } from '@/stores/productsStore';
 import { useUsersStore } from '@/stores/usersStore';
 import Offcanv from '@/components/Offcanv.vue';
 import CategoryAndProductList from '@/components/CategoryAndProductList.vue';
+import { useAdditionalProductData } from '@/stores/additionProductData';
+import App from '@/App.vue';
 
 const productsStore = useProductsStore();
+const additionalProductDataStore = useAdditionalProductData();
 // const userStore = useUsersStore();
 
 const showTwoCol = ref(true);
@@ -18,11 +21,28 @@ const showTwoCol = ref(true);
 onMounted(() => {
     // productsStore.getCategories();
     // console.log(productsStore.categories);
+    additionalProductDataStore.getData();
 });
 const isShowProductFilter = ref(false)
+const isApplyFilter = ref(false)
+const isClearFilter = ref(false)
 const isShowNewProductWindow = ref(false);
 const isShowProductInfoWindow = ref(false);
 const saveNewProductResult = ref(false);
+
+const propsForModalFilter = computed(() => {
+    return {
+        categories: additionalProductDataStore.allCategories,
+        dataSource: additionalProductDataStore.dataSource,
+        countries: additionalProductDataStore.countriesOfManufacture,
+        isApplyFilter: isApplyFilter.value,
+        isClearFilter: isClearFilter.value,
+        applyFilter: applyFilter,
+        clearFilter: clearFilter,
+        clickApplyFilter: clickApplyFilter,
+        clickClearFilter: clickClearFilter,
+    }
+});
 
 const propsForModalWindowSlots = computed(() => {
     return {
@@ -112,6 +132,26 @@ function getProducts(id) {
 function getProduct(id) {
     productsStore.getProduct(id);
 }
+function clickApplyFilter() {
+    isApplyFilter.value = true
+}
+
+function clickClearFilter() {
+    isClearFilter.value = true
+}
+
+async function applyFilter(filter) {
+    isApplyFilter.value = false
+    isShowProductFilter.value = false
+    console.log(filter);
+    productsStore.productsFilter = filter;
+    productsStore.getFilteredProducts();
+}
+
+async function clearFilter() {
+    console.log('cleaFilter');
+    isClearFilter.value = false
+}
 
 async function saveNewProduct(product, category) {
     console.log('save new product');
@@ -144,15 +184,20 @@ async function saveNewProduct(product, category) {
 
     </ModalWindow>
 
-    <ModalWindow :show-window="isShowProductFilter" title="Расширенный фильтр" @close-window="hideProductFilter">
-        <template #header>
-            <div class="btn btn-primary me-2">Применить</div>
-            <div class="btn btn-secondary">Очистить</div>
+    <ModalWindow :show-window="isShowProductFilter" title="Расширенный фильтр" @close-window="hideProductFilter"
+        :props-for-slots="propsForModalFilter">
+
+        <template #main="{ categories, dataSource, countries, isApplyFilter, isClearFilter, applyFilter, clearFilter }">
+            <ProductFilter :categories="categories" :data-source="dataSource" :countries="countries"
+                @apply-filter="applyFilter" @clear-filter="clearFilter" :is-apply-filter="isApplyFilter"
+                :is-clear-filter="isClearFilter" />
         </template>
 
-        <template #main>
-            <ProductFilter />
+        <template #footer="{ clickClearFilter, clickApplyFilter }">
+            <div @click="clickApplyFilter" class="btn btn-primary me-2">Применить</div>
+            <div @click="clickClearFilter" class="btn btn-secondary me-2">Очистить</div>
         </template>
+
     </ModalWindow>
 
     <!-- <Offcanvas title="test offcanvas" /> -->
