@@ -24,6 +24,7 @@ onMounted(() => {
     additionalProductDataStore.getData();
 });
 const isShowProductFilter = ref(false)
+const isShowFilteredProducts = ref(false)
 const isApplyFilter = ref(false)
 const isClearFilter = ref(false)
 const isShowNewProductWindow = ref(false);
@@ -35,6 +36,10 @@ const propsForModalFilter = computed(() => {
         categories: additionalProductDataStore.allCategories,
         dataSource: additionalProductDataStore.dataSource,
         countries: additionalProductDataStore.countriesOfManufacture,
+        caloryLimits: additionalProductDataStore.caloryLimits,
+        proteinsLimits: additionalProductDataStore.proteinsLimits,
+        carbohydratesLimits: additionalProductDataStore.carbohydratesLimits,
+        fatsLimits: additionalProductDataStore.fatsLimits,
         isApplyFilter: isApplyFilter.value,
         isClearFilter: isClearFilter.value,
         applyFilter: applyFilter,
@@ -146,11 +151,16 @@ async function applyFilter(filter) {
     console.log(filter);
     productsStore.productsFilter = filter;
     productsStore.getFilteredProducts();
+    isShowFilteredProducts.value = true
 }
 
 async function clearFilter() {
     console.log('cleaFilter');
     isClearFilter.value = false
+}
+
+function hideFilteredProducts() {
+    isShowFilteredProducts.value = false
 }
 
 async function saveNewProduct(product, category) {
@@ -187,10 +197,12 @@ async function saveNewProduct(product, category) {
     <ModalWindow :show-window="isShowProductFilter" title="Расширенный фильтр" @close-window="hideProductFilter"
         :props-for-slots="propsForModalFilter">
 
-        <template #main="{ categories, dataSource, countries, isApplyFilter, isClearFilter, applyFilter, clearFilter }">
+        <template
+            #main="{ categories, dataSource, countries, isApplyFilter, isClearFilter, applyFilter, clearFilter, caloryLimits, proteinsLimits, carbohydratesLimits, fatsLimits }">
             <ProductFilter :categories="categories" :data-source="dataSource" :countries="countries"
                 @apply-filter="applyFilter" @clear-filter="clearFilter" :is-apply-filter="isApplyFilter"
-                :is-clear-filter="isClearFilter" />
+                :is-clear-filter="isClearFilter" :calory-limit="caloryLimits" :proteins-limit="proteinsLimits"
+                :carbohydrates-limit="carbohydratesLimits" :fats-limit="fatsLimits" />
         </template>
 
         <template #footer="{ clickClearFilter, clickApplyFilter }">
@@ -206,7 +218,8 @@ async function saveNewProduct(product, category) {
 
         <CategoryAndProductList :category-groups="categoriesGroup" :categories="categories" :products="products"
             :is-category-groups-found="isCategoryGroupsFound" :is-categories-found="isCategoriesFound"
-            :is-products-found="isProductsFound" @get-category-gropus="productsStore.getCategoryGroups();"
+            :is-products-found="isProductsFound" :show-filtered-products="isShowFilteredProducts"
+            @hide-filtered-product="hideFilteredProducts" @get-category-gropus="productsStore.getCategoryGroups();"
             @get-categories="getCategories" @get-products="getProducts" @get-product="getProduct"
             @show-filter="showProductFilter">
         </CategoryAndProductList>

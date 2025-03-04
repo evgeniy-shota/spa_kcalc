@@ -160,6 +160,44 @@ function validateDate(date, format = 'YYYY-mm-dd', minValue = null, maxValue = n
   return { isValid: validationError.length > 0 ? false : true, errors: validationError }
 }
 
+function validateFloatNumber(number, minLen = 0, maxLength = null) {
+  let validRegex = /^(\d+(\.?\d+)?)$/
+  let validationError = []
+
+  if (number.length < minLen) {
+    validationError.push('Минимально допустимое количество символов - ' + minLen)
+  }
+
+  if (number.length > maxLength) {
+    validationError.push('Максимально допустимое количество символов - ' + maxLength)
+  }
+
+  if (!validRegex.test(number)) {
+    validationError.push('Введенное значение не соответствует ожидаемому(дробное число)')
+  }
+
+  return { isValid: validationError.length > 0 ? false : true, errors: validationError }
+}
+
+function validateIntNumber(number, minLen = 0, maxLength = null) {
+  let validRegex = /^\d+$/
+  let validationError = []
+
+  if (number.length < minLen) {
+    validationError.push('Минимально допустимое количество символов - ' + minLen)
+  }
+
+  if (number.length > maxLength) {
+    validationError.push('Максимально допустимое количество символов - ' + maxLength)
+  }
+
+  if (!validRegex.test(number)) {
+    validationError.push('Введенное значение не соответствует ожидаемому(целое число)')
+  }
+
+  return { isValid: validationError.length > 0 ? false : true, errors: validationError }
+}
+
 export {
   validateFormData,
   validateName,
@@ -167,4 +205,6 @@ export {
   validatePassword,
   validateText,
   validateDate,
+  validateFloatNumber,
+  validateIntNumber,
 }

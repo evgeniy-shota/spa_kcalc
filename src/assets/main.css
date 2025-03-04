@@ -13,7 +13,10 @@
 
 body {
   /* background-color: #CECECE; */
-  background-color: rgb(237, 238, 240);
+  /* background-color: rgb(237, 238, 240); */
+  background-color: rgb(241, 241, 241);
+  /* background-color: rgb(99, 235, 205); */
+  background-image: url('/2rect2.png');
 
   /* background-color: #edeef0; */
 }

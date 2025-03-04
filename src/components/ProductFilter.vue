@@ -1,6 +1,7 @@
 <script setup>
 import { watch, ref } from 'vue';
-
+import { filterNumberInput } from '@/resource/js/inputFilters';
+import { validateFloatNumber } from '@/resource/js/dataValidation';
 
 const props = defineProps({
     categories: {
@@ -23,6 +24,22 @@ const props = defineProps({
         type: Boolean,
         default: false,
     },
+    caloryLimit: {
+        type: Array,
+        default: () => [0, 999]
+    },
+    proteinsLimit: {
+        type: Array,
+        default: () => [0, 999]
+    },
+    carbohydratesLimit: {
+        type: Array,
+        default: () => [0, 999]
+    },
+    fatsLimit: {
+        type: Array,
+        default: () => [0, 999]
+    },
 });
 
 const emit = defineEmits({
@@ -36,6 +53,33 @@ const emit = defineEmits({
         return true;
     },
 });
+
+watch([
+    () => props.caloryLimit,
+    () => props.proteinsLimit,
+    () => props.carbohydratesLimit,
+    () => props.fatsLimit], () => {
+
+        if (props.caloryLimit) {
+            caloryLimitFrom.value = props.caloryLimit[0]
+            caloryLimitTo.value = props.caloryLimit[1]
+        }
+
+        if (props.proteinsLimit) {
+            proteinsLimitFrom.value = props.proteinsLimit[0]
+            proteinsLimitTo.value = props.proteinsLimit[1]
+        }
+
+        if (props.carbohydratesLimit) {
+            carbohydratesLimitFrom.value = props.carbohydratesLimit[0]
+            carbohydratesLimitTo.value = props.carbohydratesLimit[1]
+        }
+
+        if (props.fatsLimit) {
+            fatsLimitFrom.value = props.fatsLimit[0]
+            fatsLimitTo.value = props.fatsLimit[1]
+        }
+    });
 
 watch(() => props.isApplyFilter, () => {
     if (props.isApplyFilter) {
@@ -77,10 +121,10 @@ function applyFilter() {
         is_personal: isPersonalChecked.value,
         // is_hidden: isHiddenChecked.value,
         is_abstract: isAbstractChecked.value,
-        kcalory: [caloryLimitFrom.value ? Number(caloryLimitFrom.value) : 0, caloryLimitTo.value ? Number(caloryLimitTo.value) : 999],
-        proteins: [proteinsLimitFrom.value ? Number(proteinsLimitFrom.value) : 0, proteinsLimitTo.value ? Number(proteinsLimitTo.value) : 999],
-        carbohydrates: [carbohydratesLimitFrom.value ? Number(carbohydratesLimitFrom.value) : 0, carbohydratesLimitTo.value ? Number(carbohydratesLimitTo.value) : 999],
-        fats: [fatsLimitFrom.value ? Number(fatsLimitFrom.value) : 0, fatsLimitTo.value ? Number(fatsLimitTo.value) : 999],
+        kcalory: [caloryLimitFrom.value ? Number(caloryLimitFrom.value) : 0, caloryLimitTo.value ? Number(caloryLimitTo.value) : props.caloryLimit[1]],
+        proteins: [proteinsLimitFrom.value ? Number(proteinsLimitFrom.value) : 0, proteinsLimitTo.value ? Number(proteinsLimitTo.value) : props.proteinsLimit[1]],
+        carbohydrates: [carbohydratesLimitFrom.value ? Number(carbohydratesLimitFrom.value) : 0, carbohydratesLimitTo.value ? Number(carbohydratesLimitTo.value) : props.carbohydratesLimit[1]],
+        fats: [fatsLimitFrom.value ? Number(fatsLimitFrom.value) : 0, fatsLimitTo.value ? Number(fatsLimitTo.value) : props.fatsLimit[1]],
     };
 
     emit('applyFilter', filter);
@@ -94,16 +138,27 @@ function clearFilter() {
     isPersonalChecked.value = false;
     isHiddenChecked.value = false;
     isAbstractChecked.value = false;
-    caloryLimitFrom.value = null;
-    caloryLimitTo.value = null;
-    proteinsLimitFrom.value = null;
-    proteinsLimitTo.value = null;
-    carbohydratesLimitFrom.value = null;
-    carbohydratesLimitTo.value = null;
-    fatsLimitFrom.value = null;
-    fatsLimitTo.value = null;
+    caloryLimitFrom.value = props.caloryLimit[0];
+    caloryLimitTo.value = props.caloryLimit[1];
+    proteinsLimitFrom.value = props.proteinsLimit[0];
+    proteinsLimitTo.value = props.proteinsLimit[1];
+    carbohydratesLimitFrom.value = props.carbohydratesLimit[0];
+    carbohydratesLimitTo.value = props.carbohydratesLimit[1];
+    fatsLimitFrom.value = props.fatsLimit[0];
+    fatsLimitTo.value = props.fatsLimit[1];
 
     emit('clearFilter');
+}
+
+function inputCharFilter(event) {
+
+    // console.log(event)
+    if (filterNumberInput(event.keyCode)) {
+        // event.data = event.data.replace(/\D/, '')
+        return
+    }
+
+    event.preventDefault();
 }
 
 </script>
@@ -112,8 +167,8 @@ function clearFilter() {
     <div class="filter-container">
         <div class="row">
             <div class="col-12 col-md-6">
-                <div>Категории</div>
-                <div class="categories-filter-container mb-1 border-bottom border-light">
+                <div class="border-bottom border-light-subtle">Категории</div>
+                <div class="categories-filter-container mb-1 rounded border-light me-2">
                     <ul class="list-group list-group-flush  px-2">
                         <li v-show="props.categories.length == 0">
                             <div class="form-text">Нет данных</div>
@@ -121,8 +176,8 @@ function clearFilter() {
                         <li v-for="item in props.categories" :key="item.id">
                             <div class="form-check">
                                 <input class="form-check-input" type="checkbox" :value="item.id"
-                                    v-model="selectedCategories" id="categoryFilter1">
-                                <label class="form-check-label" for="categoryFilter1">
+                                    v-model="selectedCategories" :id="'categoryFilter1' + item.id">
+                                <label class="form-check-label" :for="'categoryFilter1' + item.id">
                                     {{ item.name }}
                                 </label>
                             </div>
@@ -132,8 +187,8 @@ function clearFilter() {
             </div>
 
             <div class="col-12 col-md-6">
-                <div>Страна производства</div>
-                <div class="country-filter-container mb-1 border-bottom">
+                <div class="border-bottom border-light-subtle">Страна производства</div>
+                <div class="country-filter-container mb-1 rounded border-light me-2">
                     <ul class="list-group list-group-flush px-2">
                         <li v-show="props.countries.length == 0">
                             <div class="form-text">Нет данных</div>
@@ -141,8 +196,8 @@ function clearFilter() {
                         <li v-for="item in props.countries">
                             <div class="form-check">
                                 <input class="form-check-input" type="checkbox" :value="item.id"
-                                    v-model="selectedCountries" id="categoryFilter1">
-                                <label class="form-check-label" for="categoryFilter1">
+                                    v-model="selectedCountries" :id="'countryFilter1' + item.id">
+                                <label class="form-check-label" :for="'countryFilter1' + item.id">
                                     {{ item.name_ru }}
                                 </label>
                             </div>
@@ -154,7 +209,7 @@ function clearFilter() {
 
 
         <div class="status-filter-container mb-1">
-            <div>Статус</div>
+            <div class="border-bottom border-light-subtle">Статус</div>
             <div class="form-check">
                 <input class="form-check-input" v-model="isFavoriteChecked" type="checkbox" value=""
                     id="favoriteProductsFilter">
@@ -186,7 +241,7 @@ function clearFilter() {
         </div>
 
         <div class="limits-filter-container">
-            <div class="mb-1">Ограничения </div>
+            <div class="mb-1 border-bottom border-light-subtle">Ограничения </div>
             <!-- <div class="d-flex">
                 <div class="d-flex flex-column mb-1 me-1">
                     <label for="" class="form-label">Калории от:</label>
@@ -224,11 +279,12 @@ function clearFilter() {
                         <div class="col">
                             <div class="d-flex gap-2 align-items-center">
                                 <label for="caloryFilterFrom" class="form-label">от:</label>
-                                <input id="caloryFilterFrom" v-model="caloryLimitFrom" type="text"
+                                <input id="caloryFilterFrom" v-model="caloryLimitFrom"
+                                    @keydown="inputCharFilter($event)" type="number"
                                     class="form-control form-control-sm" placeholder="ккал.">
                                 <label for="caloryFilterTo" class="form-label">до:</label>
-                                <input id="caloryFilterTo" v-model="caloryLimitTo" type="text"
-                                    class="form-control form-control-sm" placeholder="ккал.">
+                                <input id="caloryFilterTo" v-model="caloryLimitTo" @keydown="inputCharFilter($event)"
+                                    type="number" class="form-control form-control-sm" placeholder="ккал.">
                             </div>
                         </div>
                     </div>
@@ -240,10 +296,12 @@ function clearFilter() {
                         <div class="col">
                             <div class="d-flex gap-2 align-items-center">
                                 <label for="carbohydratesFilterFrom" class="form-label">от:</label>
-                                <input id="carbohydratesFilterFrom" v-model="carbohydratesLimitFrom" type="text"
+                                <input id="carbohydratesFilterFrom" v-model="carbohydratesLimitFrom"
+                                    @keydown="inputCharFilter($event)" type="number"
                                     class="form-control form-control-sm" placeholder="гр.">
                                 <label for="carbohydratesFilterTo" class="form-label">до:</label>
-                                <input id="carbohydratesFilterTo" v-model="carbohydratesLimitTo" type="text"
+                                <input id="carbohydratesFilterTo" v-model="carbohydratesLimitTo"
+                                    @keydown="inputCharFilter($event)" type="number"
                                     class="form-control form-control-sm" placeholder="гр.">
                             </div>
                         </div>
@@ -258,10 +316,12 @@ function clearFilter() {
                         <div class="col">
                             <div class="d-flex gap-2 align-items-center">
                                 <label for="proteinsFilterFrom" class="form-label">от:</label>
-                                <input id="proteinsFilterFrom" v-model="proteinsLimitFrom" type="text"
+                                <input id="proteinsFilterFrom" v-model="proteinsLimitFrom"
+                                    @keydown="inputCharFilter($event)" type="number"
                                     class="form-control form-control-sm" placeholder="гр.">
                                 <label for="proteinsFilterTo" class="form-label">до:</label>
-                                <input id="proteinsFilterTo" v-model="proteinsLimitTo" type="text"
+                                <input id="proteinsFilterTo" v-model="proteinsLimitTo"
+                                    @keydown="inputCharFilter($event)" type="number"
                                     class="form-control form-control-sm" placeholder="гр.">
                             </div>
                         </div>
@@ -274,11 +334,11 @@ function clearFilter() {
                         <div class="col">
                             <div class="d-flex gap-2 align-items-center">
                                 <label for="fatsFilterFrom" class="form-label">от:</label>
-                                <input id="fatsFilterFrom" v-model="fatsLimitFrom" type="text"
-                                    class="form-control form-control-sm" placeholder="гр.">
+                                <input id="fatsFilterFrom" v-model="fatsLimitFrom" @keydown="inputCharFilter($event)"
+                                    type="number" class="form-control form-control-sm" placeholder="гр.">
                                 <label for="fatsFilterTo" class="form-label">до:</label>
-                                <input id="fatsFilterTo" v-model="fatsLimitTo" type="text"
-                                    class="form-control form-control-sm" placeholder="гр.">
+                                <input id="fatsFilterTo" v-model="fatsLimitTo" @keydown="inputCharFilter($event)"
+                                    type="number" class="form-control form-control-sm" placeholder="гр.">
                             </div>
                         </div>
                     </div>
@@ -300,6 +360,6 @@ function clearFilter() {
     // min-height: 10vh;
     max-height: 20vh;
     overflow-y: scroll;
-    background-color: #fafafa;
+    background-color: #faffffe0;
 }
 </style>

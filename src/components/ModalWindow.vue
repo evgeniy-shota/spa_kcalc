@@ -96,11 +96,11 @@ function mainSlotSize(slotHeader, slotFooter) {
                 </div>
 
                 <!-- <slot name="main" :propsForSlot=props.propsForSlots></slot> -->
-                <div v-if="$slots.main" :style="mainSlotSize($slots.header, $slots.footer)" class="modal-main">
+                <div v-if="$slots.main" :style="mainSlotSize($slots.header, $slots.footer)" class="modal-main rounded">
                     <slot name="main" v-bind=props.propsForSlots></slot>
                 </div>
 
-                <div v-if="$slots.footer" class="modal-footer py-2">
+                <div v-if="$slots.footer" class="modal-footer border-top border-light-subtle py-2">
                     <slot name="footer" v-bind="props.propsForSlots"></slot>
                 </div>
 
@@ -119,6 +119,7 @@ function mainSlotSize(slotHeader, slotFooter) {
     left: 0;
     right: 0;
     background-color: rgba(32, 32, 32, 0.842);
+    background-image: url('/4rect2.png');
     // opacity: 0.8;
     z-index: 4;
 }
@@ -148,5 +149,7 @@ function mainSlotSize(slotHeader, slotFooter) {
     // height: 74%;
     overflow-y: scroll;
     overflow-x: hidden;
+    background-color: #fffffa;
+
 }
 </style>

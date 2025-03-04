@@ -9,6 +9,10 @@ export const useAdditionalProductData = defineStore('additionalProductData', () 
   const countriesOfManufacture = ref([])
   const dataSource = ref([])
   const manufacturers = ref([])
+  const caloryLimits = ref([])
+  const proteinsLimits = ref([])
+  const carbohydratesLimits = ref([])
+  const fatsLimits = ref([])
 
   async function getData() {
     try {
@@ -19,6 +23,20 @@ export const useAdditionalProductData = defineStore('additionalProductData', () 
         allCategories.value = response.data.categories.data
         countriesOfManufacture.value = response.data.country_of_manufactory.data
         dataSource.value = response.data.data_source.data
+
+        caloryLimits.value = [response.data.kcalory_limits.min, response.data.kcalory_limits.max]
+
+        proteinsLimits.value = [
+          response.data.proteins_limits.min,
+          response.data.proteins_limits.max,
+        ]
+
+        carbohydratesLimits.value = [
+          response.data.carbohydrates_limits.min,
+          response.data.carbohydrates_limits.max,
+        ]
+
+        fatsLimits.value = [response.data.fats_limits.min, response.data.fats_limits.max]
       }
     } catch (error) {
       console.log('Geting additional product data fail')
@@ -31,7 +49,22 @@ export const useAdditionalProductData = defineStore('additionalProductData', () 
     countriesOfManufacture.value = []
     dataSource.value = []
     manufacturers.value = []
+    caloryLimits.value = []
+    proteinsLimits.value = []
+    carbohydratesLimits.value = []
+    fatsLimits.value = []
   }
 
-  return { allCategories, countriesOfManufacture, dataSource, manufacturers, getData }
+  return {
+    allCategories,
+    countriesOfManufacture,
+    dataSource,
+    manufacturers,
+    caloryLimits,
+    proteinsLimits,
+    carbohydratesLimits,
+    fatsLimits,
+    getData,
+    $reset,
+  }
 })

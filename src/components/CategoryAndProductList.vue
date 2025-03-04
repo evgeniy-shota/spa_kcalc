@@ -1,5 +1,5 @@
 <script setup>
-import { computed, onBeforeMount, ref, watch } from 'vue';
+import { computed, onBeforeMount, ref, TransitionGroup, watch } from 'vue';
 import ListWithControls from './ListWithControls.vue';
 import IconArrowLeftShort from './icons/IconArrowLeftShort.vue';
 
@@ -32,6 +32,10 @@ const props = defineProps({
         type: Boolean,
         default: false,
     },
+    showFilteredProducts: {
+        type: Boolean,
+        default: false,
+    },
 });
 
 const emit = defineEmits({
@@ -59,46 +63,84 @@ const emit = defineEmits({
     showFilter: () => {
         return true;
     },
+    hideFilteredProduct: () => {
+        return true;
+    },
+});
+
+watch(() => props.showFilteredProducts, () => {
+    if (props.showFilteredProducts) {
+        slideTo(0);
+    }
 });
 
 const currentSlide = ref(1);
+const previouslySlide = ref(1);
 const slideLimit = 3;
+
+const currentSelectedCategoryGroup = ref()
+const currentSelectedCategory = ref()
+const currentSelectedProduct = ref()
 
 function slideTo(slideNum) {
 
     if (slideNum > slideLimit) {
         return;
     }
+    console.log('slide top');
 
     if (slideNum < 0) {
-        return;
+
+        if (props.showFilteredProducts) {
+            emit('hideFilteredProduct');
+            if (previouslySlide.value === 3) {
+                selectCategory(currentSelectedCategory.value)
+            } else {
+                currentSlide.value = previouslySlide.value
+
+            }
+        }
+        return
     }
+    console.log('slide mid');
 
     if (slideNum == currentSlide.value) {
         return;
     }
 
+    console.log('slide last');
+    previouslySlide.value = currentSlide.value
     currentSlide.value = slideNum;
 }
 
 function selectGroup(id) {
+    currentSelectedCategoryGroup.value = id
     emit('getCategories', id);
     // setTimeout(() => slideTo(1), 800);
     slideTo(2);
 }
 
 function selectCategory(id) {
+    currentSelectedCategory.value = id
     emit('getProducts', id);
     // setTimeout(() => slideTo(2), 800);
     slideTo(3);
 }
 
 function selectProduct(id) {
+    currentSelectedProduct.value = id
     emit('getProduct', id);
 }
 
 function showFilter() {
     emit('showFilter');
+}
+
+function scrollList() {
+    if (props.showFilteredProducts) {
+        console.log('scroll filtered products');
+    } else { console.log('scroll !'); }
+
 }
 
 </script>
@@ -108,13 +150,7 @@ function showFilter() {
 
         <div class="carusel-controll d-flex gap-2 px-2 pb-1 mb-1 border-bottom">
 
-            <div v-show="currentSlide == 0" class="controll-item">
-                <div class="btn btn-light" @click="slideTo(0)">
-                    Результаты поиска
-                </div>
-            </div>
-
-            <div v-show="currentSlide > 0" class="controll-item">
+            <div v-show="currentSlide >= 0" class="controll-item">
                 <div class="btn btn-light" @click="slideTo(1)">
                     Группы
                 </div>
@@ -136,12 +172,18 @@ function showFilter() {
                 </div> -->
             </div>
 
-            <div v-show="currentSlide > 2" class="controll-item">
+            <div v-show="currentSlide == 0 && props.showFilteredProducts" class="controll-item">
+                <div class="btn btn-light" @click="slideTo(currentSlide - 1)">
+                    Результаты поиска
+                </div>
+            </div>
+
+            <div v-show="currentSlide > 2 && !props.showFilteredProducts" class="controll-item">
                 <div class="btn btn-light" @click="slideTo(2)">
                     Категории
                 </div>
             </div>
-            <div v-show="currentSlide > 1" class="controll-item">
+            <div v-show="currentSlide > 1 || props.showFilteredProducts" class="controll-item">
                 <div class="btn btn-light" @click="slideTo(currentSlide - 1)">
                     <IconArrowLeftShort :size="20" />
                     Назад
@@ -156,11 +198,11 @@ function showFilter() {
         </div>
 
 
-        <div id="productsCarosel" class="carusel">
+        <div id="productsCarosel" @scroll="scrollList" class="carusel">
             <div class="slides">
                 <div id="filterResiltSlide" v-show="currentSlide == 0" class="slide ps-2 pe-2">
-                    <ListWithControls :data="props.products" :is-data-found="props.isProductsFound"
-                        @select-element="selectProduct" />
+                    <ListWithControls :data="props.showFilteredProducts ? props.products : []"
+                        :is-data-found="props.isProductsFound" @select-element="selectProduct" />
                 </div>
                 <div id="groupsSlide" v-show="currentSlide == 1" class="slide ps-2 pe-2">
                     <ListWithControls :data="props.categoryGroups" :is-data-found="props.isCategoryGroupsFound"
@@ -171,8 +213,8 @@ function showFilter() {
                         @select-element="selectCategory" />
                 </div>
                 <div id="productsSlide" v-show="currentSlide == 3" class="slide ps-2 pe-2">
-                    <ListWithControls :data="props.products" :is-data-found="props.isProductsFound"
-                        @select-element="selectProduct" />
+                    <ListWithControls :data="!props.showFilteredProducts ? props.products : []"
+                        :is-data-found="props.isProductsFound" @select-element="selectProduct" />
                 </div>
             </div>
         </div>

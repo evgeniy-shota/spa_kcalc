@@ -57,6 +57,7 @@ function selectElement(id) {
 //   console.log('add to favorite list: ' + id)
 // }
 
+
 </script>
 
 <template>
