@@ -103,7 +103,7 @@ export const useProductsStore = defineStore('products', () => {
   }
 
   function clearProductFilter() {
-    productsFilter.value = ref({
+    productsFilter.value = {
       name: null,
       category_id: null,
       is_personal: null,
@@ -115,7 +115,7 @@ export const useProductsStore = defineStore('products', () => {
       proteins: null,
       carbohydrates: null,
       fats: null,
-    })
+    }
   }
 
   async function getCategoryGroups() {
@@ -135,6 +135,7 @@ export const useProductsStore = defineStore('products', () => {
 
   async function getCategories(id) {
     isCategoriesFound.value = true
+
     try {
       const response = await axios_instance.get(URL_API_CATEGORY_GROUPS + id)
 
@@ -169,7 +170,10 @@ export const useProductsStore = defineStore('products', () => {
   async function getProducts(category_id, cursor = null) {
     isProductsFound.value = true
     // let requestParam = cursor ? category_id + '?cursor=' + cursor : category_id
-    let requestParam = category_id ? (cursor ? category_id + '?cursor=' + cursor : category_id) : ''
+    let requestParam = category_id ? category_id : ''
+
+    requestParam += cursor ? '?cursor=' + cursor : ''
+
     console.log('request params - ' + requestParam)
     try {
       const response = await axios_instance.post(

@@ -132,6 +132,8 @@ function selectGroup(id) {
 }
 
 function selectCategory(id) {
+
+    console.log('categoryId: ' + id)
     currentSelectedCategory.value = id
     emit('getProducts', id);
     // setTimeout(() => slideTo(2), 800);
@@ -154,7 +156,7 @@ function resetTimer() {
 }
 
 function getNextDataPage() {
-    emit('getProducts', currentSelectedCategory.value, props.nextPageCursor);
+    emit('getProducts', props.showFilteredProducts ? null : currentSelectedCategory.value, props.nextPageCursor);
 }
 
 function scrollList(event) {
