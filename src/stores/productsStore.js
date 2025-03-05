@@ -5,15 +5,32 @@ import axios_instance from '@/resource/js/axiosInstance'
 // const FAKE_API = 'https://jsonplaceholder.typicode.com/todos'
 const URL_API_CATEGORY_GROUPS = 'api/category-groups/'
 const URL_API_CATEGORIES = 'api/categories/'
-const URL_API_PRODUCTS = 'api/categories/'
+const URL_API_PRODUCTS = 'api/products/'
 const URL_API_PRODUCT = 'api/products/'
+
+const URL_CATEGORIES = 'api/categories/'
+const URL_PRODUCTS = 'api/products/'
 
 export const useProductsStore = defineStore('products', () => {
   const categoriesGroup = ref([])
+  const currentCategoryGroup = ref({
+    id: null,
+    name: null,
+    categoriesCount: null,
+  })
   const isCategoriesGroupFound = ref(true)
   const categories = ref([])
+  const currentCategory = ref({
+    id: null,
+    name: null,
+    productsCount: null,
+  })
+  // const categoriesPrevPage = ref('')
+  // const categoriesNextPage = ref('')
   const isCategoriesFound = ref(true)
   const products = ref([])
+  const productsPrevCursor = ref('')
+  const productsNextCursor = ref('')
   const isProductsFound = ref(true)
   const allCategories = ref([])
   const productsFilter = ref({
@@ -51,9 +68,21 @@ export const useProductsStore = defineStore('products', () => {
 
   function $reset() {
     categoriesGroup.value = []
+    currentCategoryGroup.value = {
+      id: null,
+      name: null,
+      categoriesCount: null,
+    }
     categories.value = []
+    currentCategory.value = {
+      id: null,
+      name: null,
+      productsCount: null,
+    }
     products.value = []
     product.value = {}
+    productsPrevCursor.value = ''
+    productsNextCursor.value = ''
     isCategoriesGroupFound.value = true
     isCategoriesFound.value = true
     isProductsFound.value = true
@@ -104,13 +133,18 @@ export const useProductsStore = defineStore('products', () => {
     }
   }
 
-  async function getCategories(id, filters = null) {
+  async function getCategories(id) {
     isCategoriesFound.value = true
     try {
       const response = await axios_instance.get(URL_API_CATEGORY_GROUPS + id)
 
       if (response) {
         // console.log(response.data.data.categories.data)
+        currentCategoryGroup.value = {
+          id: response.data.data.id,
+          name: response.data.data.name,
+          categoriesCount: response.data.data.categories.count,
+        }
         isCategoriesFound.value = response.data.data.categories.count > 0 ? true : false
         categories.value = response.data.data.categories.data
       }
@@ -132,14 +166,28 @@ export const useProductsStore = defineStore('products', () => {
   }
 
   // get list of products in category
-  async function getProducts(category_id) {
+  async function getProducts(category_id, cursor = null) {
     isProductsFound.value = true
+    // let requestParam = cursor ? category_id + '?cursor=' + cursor : category_id
+    let requestParam = category_id ? (cursor ? category_id + '?cursor=' + cursor : category_id) : ''
+    console.log('request params - ' + requestParam)
     try {
-      const response = await axios_instance.get(URL_API_PRODUCTS + category_id)
+      const response = await axios_instance.post(
+        URL_API_PRODUCTS + requestParam,
+        productsFilter.value,
+      )
 
       if (response) {
         isProductsFound.value = response.data.count > 0 ? true : false
-        products.value = response.data.data
+
+        if (cursor) {
+          let tempArray = [].concat(products.value, response.data.data)
+          products.value = tempArray
+        } else {
+          products.value = response.data.data
+        }
+        productsPrevCursor.value = response.data.meta.prev_cursor
+        productsNextCursor.value = response.data.meta.next_cursor
       }
     } catch (error) {
       console.log(error)
@@ -154,6 +202,8 @@ export const useProductsStore = defineStore('products', () => {
       if (response) {
         isProductsFound.value = response.data.count > 0 ? true : false
         products.value = response.data.data
+        productsPrevCursor.value = response.data.meta.prev_cursor
+        productsNextCursor.value = response.data.meta.next_cursor
       }
     } catch (error) {
       console.log('Get filtered product fail')
@@ -202,10 +252,14 @@ export const useProductsStore = defineStore('products', () => {
     products,
     product,
     categoriesGroup,
+    currentCategoryGroup,
+    currentCategory,
     isCategoriesGroupFound,
     isCategoriesFound,
     isProductsFound,
     productsFilter,
+    productsPrevCursor,
+    productsNextCursor,
     clearProductFilter,
     getCategoryGroups,
     getCategories,

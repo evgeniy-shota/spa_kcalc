@@ -1,5 +1,6 @@
 <script setup>
-import { computed, onBeforeMount, ref, TransitionGroup, watch } from 'vue';
+import { computed, onBeforeMount, ref, watch } from 'vue';
+import { throttle } from '@/resource/js/throttle';
 import ListWithControls from './ListWithControls.vue';
 import IconArrowLeftShort from './icons/IconArrowLeftShort.vue';
 
@@ -36,6 +37,10 @@ const props = defineProps({
         type: Boolean,
         default: false,
     },
+    nextPageCursor: {
+        type: String,
+        default: null
+    }
 });
 
 const emit = defineEmits({
@@ -68,6 +73,10 @@ const emit = defineEmits({
     },
 });
 
+// watch(() => props.nextPageCursor, () => {
+//     currentTimer.value = null
+// });
+
 watch(() => props.showFilteredProducts, () => {
     if (props.showFilteredProducts) {
         slideTo(0);
@@ -77,6 +86,9 @@ watch(() => props.showFilteredProducts, () => {
 const currentSlide = ref(1);
 const previouslySlide = ref(1);
 const slideLimit = 3;
+
+let timeOutMs = 500;
+const currentTimer = ref(null);
 
 const currentSelectedCategoryGroup = ref()
 const currentSelectedCategory = ref()
@@ -89,17 +101,16 @@ function slideTo(slideNum) {
     }
     console.log('slide top');
 
-    if (slideNum < 0) {
-
-        if (props.showFilteredProducts) {
-            emit('hideFilteredProduct');
-            if (previouslySlide.value === 3) {
-                selectCategory(currentSelectedCategory.value)
-            } else {
-                currentSlide.value = previouslySlide.value
-
-            }
+    if (currentSlide.value == 0) {
+        emit('hideFilteredProduct');
+        if (previouslySlide.value === 3 && slideNum < 0) {
+            selectCategory(currentSelectedCategory.value)
+        } else {
+            currentSlide.value = previouslySlide.value
         }
+    }
+
+    if (slideNum < 0) {
         return
     }
     console.log('slide mid');
@@ -136,17 +147,39 @@ function showFilter() {
     emit('showFilter');
 }
 
-function scrollList() {
-    if (props.showFilteredProducts) {
-        console.log('scroll filtered products');
-    } else { console.log('scroll !'); }
+function resetTimer() {
+    console.log('timer reset');
 
+    currentTimer.value = null
+}
+
+function getNextDataPage() {
+    emit('getProducts', currentSelectedCategory.value, props.nextPageCursor);
+}
+
+function scrollList(event) {
+
+    if (!props.nextPageCursor) {
+        return
+    }
+
+    if (currentTimer.value) {
+        return
+    }
+
+    let currentSroll = event.target.scrollTop + event.target.offsetHeight;
+    let scrollOffset = event.target.scrollHeight * 0.1
+
+    if (currentSroll + scrollOffset >= event.target.scrollHeight) {
+        getNextDataPage();
+        currentTimer.value = setTimeout(resetTimer, timeOutMs);
+    }
 }
 
 </script>
 
 <template>
-    <div class="carusel-container card py-2 border-light ">
+    <div class="carusel-container card py-2 border-light">
 
         <div class="carusel-controll d-flex gap-2 px-2 pb-1 mb-1 border-bottom">
 
@@ -194,30 +227,32 @@ function scrollList() {
         <!-- filter -->
 
         <div class="filter-container px-2 pb-1 mb-1">
-            <div @click="showFilter" class="btn btn-sm btn-info">Фильтр</div>
+            <div @click="showFilter($event)" class="btn btn-sm btn-info">Фильтр</div>
         </div>
 
+        <!-- @scroll="scrollList" -->
+        <!-- <div id="productsCarosel" class="carusel"> -->
+        <!-- <div class="slides"> -->
 
-        <div id="productsCarosel" @scroll="scrollList" class="carusel">
-            <div class="slides">
-                <div id="filterResiltSlide" v-show="currentSlide == 0" class="slide ps-2 pe-2">
-                    <ListWithControls :data="props.showFilteredProducts ? props.products : []"
-                        :is-data-found="props.isProductsFound" @select-element="selectProduct" />
-                </div>
-                <div id="groupsSlide" v-show="currentSlide == 1" class="slide ps-2 pe-2">
-                    <ListWithControls :data="props.categoryGroups" :is-data-found="props.isCategoryGroupsFound"
-                        @select-element="selectGroup" />
-                </div>
-                <div id="categoriesSlide" v-show="currentSlide == 2" class="slide ps-2 pe-2">
-                    <ListWithControls :data="props.categories" :is-data-found="props.isCategoriesFound"
-                        @select-element="selectCategory" />
-                </div>
-                <div id="productsSlide" v-show="currentSlide == 3" class="slide ps-2 pe-2">
-                    <ListWithControls :data="!props.showFilteredProducts ? props.products : []"
-                        :is-data-found="props.isProductsFound" @select-element="selectProduct" />
-                </div>
-            </div>
+        <div id="filterResultSlide" @scroll="scrollList($event)" v-show="currentSlide == 0" class="slide ps-2 pe-2">
+            <ListWithControls :data="props.showFilteredProducts ? props.products : []"
+                :is-data-found="props.isProductsFound" @select-element="selectProduct" />
         </div>
+        <div id="groupsSlide" v-show="currentSlide == 1" class="slide ps-2 pe-2">
+            <ListWithControls :data="props.categoryGroups" :is-data-found="props.isCategoryGroupsFound"
+                @select-element="selectGroup" />
+        </div>
+        <div id="categoriesSlide" v-show="currentSlide == 2" class="slide ps-2 pe-2">
+            <ListWithControls :data="props.categories" :is-data-found="props.isCategoriesFound"
+                @select-element="selectCategory" />
+        </div>
+        <div id="productsSlide" @scroll="scrollList($event)" v-show="currentSlide == 3" class="slide ps-2 pe-2">
+            <ListWithControls :data="!props.showFilteredProducts ? props.products : []"
+                :is-data-found="props.isProductsFound" @select-element="selectProduct" />
+        </div>
+
+        <!-- </div> -->
+        <!-- </div> -->
 
     </div>
 </template>
@@ -227,6 +262,7 @@ function scrollList() {
     min-height: 100%;
     max-height: 100%;
     max-width: 100%;
+    overflow: hidden;
     // height: 100%;
 }
 
@@ -234,21 +270,26 @@ function scrollList() {
     height: 100%;
     max-height: 100%;
     width: 100%;
-    overflow-y: scroll;
+    // overflow-y: hidden;
+    overflow: hidden;
     // max-width: 100%;
 }
 
 .slides {
     height: 100%;
-    overflow-y: hidden;
+    max-height: 100%;
+    // overflow-y: hidden;
+    overflow: hidden;
     transition: transform .5s;
 }
 
 .slide {
     width: 100%;
     height: 100%;
+    max-height: 100%;
     box-sizing: border-box;
-    overflow-y: scroll;
+    // overflow-y: hidden;
+    overflow-y: auto;
 }
 
 

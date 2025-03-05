@@ -129,9 +129,11 @@ async function getCategories(id) {
     productsStore.getCategories(id);
 }
 
-function getProducts(id) {
-    productsStore.products.length = 0
-    productsStore.getProducts(id);
+function getProducts(id, cursor = null) {
+    if (!cursor) {
+        productsStore.products.length = 0
+    }
+    productsStore.getProducts(id, cursor);
 }
 
 function getProduct(id) {
@@ -148,18 +150,21 @@ function clickClearFilter() {
 async function applyFilter(filter) {
     isApplyFilter.value = false
     isShowProductFilter.value = false
-    console.log(filter);
+    // console.log(filter);
     productsStore.productsFilter = filter;
-    productsStore.getFilteredProducts();
+    // productsStore.getProducts();
+    productsStore.getProducts();
     isShowFilteredProducts.value = true
 }
 
 async function clearFilter() {
     console.log('cleaFilter');
+    productsStore.clearProductFilter();
     isClearFilter.value = false
 }
 
 function hideFilteredProducts() {
+    productsStore.clearProductFilter();
     isShowFilteredProducts.value = false
 }
 
@@ -219,9 +224,9 @@ async function saveNewProduct(product, category) {
         <CategoryAndProductList :category-groups="categoriesGroup" :categories="categories" :products="products"
             :is-category-groups-found="isCategoryGroupsFound" :is-categories-found="isCategoriesFound"
             :is-products-found="isProductsFound" :show-filtered-products="isShowFilteredProducts"
-            @hide-filtered-product="hideFilteredProducts" @get-category-gropus="productsStore.getCategoryGroups();"
-            @get-categories="getCategories" @get-products="getProducts" @get-product="getProduct"
-            @show-filter="showProductFilter">
+            :next-page-cursor="productsStore.productsNextCursor" @hide-filtered-product="hideFilteredProducts"
+            @get-category-gropus="productsStore.getCategoryGroups();" @get-categories="getCategories"
+            @get-products="getProducts" @get-product="getProduct" @show-filter="showProductFilter">
         </CategoryAndProductList>
 
         <!-- <ProductsList @on-click-add-new-product="showNewProductWindow" @show-product-info="showProductInfoWindow"
