@@ -49,9 +49,9 @@ watch(registerResult, () => {
 
 <!-- replace floating labels -->
 <template>
-    <div class="col"></div>
-    <div class="col">
-        <div v-show="!registerResult.result" class="card top-50">
+    <div class="col-12 col-sm-2 col-md-3 col-lg"></div>
+    <div class="col-12 col-sm col-md col-lg">
+        <div id="registrationFormCard" v-show="!registerResult.result" class="card">
             <h4 class="card-header">Регистрация</h4>
             <div class="card-body">
                 <form action="">
@@ -90,5 +90,17 @@ watch(registerResult, () => {
             </div>
         </div>
     </div>
-    <div class="col"></div>
+    <div class="col-12 col-sm-2 col-md-3 col-lg"></div>
 </template>
+
+<style lang="scss">
+// @media (max-width: 768px) {
+//     #registrationFormCard {
+//         top: 15%;
+//     }
+// }
+
+#registrationFormCard {
+    top: 15%;
+}
+</style>

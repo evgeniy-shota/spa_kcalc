@@ -1,6 +1,6 @@
 <script setup>
 
-import { computed, ref } from 'vue';
+import { computed, ref, useTemplateRef, watch } from 'vue';
 import IconCloseXlg from './icons/IconCloseXlg.vue';
 
 const props = defineProps({
@@ -24,10 +24,30 @@ const props = defineProps({
         type: Number,
         default: 70
     },
+    headerHeightProcent: {
+        type: Number,
+        default: 8
+    },
+    footerHeightProcent: {
+        type: Number,
+        default: 8
+    },
     propsForSlots: {
         type: Object,
         default: {},
     }
+});
+
+const modalMainSlot = useTemplateRef('modalMainSlot');
+
+watch(() => props.showWindow, () => {
+    if (!modalMainSlot) {
+        return
+    }
+    modalMainSlot.value.scrollTop = 0
+    // let element = document.getElementById('modalMainSlot');
+    console.log(modalMainSlot.value)
+    // element.scrollTop = 0
 });
 
 const emit = defineEmits({
@@ -61,15 +81,16 @@ function mainSlotSize(slotHeader, slotFooter) {
     // console.log(slotHeader);
     // console.log(slotFooter);
     if (slotHeader) {
-        height -= 8;
+        height -= props.header;
     }
 
     if (slotFooter) {
-        height -= 8;
+        height -= props.footer;
     }
 
     return {
         height: height + '%',
+        'max-height': height + '%'
     }
 }
 
@@ -91,16 +112,18 @@ function mainSlotSize(slotHeader, slotFooter) {
 
             <div class="card-body modal-window-body pt-1 pb-1">
 
-                <div v-if="$slots.header" class="modal-header">
+                <div v-if="$slots.header" class="modal-header" :style="{ 'height': props.headerHeightProcent + '%' }">
                     <slot name="header" v-bind="props.propsForSlots"></slot>
                 </div>
 
                 <!-- <slot name="main" :propsForSlot=props.propsForSlots></slot> -->
-                <div v-if="$slots.main" :style="mainSlotSize($slots.header, $slots.footer)" class="modal-main rounded">
+                <div ref="modalMainSlot" v-if="$slots.main" :style="mainSlotSize($slots.header, $slots.footer)"
+                    class="modal-main rounded">
                     <slot name="main" v-bind=props.propsForSlots></slot>
                 </div>
 
-                <div v-if="$slots.footer" class="modal-footer border-top border-light-subtle py-2">
+                <div v-if="$slots.footer" class="modal-footer border-top border-light-subtle py-2"
+                    :style="{ 'height': props.footerHeightProcent + '%' }">
                     <slot name="footer" v-bind="props.propsForSlots"></slot>
                 </div>
 
@@ -143,11 +166,12 @@ function mainSlotSize(slotHeader, slotFooter) {
 .modal-header,
 .modal-footer {
     height: 8%;
+    width: 100%;
 }
 
 .modal-main {
-    // height: 74%;
-    overflow-y: scroll;
+    height: 74%;
+    overflow-y: auto;
     overflow-x: hidden;
     background-color: #fffffa;
 

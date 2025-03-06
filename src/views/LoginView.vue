@@ -32,9 +32,9 @@ watch(loginResult, () => {
 
 <!-- change input form, replace floating lables -->
 <template>
-    <div class="col"></div>
-    <div class="col">
-        <div class="card top-50">
+    <div class="col-12 col-sm-2 col-md-3 col-lg"></div>
+    <div class="col-12 col-sm col-md col-lg">
+        <div id="lofinFormCard" class="card">
             <h4 class="card-header">Войти</h4>
             <div class="card-body">
 
@@ -58,6 +58,18 @@ watch(loginResult, () => {
             </div>
         </div>
     </div>
-    <div class="col"></div>
+    <div class="col-12 col-sm-2 col-md-3 col-lg"></div>
 
 </template>
+
+<style lang="scss">
+@media (max-width: 768px) {
+    #lofinFormCard {
+        top: 15%;
+    }
+}
+
+#lofinFormCard {
+    top: 25%;
+}
+</style>

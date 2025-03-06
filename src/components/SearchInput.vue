@@ -111,7 +111,7 @@ async function search() {
 </script>
 
 <template>
-    <div class="mb-2">
+    <div class="mb-2 w-100">
         <div class="mb-1">
             <label for="inputSearch" v-show="props.searchLabel.length != 0"> {{ props.searchLabel }}</label>
             <input type="text" id="inputSearch" v-model="searchInputText" class="form-control"
@@ -127,6 +127,10 @@ async function search() {
 </template>
 
 <style>
+#inputSearch {
+    width: 100%;
+}
+
 .search-in-progress {
     /* transition: background 0.5s; */
     background: linear-gradient(to right, white 2%, #47bae76e, white 80%);

@@ -221,8 +221,10 @@ async function saveCurrentRation() {
 }
 
 .daily-view-container {
-    max-height: 87vh;
-    height: 87vh;
+    max-height: 86vh;
+    height: 86vh;
+    // max-height: 100%;
+    // height: 100%;
 }
 
 .daily-form-container,
@@ -245,7 +247,7 @@ async function saveCurrentRation() {
 }
 
 .products-lists-container {
-    height: 65vh;
+    max-height: 65vh;
     overflow-y: scroll;
     scrollbar-width: thin;
 

@@ -98,15 +98,16 @@ function selectElement(item) {
 
 <style lang="scss">
 .search-result-container {
-    max-height: 70vh;
-
+    // height: 100%;
+    overflow: hidden;
+    height: 100%;
     // max-height: 70vh;
 }
 
 .search-result-output-container {
-    overflow-y: scroll;
-
-    max-height: 65vh;
+    overflow: scroll;
+    // height: 10%;
+    height: 100%;
 
     li {
         cursor: pointer;

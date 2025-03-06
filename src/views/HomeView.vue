@@ -2,6 +2,7 @@
 import { computed, ref } from 'vue';
 import DailyProductFrom from '@/components/DailyProductFrom.vue';
 import DailyActivityFrom from '@/components/DailyActivityFrom.vue';
+import ModalWindow from '@/components/ModalWindow.vue';
 import SearchResult from '@/components/SearchResult.vue';
 import SearchModalWindow from '@/components/SearchModalWindow.vue';
 import SearchInput from '@/components/SearchInput.vue';
@@ -87,8 +88,22 @@ function selectElement(element) {
     :search-result="searchResult" search-label="Поиск продукта\диеты" :search-result-label="searchResultLabel"
     :time-delay-ms="productSearchTimerDelayMs" /> -->
 
+  <ModalWindow :props-for-slots="{ ...searchInputProps, ...searchResultProps }" :show-window="showSearchWindow"
+    @close-window="hideSearch" :title="searchTitle" :header-height-procent="15">
 
-  <SearchModalWindow :for-slots="{ ...searchInputProps, ...searchResultProps }" :show-window="showSearchWindow"
+    <template #header="{ searchLabel, timeDelayMs, searchText, searchHistory, search, searchIsComplete }">
+      <SearchInput :search-label="searchLabel" :time-delay-ms="timeDelayMs" :search-text="searchText"
+        :search-history="searchHistory" @search="search" :search-is-complete="searchIsComplete" />
+    </template>
+
+    <template #main="{ searchResultLabel, searchResponse, isNothingFound, selectSearchResult }">
+      <SearchResult :search-result-label="searchResultLabel" :search-result="searchResponse"
+        :is-nothing-found="isNothingFound" @select-search-result="selectSearchResult" />
+    </template>
+
+  </ModalWindow>
+
+  <!-- <SearchModalWindow :for-slots="{ ...searchInputProps, ...searchResultProps }" :show-window="showSearchWindow"
     v-on:hide-window="hideSearch" :window-title="searchTitle">
 
     <template #searchInput="{ propsForSlot }">
@@ -102,15 +117,15 @@ function selectElement(element) {
         :is-nothing-found="propsForSlot.isNothingFound" @select-search-result="propsForSlot.selectSearchResult" />
     </template>
 
-  </SearchModalWindow>
+  </SearchModalWindow> -->
 
   <!-- daily diet -->
-  <div class="col">
+  <div class="col mb-2" style="max-height: 100%;">
     <DailyProductFrom v-on:show-search="showSearch" />
   </div>
 
   <!-- daily activity -->
-  <div class="col">
+  <div class="col" style="max-height: 100%;">
     <DailyActivityFrom />
   </div>
 </template>

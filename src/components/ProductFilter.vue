@@ -165,7 +165,7 @@ function inputCharFilter(event) {
 
 <template>
     <div class="filter-container">
-        <div class="row">
+        <div class=" row">
             <div class="col-12 col-md-6">
                 <div class="border-bottom border-light-subtle">Категории</div>
                 <div class="categories-filter-container mb-1 rounded border-light me-2">

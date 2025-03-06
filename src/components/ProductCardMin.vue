@@ -22,6 +22,10 @@ const props = defineProps({
     timerDelayMs: {
         type: Number,
         default: 300,
+    },
+    time: {
+        type: String,
+        default: null,
     }
 });
 
@@ -80,7 +84,47 @@ function inputQuantity(event, productId) {
 </script>
 
 <template>
-    <div class="row">
+
+    <div class="mb-2">
+        <div :title="product.name" class="daily-ration-element-name">
+            {{ product.name }}
+        </div>
+    </div>
+
+    <div class="row mb-2">
+        <div class="col">
+            <div class="input-group input-group-sm">
+                <span class="input-group-text">Вес (гр)</span>
+                <input type="number" min="0" max="1000" onkeypress='return event.charCode >= 48 && event.charCode <= 57'
+                    @change="emit('onCangeQuantity', productId, $event.target.value)"
+                    @input="inputQuantity($event, productId)" class="form-control px-1"
+                    aria-label="Text input with radio button" :value="product.quantity">
+            </div>
+        </div>
+        <div class="col">
+            <div class="input-group input-group-sm">
+                <span class="input-group-text">Время</span>
+                <input type="time" class="form-control form-control-sm" name="dailyProductTime" id="dailyProductTime">
+            </div>
+        </div>
+    </div>
+
+
+    <div class="d-flex justify-content-between  input-group-sm">
+        <span :title='"Калории: " + productEnergyValue.kcalory + " ккал"' class="input-group-text">К: {{
+            productEnergyValue.kcalory
+            }} ккал</span>
+        <span class="input-group-text">Б: {{ productEnergyValue.proteins }} гр.</span>
+        <span class="input-group-text">Ж: {{ productEnergyValue.fats }} гр.</span>
+        <span class="input-group-text">У: {{ productEnergyValue.carbohydrates }} гр.</span>
+    </div>
+
+    <div class="d-flex justify-content-end align-items-center">
+        <a @click="emit('onClickCloseBtn', productId)" class="link-danger link-offset-2 deleteDailyProductLink">Удалить
+            продукт</a>
+    </div>
+
+    <!-- <div class="row">
         <div class="col-11 px-1">
             <div class="row">
                 <div class="col mb-2">
@@ -91,7 +135,7 @@ function inputQuantity(event, productId) {
             </div>
 
             <div class="row">
-                <div class="col-3 pe-1">
+                <div class="col-12 col-md-3 pe-1">
                     <div class="input-group input-group-sm">
                         <span class="input-group-text">Вес (гр)</span>
                         <input type="number" min="0" max="1000"
@@ -102,7 +146,7 @@ function inputQuantity(event, productId) {
                     </div>
                 </div>
 
-                <div class="col ps-1">
+                <div class="col-12 col-md ps-1">
 
                     <div class="input-group input-group-sm">
                         <span :title='"Калории: " + productEnergyValue.kcalory + " ккал"' class="input-group-text">К: {{
@@ -122,9 +166,9 @@ function inputQuantity(event, productId) {
             <button type="button" class="btn btn-sm btn-light" @click="emit('onClickCloseBtn', productId)">
                 <IconCloseXlg />
             </button>
-            <!-- </div> -->
         </div>
-    </div>
+    </div> -->
+
 </template>
 
 <style lang="scss">
@@ -139,5 +183,9 @@ input::-webkit-inner-spin-button {
 input[type=number] {
     -moz-appearance: textfield;
     appearance: textfield;
+}
+
+.deleteDailyProductLink {
+    cursor: pointer;
 }
 </style>
