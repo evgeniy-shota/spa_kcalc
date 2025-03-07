@@ -57,7 +57,7 @@ function setDefaultDateSettings() {
 
     <div class="card border border-light ration-statistic-container">
         <div class="card-header">Статистика питания</div>
-        <div class="card-body">
+        <div class="card-body" style="height: 100%; max-height: 100%;">
 
             <!-- filtersi -->
             <div class="row">
@@ -72,7 +72,7 @@ function setDefaultDateSettings() {
                 </div>
             </div>
 
-            <div class="row">
+            <div class="row mb-2">
                 <div class="col">
 
                     <!-- input-group-sm -->
@@ -90,7 +90,7 @@ function setDefaultDateSettings() {
 
                     </div>
 
-                    <div class="btn btn-outline-warning">Сброс</div>
+                    <div class="btn btn-sm btn-outline-warning">Сброс</div>
 
                 </div>
                 <!-- preset filter -->
@@ -105,18 +105,42 @@ function setDefaultDateSettings() {
             </div>
 
             <!-- chart -->
-            <div class="row">
-                <div class="col">
-                    <div class="chart-container">
-                        <LineChart v-if="statisticStore.statistics.data.length > 0"
-                            :dataset="statisticStore.statisticToChart.kcalory" />
-                    </div>
-                    <div class="chart-container">
-                        <LineChart v-if="statisticStore.statistics.data.length > 0"
-                            :dataset="statisticStore.statisticToChart.prot_carb_fats" />
+            <div class="charts-container" style="overflow-y: scroll;">
+                <div class="row">
+                    <div class="col">
+                        <div class="mb-1 border-bottom border-light">
+                            Калории
+                        </div>
+                        <div class="chart-container mb-1">
+                            <LineChart v-if="statisticStore.statistics.data.length > 0"
+                                :dataset="statisticStore.statisticToChart.kcalory" />
+                        </div>
+                        <div class="mb-1 border-bottom border-light">
+                            Углеводы, белки, жиры
+                        </div>
+                        <div class="chart-container mb-1">
+                            <LineChart v-if="statisticStore.statistics.data.length > 0"
+                                :dataset="statisticStore.statisticToChart.prot_carb_fats" />
+                        </div>
+                        <div class="mb-1 border-bottom border-light">
+                            Употребление по времени
+                        </div>
+                        <div class="chart-container mb-1">
+                            <LineChart v-if="statisticStore.statistics.data.length > 0"
+                                :dataset="statisticStore.statisticToChart.prot_carb_fats" />
+                        </div>
+                        <div class="mb-1 border-bottom border-light">
+                            Основные источники элементов
+                        </div>
+                        <div class="chart-container mb-1">
+                            <LineChart v-if="statisticStore.statistics.data.length > 0"
+                                :dataset="statisticStore.statisticToChart.prot_carb_fats" />
+                        </div>
+
                     </div>
                 </div>
             </div>
+
         </div>
     </div>
 
@@ -125,7 +149,13 @@ function setDefaultDateSettings() {
 <style lang="scss">
 .ration-statistic-container {
     height: 100%;
-    max-height: 87vh;
+    max-height: 100%;
+    overflow-y: hidden;
+    // max-height: 87vh;
+}
+
+.charts-container {
+    height: 100%;
 }
 
 .chart-container {

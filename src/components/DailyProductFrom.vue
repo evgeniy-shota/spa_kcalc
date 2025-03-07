@@ -1,5 +1,6 @@
 <script setup>
-import { onBeforeMount } from 'vue';
+import { computed, onBeforeMount } from 'vue';
+import { getTime } from '@/resource/js/dateTime';
 // import SearchInput from './SearchInput.vue';
 import { useDailyRationsStore } from '@/stores/dailyRationsStore';
 import ProductCardMin from './ProductCardMin.vue';
@@ -48,8 +49,16 @@ function changeProductQuantity(index, quantity) {
     dailyRationStore.changeSelectedProductQuantity(index, quantity)
 }
 
+function changeProductTime(index, quantity) {
+    dailyRationStore.changeSelectedProductTime(index, quantity);
+}
+
 function changeRationProductQuantity(index, quantity) {
     dailyRationStore.changeRationProductQuantity(index, quantity);
+}
+
+function changeRationProductTime(index, quantity) {
+    dailyRationStore.changeRationProductTime(index, quantity);
 }
 
 async function saveCurrentRation() {
@@ -61,6 +70,8 @@ async function saveCurrentRation() {
         console.log('Ration is not saved');
     }
 }
+
+
 
 </script>
 
@@ -136,8 +147,6 @@ async function saveCurrentRation() {
                     </div>
                 </div>
 
-
-
                 <div class="d-grid mb-2">
                 </div>
 
@@ -152,7 +161,8 @@ async function saveCurrentRation() {
 
                             <ProductCardMin :product="element" :is-editable="true" :index="el_index"
                                 @on-click-close-btn="delAddedProduct" @on-cange-quantity="changeProductQuantity"
-                                @on-input-quantity="changeProductQuantity" />
+                                @on-input-quantity="changeProductQuantity" :time="getTime(false)"
+                                @change-time="changeProductTime" />
 
                         </li>
                     </ul>

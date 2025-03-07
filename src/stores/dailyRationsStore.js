@@ -52,15 +52,19 @@ export const useDailyRationsStore = defineStore('dailyRations', () => {
 
   function addProduct(product) {
     let newProduct = {
-      time_of_use: getTime(),
+      time: getTime(false),
       daily_ration_id: dailyRation.value.id,
       product_id: product.id,
       name: product.name,
       quantity: product.quantity,
-      kcalory_per_unit: roundTo(product.kcalory / product.quantity_to_calculate),
-      proteins_per_unit: roundTo(product.proteins / product.quantity_to_calculate),
-      carbohydrates_per_unit: roundTo(product.carbohydrates / product.quantity_to_calculate),
-      fats_per_unit: roundTo(product.fats / product.quantity_to_calculate),
+      kcalory_per_unit: product.kcalory_per_unit,
+      proteins_per_unit: product.proteins_per_unit,
+      carbohydrates_per_unit: product.carbohydrates_per_unit,
+      fats_per_unit: product.fats_per_unit,
+      // kcalory_per_unit: roundTo(product.kcalory / product.quantity_to_calculate),
+      // proteins_per_unit: roundTo(product.proteins / product.quantity_to_calculate),
+      // carbohydrates_per_unit: roundTo(product.carbohydrates / product.quantity_to_calculate),
+      // fats_per_unit: roundTo(product.fats / product.quantity_to_calculate),
     }
     selectedProducts.value.push(newProduct)
   }
@@ -105,9 +109,26 @@ export const useDailyRationsStore = defineStore('dailyRations', () => {
     }
   }
 
+  function changeSelectedProductTime(index, time) {
+    console.log('change time: ' + time)
+    console.log(selectedProducts.value[index])
+    console.log(typeof index)
+
+    if (typeof index == 'number' && selectedProducts.value[index] != undefined) {
+      selectedProducts.value[index].time = time
+      console.log('fuck')
+    }
+  }
+
   function changeRationProductQuantity(index, quantity) {
     if (typeof index == 'number' && dailyRationProducts.value[index] != undefined) {
       dailyRationProducts.value[index].quantity = quantity
+    }
+  }
+
+  function changeRationProductTime(index, time) {
+    if (typeof index == 'number' && dailyRationProducts.value[index] != undefined) {
+      dailyRationProducts.value[index].time = time
     }
   }
 
@@ -163,7 +184,9 @@ export const useDailyRationsStore = defineStore('dailyRations', () => {
     deleteSelectedProduct,
     deleteProductFromRation,
     changeSelectedProductQuantity,
+    changeSelectedProductTime,
     changeRationProductQuantity,
+    changeRationProductTime,
     saveRation,
     getDailyRation,
     getDailyRations,

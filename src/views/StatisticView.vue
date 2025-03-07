@@ -5,10 +5,10 @@ import ActivityStatistic from '@/components/ActivityStatistic.vue';
 </script>
 
 <template>
-    <div class="col">
+    <div class="col" style="max-height: 100%;">
         <RationStatistic />
     </div>
-    <div class="col">
+    <div class="col" style="max-height: 100%;">
         <ActivityStatistic />
     </div>
 </template>

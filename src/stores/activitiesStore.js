@@ -9,7 +9,7 @@ export const useActivitiesStore = defineStore('activities', () => {
   const activity = ref({})
 
   function $reset() {
-    activities = []
+    activities.value = []
   }
 
   // get list of categories

@@ -1,4 +1,4 @@
-function getTime() {
+function getTime(full = true, returnObj = false) {
   let date = new Date()
 
   let hours = String(date.getHours())
@@ -8,7 +8,17 @@ function getTime() {
   let resHourse = hours.length == 1 ? '0' + hours : hours
   let resMinutes = minutes.length == 1 ? '0' + minutes : minutes
   let resSeconds = seconds.length == 1 ? '0' + seconds : seconds
-  return `${resHourse}:${resMinutes}:${resSeconds}`
+
+  if (returnObj) {
+    return {
+      hours: resHourse,
+      minutes: resMinutes,
+      seconds: full ? resSeconds : null,
+    }
+  }
+
+  // let res = `${resHourse}:${resMinutes}` + (full ? `:${resSeconds}` : '')
+  return `${resHourse}:${resMinutes}` + (full ? `:${resSeconds}` : '')
 }
 
 function getDate(offsetNum = 0, defaultDate = '', offsetScale = 'd') {

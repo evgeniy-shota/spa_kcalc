@@ -1,10 +1,21 @@
 <script setup>
-import { computed, ref } from 'vue';
+import { computed, onMounted, ref, watch } from 'vue';
+import VueDatePicker from '@vuepic/vue-datepicker';
+import '@vuepic/vue-datepicker/dist/main.css'
+import TimePicker from './TimePicker.vue';
+import { getTime } from '@/resource/js/dateTime';
 import IconCloseXlg from './icons/IconCloseXlg.vue';
 import router from '@/router';
 import roundTo from '@/resource/js/mathFunctions';
 
 let timerId = null;
+// const productTime = ref(null);
+
+
+onMounted(() => {
+    // console.log('card mounted');
+    // productTime.value = getTime(false)
+});
 
 const props = defineProps({
     product: {
@@ -29,6 +40,8 @@ const props = defineProps({
     }
 });
 
+const productUseTime = ref(props.product.time ? props.product.time : props.time);
+
 const productEnergyValue = computed(() => {
     return {
         kcalory: roundTo(props.product.kcalory_per_unit * props.product.quantity),
@@ -38,12 +51,25 @@ const productEnergyValue = computed(() => {
     }
 });
 
-const productId = computed(() => {
+// const productId = computed(() => {
+//     if (props.index !== null) {
+//         return props.index;
+//     }
+//     return 'dRI' + props.product.daily_ration_id + "pI" + props.product.product_id;
+// });
+
+function productId() {
     if (props.index !== null) {
         return props.index;
     }
     return 'dRI' + props.product.daily_ration_id + "pI" + props.product.product_id;
-});
+}
+
+// watch(() => props.time, () => {
+//     if (!productTime.value) {
+//         productTime.value = props.time
+//     }
+// });
 
 const emit = defineEmits({
 
@@ -65,6 +91,17 @@ const emit = defineEmits({
         }
         return false;
     },
+    changeTime: (id, time) => {
+        if (id && time) {
+            return true
+        }
+        return false;
+    },
+});
+
+watch(productUseTime, () => {
+    emit('changeTime', productId(), productUseTime.value);
+    console.log('time changed');
 
 });
 
@@ -96,15 +133,18 @@ function inputQuantity(event, productId) {
             <div class="input-group input-group-sm">
                 <span class="input-group-text">Вес (гр)</span>
                 <input type="number" min="0" max="1000" onkeypress='return event.charCode >= 48 && event.charCode <= 57'
-                    @change="emit('onCangeQuantity', productId, $event.target.value)"
-                    @input="inputQuantity($event, productId)" class="form-control px-1"
+                    @change="emit('onCangeQuantity', productId(), $event.target.value)"
+                    @input="inputQuantity($event, productId())" class="form-control px-1"
                     aria-label="Text input with radio button" :value="product.quantity">
             </div>
         </div>
         <div class="col">
             <div class="input-group input-group-sm">
                 <span class="input-group-text">Время</span>
-                <input type="time" class="form-control form-control-sm" name="dailyProductTime" id="dailyProductTime">
+                <!-- <VueDatePicker v-model="time" time-picker></VueDatePicker> -->
+                <!-- <input type="time" v-model="productTime" class="form-control form-control-sm"
+                    :id="'dailyProductTime' + productId"> -->
+                <TimePicker v-model="productUseTime"></TimePicker>
             </div>
         </div>
     </div>
@@ -113,14 +153,15 @@ function inputQuantity(event, productId) {
     <div class="d-flex justify-content-between  input-group-sm">
         <span :title='"Калории: " + productEnergyValue.kcalory + " ккал"' class="input-group-text">К: {{
             productEnergyValue.kcalory
-            }} ккал</span>
+        }} ккал</span>
         <span class="input-group-text">Б: {{ productEnergyValue.proteins }} гр.</span>
         <span class="input-group-text">Ж: {{ productEnergyValue.fats }} гр.</span>
         <span class="input-group-text">У: {{ productEnergyValue.carbohydrates }} гр.</span>
     </div>
 
     <div class="d-flex justify-content-end align-items-center">
-        <a @click="emit('onClickCloseBtn', productId)" class="link-danger link-offset-2 deleteDailyProductLink">Удалить
+        <a @click="emit('onClickCloseBtn', productId())"
+            class="link-danger link-offset-2 deleteDailyProductLink">Удалить
             продукт</a>
     </div>
 
