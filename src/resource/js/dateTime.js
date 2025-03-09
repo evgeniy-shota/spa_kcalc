@@ -1,3 +1,77 @@
+const monthNameRu = [
+  'январь',
+  'февраль',
+  'март',
+  'апрель',
+  'май',
+  'июнь',
+  'июль',
+  'август',
+  'сентябрь',
+  'октябрь',
+  'ноябрь',
+  'декабрь',
+]
+const monthShortNameRu = [
+  'янв',
+  'фев',
+  'мар',
+  'апр',
+  'май',
+  'июн',
+  'июл',
+  'авг',
+  'сен',
+  'окт',
+  'ноя',
+  'дек',
+]
+
+const monthNameEn = [
+  'January',
+  'February',
+  'March',
+  'April',
+  'May',
+  'June',
+  'July',
+  'August',
+  'September',
+  'October',
+  'November',
+  'December',
+]
+const monthShortNameEn = [
+  'Jan',
+  'Feb',
+  'Mar',
+  'Apr',
+  'May',
+  'Jun',
+  'Jul',
+  'Aug',
+  'Sep',
+  'Oct',
+  'Nov',
+  'Dec',
+]
+
+const dayOfWeekRu = [
+  'понедельник',
+  'вторник',
+  'среда',
+  'четверг',
+  'пятница',
+  'суббота',
+  'воскресенье',
+]
+
+const dayOfWeekShortRu = ['mo', 'tu', 'we', 'th', 'fr', 'sa', 'su']
+
+const dayOfWeekEn = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday']
+
+const dayOfWeekShortEn = ['пн', 'вт', 'ср', 'чт', 'пт', 'сб', 'вс']
+
 function getTime(full = true, returnObj = false) {
   let date = new Date()
 
@@ -21,7 +95,12 @@ function getTime(full = true, returnObj = false) {
   return `${resHourse}:${resMinutes}` + (full ? `:${resSeconds}` : '')
 }
 
-function getDate(offsetNum = 0, defaultDate = '', offsetScale = 'd') {
+function getYear(offsetNum = 0, defaultDate = '') {
+  const yearOffset = 31536000000 * offsetNum
+  return new Date(new Date().getTime() + yearOffset).getFullYear()
+}
+
+function getDate(offsetNum = 0, defaultDate = '', offsetScale = 'd', returnObj = false) {
   let msInSec = 1000
   let msInHour = msInSec * 60 * 60
   let msInDay = msInHour * 24
@@ -34,9 +113,21 @@ function getDate(offsetNum = 0, defaultDate = '', offsetScale = 'd') {
     (defaultDate.length > 0 ? new Date(defaultDate).getTime() : Date.now()) + offsetMs,
   )
 
-  let year = String(currentDate.getFullYear())
-  let month = String(currentDate.getMonth() + 1)
-  let day = String(currentDate.getDate())
+  let year = currentDate.getFullYear()
+  let month = currentDate.getMonth()
+  let day = currentDate.getDate()
+
+  if (returnObj) {
+    return {
+      day: day,
+      month: month,
+      year: year,
+    }
+  }
+
+  year = String(year)
+  month = String(month + 1)
+  day = String(day)
 
   let resMonth = month.length == 1 ? '0' + month : month
   let resDay = day.length == 1 ? '0' + day : day
@@ -44,4 +135,4 @@ function getDate(offsetNum = 0, defaultDate = '', offsetScale = 'd') {
   return `${year}-${resMonth}-${resDay}`
 }
 
-export { getTime, getDate }
+export { getTime, getYear, getDate, monthNameRu, monthShortNameRu, monthNameEn, monthShortNameEn }
