@@ -66,11 +66,11 @@ const dayOfWeekRu = [
   'воскресенье',
 ]
 
-const dayOfWeekShortRu = ['mo', 'tu', 'we', 'th', 'fr', 'sa', 'su']
+const dayOfWeekShortRu = ['пн', 'вт', 'ср', 'чт', 'пт', 'сб', 'вс']
 
-const dayOfWeekEn = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday']
+const dayOfWeekShortEn = ['su', 'mo', 'tu', 'we', 'th', 'fr', 'sa']
 
-const dayOfWeekShortEn = ['пн', 'вт', 'ср', 'чт', 'пт', 'сб', 'вс']
+const dayOfWeekEn = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday']
 
 function getTime(full = true, returnObj = false) {
   let date = new Date()
@@ -95,44 +95,121 @@ function getTime(full = true, returnObj = false) {
   return `${resHourse}:${resMinutes}` + (full ? `:${resSeconds}` : '')
 }
 
-function getYear(offsetNum = 0, defaultDate = '') {
-  const yearOffset = 31536000000 * offsetNum
-  return new Date(new Date().getTime() + yearOffset).getFullYear()
+function getDayOfWeek(y, m = 0, d = 1, lang = 'ru') {
+  let day = new Date(y, m, d).getDay()
+
+  if (lang == 'ru') {
+    return day == 0 ? 6 : day - 1
+  }
+
+  return day
 }
 
-function getDate(offsetNum = 0, defaultDate = '', offsetScale = 'd', returnObj = false) {
+function getDayCountInMonth(year, month) {
+  return new Date(year, month + 1, 0).getDate()
+}
+
+function getYear(offsetNum = 0, defaultDate = '') {
+  const yearOffset = 31536000000 * offsetNum
+  return new Date(new Date(defaultDate).getTime() + yearOffset).getFullYear()
+}
+
+function getMonthName(month, lang = 'ru', short = true) {
+  if (lang == 'ru') {
+    if (short) {
+      return monthShortNameRu[month]
+    }
+    return monthNameRu[month]
+  }
+
+  if (lang == 'en') {
+    if (short) {
+      return monthShortNameEn[month]
+    }
+    return monthNameEn[month]
+  }
+
+  return null
+}
+
+function getDateFromString(dateStr) {
+  if (!dateStr) {
+    return null
+  }
+  let date = new Date(Date.parse(dateStr))
+  return getDate(true, true, true, date.getFullYear(), date.getMonth(), date.getDate())
+}
+
+function getDateWithOffset(time, offsetNum = 0) {
+  console.log(time + '+' + offsetNum)
+
   let msInSec = 1000
   let msInHour = msInSec * 60 * 60
   let msInDay = msInHour * 24
-  let msInWeek = msInDay * 7
-  let offsetMs =
-    offsetNum * (offsetScale == 'd' ? msInDay : offsetScale == 'w' ? msInDay * 7 : msInDay * 30)
+  let offsetMs = msInDay * offsetNum
 
-  // console.log(new Date(Date.now() + offsetMs))
-  let currentDate = new Date(
-    (defaultDate.length > 0 ? new Date(defaultDate).getTime() : Date.now()) + offsetMs,
-  )
+  return getDate(time + offsetMs)
+}
+
+function getDateYMD(y, m = 0, d = 1) {
+  return getDate(new Date(y, m, d).getTime())
+}
+
+function getDate(time = Date.now()) {
+  // // console.log(new Date(Date.now() + offsetMs))
+  // let currentDate = new Date(
+  //   (defaultDate.length > 0 ? new Date(defaultDate).getTime() : Date.now()) + offsetMs,
+  // )
+
+  let currentDate = new Date(time)
 
   let year = currentDate.getFullYear()
   let month = currentDate.getMonth()
-  let day = currentDate.getDate()
+  let date = currentDate.getDate()
+  let numDayOfWeek = currentDate.getDay()
+  let numDayOfWeekRu = (dayOfWeek) => (dayOfWeek == 0 ? 6 : dayOfWeek - 1)
 
-  if (returnObj) {
-    return {
-      day: day,
-      month: month,
-      year: year,
-    }
+  return {
+    time: currentDate.getTime(),
+    date: date,
+    month: month,
+    year: year,
+    ymd:
+      year +
+      '-' +
+      (String(month + 1).length == 1 ? '0' + String(month + 1) : month + 1) +
+      '-' +
+      (String(date).length == 1 ? '0' + String(date) : date),
+    dayOfWeekRu: numDayOfWeekRu(numDayOfWeek),
+    nameDayOfWeekRu: dayOfWeekRu[numDayOfWeekRu(numDayOfWeek)],
+    dayOfWeekEn: numDayOfWeek,
+    nameDayOfWeekEn: dayOfWeekEn[numDayOfWeek],
   }
 
-  year = String(year)
-  month = String(month + 1)
-  day = String(day)
+  // year = String(year)
+  // month = monthName ? getMonthName(month, lang, short) : String(month + 1)
+  // date = String(date)
 
-  let resMonth = month.length == 1 ? '0' + month : month
-  let resDay = day.length == 1 ? '0' + day : day
+  // let resMonth = month.length == 1 ? '0' + month : month
+  // let resDate = date.length == 1 ? '0' + date : date
 
-  return `${year}-${resMonth}-${resDay}`
+  // return `${year}-${resMonth}-${resDate}`
 }
 
-export { getTime, getYear, getDate, monthNameRu, monthShortNameRu, monthNameEn, monthShortNameEn }
+export {
+  getTime,
+  getYear,
+  getDate,
+  getDateYMD,
+  getMonthName,
+  getDayOfWeek,
+  getDateWithOffset,
+  getDayCountInMonth,
+  getDateFromString,
+  monthNameRu,
+  monthShortNameRu,
+  monthNameEn,
+  monthShortNameEn,
+  dayOfWeekShortRu,
+  dayOfWeekShortEn,
+}

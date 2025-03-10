@@ -6,7 +6,7 @@ import IconCloseX from './icons/IconCloseX.vue';
 import DatePicker from './DatePicker.vue';
 import LineChart from './LineChart.vue';
 import { useStatisticStore } from '@/stores/statisticStore';
-import { getDate } from '@/resource/js/dateTime';
+import { getDate, getDateWithOffset } from '@/resource/js/dateTime';
 import { offset } from '@popperjs/core';
 
 const statisticStore = useStatisticStore();
@@ -16,8 +16,14 @@ const defaultOffsetFromDay = -6;
 let timerId = null;
 const defaultDelayMs = 450;
 // const chartData = ref({});
-const fromDay = ref('');
-const toDay = ref('');
+const currentDate = ref({});
+const fromDayOffset = ref(-6)
+const toDayOffset = ref(1)
+const minDate = ref()
+const maxDate = ref()
+const fromDay = ref({});
+const toDay = ref({});
+
 
 onBeforeMount(() => {
     setDefaultDateSettings();
@@ -35,20 +41,23 @@ watch([fromDay, toDay], () => {
 });
 
 function getStatistic() {
-    statisticStore.getStatistic(fromDay.value, toDay.value);
+    statisticStore.getStatistic(fromDay.value.ymd, toDay.value.ymd);
 }
 
-function changeFromDay(offset) {
-    fromDay.value = getDate(offset, fromDay.value);
-}
+// function changeFromDay(offset) {
+//     fromDay.value = getDate(offset, fromDay.value);
+// }
 
-function changeToDay(offset) {
-    toDay.value = getDate(offset, toDay.value);
-}
+// function changeToDay(offset) {
+//     toDay.value = getDate(offset, toDay.value);
+// }
 
 function setDefaultDateSettings() {
-    fromDay.value = getDate(defaultOffsetFromDay);
-    toDay.value = getDate();
+    console.log(getDate())
+    currentDate.value = getDate();
+    console.log(getDateWithOffset(currentDate.value.time, fromDayOffset))
+    fromDay.value = getDateWithOffset(currentDate.value.time, fromDayOffset.value);
+    toDay.value = getDateWithOffset(currentDate.value.time, toDayOffset.value);
 }
 
 </script>
@@ -59,16 +68,18 @@ function setDefaultDateSettings() {
         <div class="card-header">Статистика питания</div>
         <div class="card-body" style="height: 100%; max-height: 100%;">
 
-            <!-- filtersi -->
+            <!-- filters -->
             <div class="row">
                 <div class="col">
-                    <!-- date from -->
-                    <DatePicker :date="fromDay" @change-date="changeFromDay" :can-increase="fromDay < toDay" />
+                    <!-- date from  @change-date="changeFromDay"-->
+                    <DatePicker v-model="fromDay" :default-date-offset-in-days="fromDayOffset"
+                        :can-increase="fromDay.ymd < toDay.ymd" />
                 </div>
 
                 <div class="col">
-                    <!-- date to -->
-                    <DatePicker :date="toDay" @change-date="changeToDay" :can-reduced="fromDay < toDay" />
+                    <!-- date to  @change-date="changeToDay"-->
+                    <DatePicker v-model="toDay" :default-date-offset-in-days="toDayOffset"
+                        :can-reduced="fromDay.ymd < toDay.ymd" />
                 </div>
             </div>
 
