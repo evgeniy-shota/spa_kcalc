@@ -3,10 +3,16 @@ import { onBeforeMount, onMounted, ref, watch } from 'vue';
 import IconArrowLeftShort from './icons/IconArrowLeftShort.vue';
 import IconArrowRightShort from './icons/IconArrowRightShort.vue';
 import IconCloseX from './icons/IconCloseX.vue';
+
+import VueDatePicker from '@vuepic/vue-datepicker';
+import '@vuepic/vue-datepicker/dist/main.css'
+
+import VueDatePickerExtended from './VueDatePickerExtended.vue';
+
 import DatePicker from './DatePicker.vue';
 import LineChart from './LineChart.vue';
 import { useStatisticStore } from '@/stores/statisticStore';
-import { getDate, getDateWithOffset } from '@/resource/js/dateTime';
+import { getDate, getDateWithOffset, getTimeWithOffset, getMonthName } from '@/resource/js/dateTime';
 import { offset } from '@popperjs/core';
 
 const statisticStore = useStatisticStore();
@@ -16,21 +22,33 @@ const defaultOffsetFromDay = -6;
 let timerId = null;
 const defaultDelayMs = 450;
 // const chartData = ref({});
-const currentDate = ref({});
+const currentDate = ref(Date.now());
 const fromDayOffset = ref(-6)
 const toDayOffset = ref(1)
 const minDate = ref()
 const maxDate = ref()
-const fromDay = ref({});
-const toDay = ref({});
+const fromDayTime = ref(getTimeWithOffset(currentDate.value, fromDayOffset.value));
+const fromDay = ref(getDate(fromDayTime.value))
+const toDayTime = ref(getTimeWithOffset(currentDate.value, toDayOffset.value));
+const toDay = ref(getDate(toDayTime.value))
 
+const datePickerFormat = (date) => {
+    const day = date.getDate();
+    const month = getMonthName(date.getMonth());
+    const year = date.getFullYear();
+
+    return `${day} ${month}. ${year}`
+};
 
 onBeforeMount(() => {
-    setDefaultDateSettings();
+    // setDefaultDateSettings();
     getStatistic();
 });
 
-watch([fromDay, toDay], () => {
+watch([fromDayTime, toDayTime], () => {
+
+    fromDay.value = getDate(fromDayTime.value)
+    toDay.value = getDate(toDayTime.value)
 
     if (timerId != null) {
         clearTimeout(timerId);
@@ -70,16 +88,32 @@ function setDefaultDateSettings() {
 
             <!-- filters -->
             <div class="row">
-                <div class="col">
+                <div class="col-12 col-md-6 col-lg-6">
                     <!-- date from  @change-date="changeFromDay"-->
-                    <DatePicker v-model="fromDay" :default-date-offset-in-days="fromDayOffset"
-                        :can-increase="fromDay.ymd < toDay.ymd" />
+                    <!-- <DatePicker v-model="fromDay" :default-date-offset-in-days="fromDayOffset"
+                        :can-increase="fromDay.ymd < toDay.ymd"
+                        :min-date="getDateWithOffset(Date.now(), -5 + fromDayOffset)"
+                        :max-date="getDateWithOffset(Date.now(), 5 + fromDayOffset)" /> -->
+
+                    <VueDatePickerExtended v-model="fromDayTime" :max-date="new Date(toDayTime)">
+                    </VueDatePickerExtended>
+
+                    <!-- <VueDatePicker :enable-time-picker="false" v-model="fromDayTime" :clearable="false"
+                        :max-date="toDayTime" :format="datePickerFormat" locale="ru">
+
+                    </VueDatePicker> -->
+
                 </div>
 
-                <div class="col">
+                <div class="col-12 col-md-6 col-lg-6">
                     <!-- date to  @change-date="changeToDay"-->
-                    <DatePicker v-model="toDay" :default-date-offset-in-days="toDayOffset"
-                        :can-reduced="fromDay.ymd < toDay.ymd" />
+                    <!-- <DatePicker v-model="toDay" :default-date-offset-in-days="toDayOffset"
+                        :can-reduced="fromDay.ymd < toDay.ymd"
+                        :min-date="getDateWithOffset(Date.now(), -5 + toDayOffset)"
+                        :max-date="getDateWithOffset(Date.now(), 2 + toDayOffset)" /> -->
+
+                    <VueDatePickerExtended v-model="toDayTime" :min-date="new Date(fromDayTime)">
+                    </VueDatePickerExtended>
                 </div>
             </div>
 
@@ -87,7 +121,7 @@ function setDefaultDateSettings() {
                 <div class="col">
 
                     <!-- input-group-sm -->
-                    <div class="input-group mb-2 ">
+                    <!-- <div class="input-group mb-2 ">
                         <span class="input-group-text border border-light-subtle">Группировка</span>
 
                         <input type="radio" class="btn-check" name="options-base" checked id="Days" autocomplete="off">
@@ -101,7 +135,7 @@ function setDefaultDateSettings() {
 
                     </div>
 
-                    <div class="btn btn-sm btn-outline-warning">Сброс</div>
+                    <div class="btn btn-sm btn-outline-warning">Сброс</div> -->
 
                 </div>
                 <!-- preset filter -->
@@ -159,6 +193,7 @@ function setDefaultDateSettings() {
     height: 100%;
     max-height: 100%;
     overflow-y: hidden;
+    overflow-x: hidden;
     // max-height: 87vh;
 }
 

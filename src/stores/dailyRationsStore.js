@@ -132,7 +132,7 @@ export const useDailyRationsStore = defineStore('dailyRations', () => {
     }
   }
 
-  async function getDailyRation(date = getDate()) {
+  async function getDailyRation(date = getDate().ymd) {
     try {
       const response = await axios_instance.get(URL_API_DAILYRATION + date)
 
@@ -169,7 +169,7 @@ export const useDailyRationsStore = defineStore('dailyRations', () => {
     dailyRation.value = {}
     dailyRations.value = []
     dailyRationEnergyValue.value = { kcalory: 0, carbohydrates: 0, proteins: 0, fats: 0 }
-    dailyRationProduucts.value = []
+    dailyRationProducts.value = []
     selectedProducts.value = []
   }
 

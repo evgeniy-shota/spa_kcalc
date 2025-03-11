@@ -22,7 +22,7 @@ const props = defineProps({
         type: Object,
         default: null,
     },
-    isEditable: {
+    isReadonly: {
         type: Boolean,
         default: true
     },
@@ -134,7 +134,7 @@ function inputQuantity(event, productId) {
                 <span class="input-group-text">Вес (гр)</span>
                 <input type="number" min="0" max="1000" onkeypress='return event.charCode >= 48 && event.charCode <= 57'
                     @change="emit('onCangeQuantity', productId(), $event.target.value)"
-                    @input="inputQuantity($event, productId())" class="form-control px-1"
+                    @input="inputQuantity($event, productId())" class="form-control px-1" :readonly="props.isReadonly"
                     aria-label="Text input with radio button" :value="product.quantity">
             </div>
         </div>
@@ -160,8 +160,8 @@ function inputQuantity(event, productId) {
     </div>
 
     <div class="d-flex justify-content-end align-items-center">
-        <a @click="emit('onClickCloseBtn', productId())"
-            class="link-danger link-offset-2 deleteDailyProductLink">Удалить
+        <a @click="emit('onClickCloseBtn', productId())" :hidden="props.isReadonly"
+            :class="{ 'link-danger': !props.isReadonly }" class=" link-offset-2 deleteDailyProductLink">Удалить
             продукт</a>
     </div>
 

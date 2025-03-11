@@ -1,21 +1,31 @@
 <script setup>
-import { computed, onBeforeMount } from 'vue';
-import { getTime } from '@/resource/js/dateTime';
+import { computed, onBeforeMount, onMounted, ref, useTemplateRef, watch } from 'vue';
+import { getDate, getTime } from '@/resource/js/dateTime';
 // import SearchInput from './SearchInput.vue';
 import { useDailyRationsStore } from '@/stores/dailyRationsStore';
 import ProductCardMin from './ProductCardMin.vue';
+import VueDatePickerExtended from './VueDatePickerExtended.vue';
 // import IconPlusSquare from './icons/IconPlusSquare.vue';
 import IconPlusLg from './icons/IconPlusLg.vue';
 import IconCheckLg from './icons/IconCheckLg.vue';
 import IconQuestionCircle from './icons/IconQuestionCircle.vue';
+import IconLockFill from './icons/IconLockFill.vue';
 // const selectedProducts = ref([]);
 // const dailyRationSearchQuery = ref("");
 
 const dailyRationStore = useDailyRationsStore();
-// const searchRueqest = ref('')
+const currentDate = ref(Date.now())
+const dailyRationEditable = ref(true)
+const dailyRationChanged = ref(false)
+const dailyRationDate = ref(Date.now())
+const timerId = ref(null)
+const timeOutMs = 350
 
-onBeforeMount(() => {
-    dailyRationStore.getDailyRation();
+const btnDailyRationBlocked = useTemplateRef('btnDailyRationBlocked')
+const btnDailyRationSave = useTemplateRef('btnDailyRationSave')
+// const searchRueqest = ref('')
+onMounted(() => {
+    getDailyRation(getDate(dailyRationDate.value).ymd);
 });
 
 const emit = defineEmits({
@@ -27,6 +37,49 @@ const emit = defineEmits({
     }
 });
 
+watch(dailyRationDate, () => {
+
+    if (timerId.value) {
+        clearTimeout(timerId.value);
+        timerId.value = null
+    }
+
+    timerId.value = setTimeout(() => getDailyRation(getDate(dailyRationDate.value).ymd), timeOutMs);
+
+    dailyRationEditable.value = (currentDate.value == dailyRationDate.value)
+    // getDailyRation(getDate(dailyDationDate.value).ymd);
+});
+
+function dailyRationIsEdited() {
+    return dailyRationStore.selectedProducts.length > 0 || dailyRationChanged.value ? true : false
+}
+
+function notificationToSaveDailyRation() {
+    // console.log(templateRef.value)
+    // btnDailyRationSave.value.classList.add('active')
+    let interval = setInterval(() => btnDailyRationSave.value.classList.toggle('active'), 150)
+
+    setTimeout(() => {
+        btnDailyRationSave.value.classList.remove('active')
+        clearInterval(interval)
+    }, 750)
+}
+
+function notificationToUnlockDailyRation() {
+    // console.log(templateRef.value)
+    // btnDailyRationSave.value.classList.add('active')
+    let interval = setInterval(() => btnDailyRationBlocked.value.classList.toggle('active'), 150)
+
+    setTimeout(() => {
+        btnDailyRationBlocked.value.classList.remove('active')
+        clearInterval(interval)
+    }, 750)
+}
+
+function getDailyRation(date) {
+    dailyRationStore.getDailyRation(date)
+}
+
 function showSearch(event) {
     let title = 'Поиск продуктов',
         searchLabel = 'Введите название продукта или диеты',
@@ -36,28 +89,34 @@ function showSearch(event) {
 
 function delAddedProduct(index) {
     console.log('Delete product: ' + index);
+    dailyRationChanged.value = true
     dailyRationStore.deleteSelectedProduct(index);
 }
 
 function delProductFromRation(index) {
     console.log('Delete from ration: ' + index);
+    dailyRationChanged.value = true
     dailyRationStore.deleteProductFromRation(index);
 }
 
 function changeProductQuantity(index, quantity) {
     console.log('Change quantity id -' + index + ':' + quantity);
+    dailyRationChanged.value = true
     dailyRationStore.changeSelectedProductQuantity(index, quantity)
 }
 
 function changeProductTime(index, quantity) {
+    dailyRationChanged.value = true
     dailyRationStore.changeSelectedProductTime(index, quantity);
 }
 
 function changeRationProductQuantity(index, quantity) {
+    dailyRationChanged.value = true
     dailyRationStore.changeRationProductQuantity(index, quantity);
 }
 
 function changeRationProductTime(index, quantity) {
+    dailyRationChanged.value = true
     dailyRationStore.changeRationProductTime(index, quantity);
 }
 
@@ -65,13 +124,12 @@ async function saveCurrentRation() {
     console.log('Save ration');
     const respons = await dailyRationStore.saveRation();
     if (respons) {
+        dailyRationChanged.value = false;
         console.log('Ration saved');
     } else {
         console.log('Ration is not saved');
     }
 }
-
-
 
 </script>
 
@@ -81,7 +139,13 @@ async function saveCurrentRation() {
         <div class="card-header bg-light-subtle border-light-suntitle">
             <div class="hstack gap-1 justify-content-between">
                 <!-- add descr -->
-                <h6 class="mb-1">Дневной рацион: {{ dailyRationStore.dailyRation.date }} </h6>
+                <h6 class="mb-1">Дневной рацион: </h6>
+
+                <VueDatePickerExtended v-model="dailyRationDate" :max-date="new Date()"
+                    :readonly="dailyRationIsEdited()"
+                    @readonly-trigger="notificationToSaveDailyRation(btnDailyRationSave)">
+                </VueDatePickerExtended>
+
                 <small>
                     <IconQuestionCircle />
                 </small>
@@ -101,7 +165,15 @@ async function saveCurrentRation() {
                     </div>
 
                     <div class="col d-grid ps-1">
-                        <button @click="saveCurrentRation" class="btn btn-outline-success" type="button">
+
+                        <button ref="btnDailyRationBlocked" v-show="!dailyRationEditable"
+                            @click="dailyRationEditable = true" class="btn btn-outline-warning text-dark" type="button">
+                            <IconLockFill />
+                            Заблокирован
+                        </button>
+
+                        <button ref="btnDailyRationSave" v-show="dailyRationEditable" @click="saveCurrentRation"
+                            :class="{ 'btn-outline-success': dailyRationIsEdited() }" class="btn" type="button">
                             <IconCheckLg />
                             Сохранить рацион
                         </button>
@@ -159,7 +231,7 @@ async function saveCurrentRation() {
 
                             <!-- добавить индикацию измененных элементов -->
 
-                            <ProductCardMin :product="element" :is-editable="true" :index="el_index"
+                            <ProductCardMin :product="element" :isReadonly="!dailyRationEditable" :index="el_index"
                                 @on-click-close-btn="delAddedProduct" @on-cange-quantity="changeProductQuantity"
                                 @on-input-quantity="changeProductQuantity" :time="getTime(false)"
                                 @change-time="changeProductTime" />
@@ -182,7 +254,7 @@ async function saveCurrentRation() {
                             :key="element.daily_ration_id + 'i' + element.id"
                             class="list-group-item bg-light-subtle border-light-subtle mb-1">
 
-                            <ProductCardMin :product="element" :is-editable="true" :index="el_index"
+                            <ProductCardMin :product="element" :isReadonly="!dailyRationEditable" :index="el_index"
                                 @on-click-close-btn="delProductFromRation"
                                 @on-input-quantity="changeRationProductQuantity" />
 

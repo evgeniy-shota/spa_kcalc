@@ -140,6 +140,17 @@ function getDateFromString(dateStr) {
   return getDate(true, true, true, date.getFullYear(), date.getMonth(), date.getDate())
 }
 
+function getTimeWithOffset(time, offsetNum = 0) {
+  console.log(time + '+' + offsetNum)
+
+  let msInSec = 1000
+  let msInHour = msInSec * 60 * 60
+  let msInDay = msInHour * 24
+  let offsetMs = msInDay * offsetNum
+
+  return new Date(time + offsetMs).getTime()
+}
+
 function getDateWithOffset(time, offsetNum = 0) {
   console.log(time + '+' + offsetNum)
 
@@ -204,6 +215,7 @@ export {
   getMonthName,
   getDayOfWeek,
   getDateWithOffset,
+  getTimeWithOffset,
   getDayCountInMonth,
   getDateFromString,
   monthNameRu,
