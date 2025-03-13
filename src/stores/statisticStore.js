@@ -20,6 +20,7 @@ export const useStatisticStore = defineStore('statistics', () => {
   const statisticToChart = ref({
     kcalory: [],
     prot_carb_fats: [],
+    split_by_time: [],
   })
 
   function $reset() {

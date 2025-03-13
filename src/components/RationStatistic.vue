@@ -1,7 +1,9 @@
 <script setup>
 import { onBeforeMount, onMounted, ref, watch } from 'vue';
-import IconArrowLeftShort from './icons/IconArrowLeftShort.vue';
-import IconArrowRightShort from './icons/IconArrowRightShort.vue';
+import TimePicker from './TimePicker.vue';
+import IconPlusLg from './icons/IconPlusLg.vue';
+import IconDashLg from './icons/IconDashLg.vue';
+import IconCheckLg from './icons/IconCheckLg.vue';
 import IconCloseX from './icons/IconCloseX.vue';
 
 import VueDatePicker from '@vuepic/vue-datepicker';
@@ -12,7 +14,7 @@ import VueDatePickerExtended from './VueDatePickerExtended.vue';
 import DatePicker from './DatePicker.vue';
 import LineChart from './LineChart.vue';
 import { useStatisticStore } from '@/stores/statisticStore';
-import { getDate, getDateWithOffset, getTimeWithOffset, getMonthName } from '@/resource/js/dateTime';
+import { getDate, getDateWithOffset, getTimeWithOffset, getMonthName, formatDate, getTime } from '@/resource/js/dateTime';
 import { offset } from '@popperjs/core';
 
 const statisticStore = useStatisticStore();
@@ -25,12 +27,14 @@ const defaultDelayMs = 450;
 const currentDate = ref(Date.now());
 const fromDayOffset = ref(-6)
 const toDayOffset = ref(1)
-const minDate = ref()
-const maxDate = ref()
-const fromDayTime = ref(getTimeWithOffset(currentDate.value, fromDayOffset.value));
-const fromDay = ref(getDate(fromDayTime.value))
-const toDayTime = ref(getTimeWithOffset(currentDate.value, toDayOffset.value));
-const toDay = ref(getDate(toDayTime.value))
+// const minDate = ref()
+// const maxDate = ref()
+const fromDay = ref(new Date(getTimeWithOffset(currentDate.value, fromDayOffset.value)));
+// const fromDay = ref(getDate(fromDayTime.value))
+const toDay = ref(new Date(getTimeWithOffset(currentDate.value, toDayOffset.value)));
+// const toDay = ref(getDate(toDayTime.value))
+
+const timeRangeForStatisticSepByTime = ref([])
 
 const datePickerFormat = (date) => {
     const day = date.getDate();
@@ -42,13 +46,19 @@ const datePickerFormat = (date) => {
 
 onBeforeMount(() => {
     // setDefaultDateSettings();
+    addTimeRange();
     getStatistic();
 });
 
-watch([fromDayTime, toDayTime], () => {
+onMounted(() => {
+    console.log(formatDate(fromDay.value))
+    console.log(toDay.value)
+});
 
-    fromDay.value = getDate(fromDayTime.value)
-    toDay.value = getDate(toDayTime.value)
+watch([fromDay, toDay], () => {
+
+    // fromDay.value = getDate(fromDayTime.value)
+    // toDay.value = getDate(toDayTime.value)
 
     if (timerId != null) {
         clearTimeout(timerId);
@@ -58,8 +68,27 @@ watch([fromDayTime, toDayTime], () => {
     timerId = setTimeout(() => getStatistic(), defaultDelayMs)
 });
 
+function addTimeRange() {
+    timeRangeForStatisticSepByTime.value.push(
+        {
+            active: true,
+            from: getTime(false, true),
+            to: getTime(false, true)
+
+        });
+}
+
+function removeTimeInterval(index) {
+    console.log(index)
+    console.log(timeRangeForStatisticSepByTime.value.splice(index, 1));
+}
+
+function toggleTimeInterval(index) {
+    timeRangeForStatisticSepByTime.value[index].active = !timeRangeForStatisticSepByTime.value[index].active
+}
+
 function getStatistic() {
-    statisticStore.getStatistic(fromDay.value.ymd, toDay.value.ymd);
+    statisticStore.getStatistic(formatDate(fromDay.value), formatDate(toDay.value));
 }
 
 // function changeFromDay(offset) {
@@ -71,32 +100,33 @@ function getStatistic() {
 // }
 
 function setDefaultDateSettings() {
-    console.log(getDate())
+    // console.log(getDate())
     currentDate.value = getDate();
-    console.log(getDateWithOffset(currentDate.value.time, fromDayOffset))
-    fromDay.value = getDateWithOffset(currentDate.value.time, fromDayOffset.value);
-    toDay.value = getDateWithOffset(currentDate.value.time, toDayOffset.value);
+    // console.log(getDateWithOffset(currentDate.value.time, fromDayOffset))
+    fromDay.value = ref(new Date(getTimeWithOffset(currentDate.value, fromDayOffset.value)));
+    toDay.value = ref(new Date(getTimeWithOffset(currentDate.value, toDayOffset.value)));
 }
 
 </script>
 
 <template>
 
-    <div class="card border border-light ration-statistic-container">
+    <div class="card border border-light ration-statistic-container" style="height: 100%;">
         <div class="card-header">Статистика питания</div>
-        <div class="card-body" style="height: 100%; max-height: 100%;">
+        <div class="card-body" style="height: 100%;">
 
             <!-- filters -->
-            <div class="row">
+            <div class="row mb-1 controls">
                 <div class="col-12 col-md-6 col-lg-6">
                     <!-- date from  @change-date="changeFromDay"-->
                     <!-- <DatePicker v-model="fromDay" :default-date-offset-in-days="fromDayOffset"
                         :can-increase="fromDay.ymd < toDay.ymd"
                         :min-date="getDateWithOffset(Date.now(), -5 + fromDayOffset)"
                         :max-date="getDateWithOffset(Date.now(), 5 + fromDayOffset)" /> -->
-
-                    <VueDatePickerExtended v-model="fromDayTime" :max-date="new Date(toDayTime)">
+                    <!-- <div class="hstack"> -->
+                    <VueDatePickerExtended v-model="fromDay" :max-date="toDay">
                     </VueDatePickerExtended>
+                    <!-- </div> -->
 
                     <!-- <VueDatePicker :enable-time-picker="false" v-model="fromDayTime" :clearable="false"
                         :max-date="toDayTime" :format="datePickerFormat" locale="ru">
@@ -112,16 +142,16 @@ function setDefaultDateSettings() {
                         :min-date="getDateWithOffset(Date.now(), -5 + toDayOffset)"
                         :max-date="getDateWithOffset(Date.now(), 2 + toDayOffset)" /> -->
 
-                    <VueDatePickerExtended v-model="toDayTime" :min-date="new Date(fromDayTime)">
+                    <VueDatePickerExtended v-model="toDay" :min-date="fromDay">
                     </VueDatePickerExtended>
                 </div>
             </div>
 
-            <div class="row mb-2">
-                <div class="col">
+            <!-- <div class="row mb-2"> -->
+            <!-- <div class="col"> -->
 
-                    <!-- input-group-sm -->
-                    <!-- <div class="input-group mb-2 ">
+            <!-- input-group-sm -->
+            <!-- <div class="input-group mb-2 ">
                         <span class="input-group-text border border-light-subtle">Группировка</span>
 
                         <input type="radio" class="btn-check" name="options-base" checked id="Days" autocomplete="off">
@@ -137,9 +167,9 @@ function setDefaultDateSettings() {
 
                     <div class="btn btn-sm btn-outline-warning">Сброс</div> -->
 
-                </div>
-                <!-- preset filter -->
-                <!-- <div class="col">
+            <!-- </div> -->
+            <!-- preset filter -->
+            <!-- <div class="col">
                     <div class="input-group mb-2">
                         <button class="btn btn-outline-secondary border-light-subtle" type="button"
                             id="button-addon1">Неделя</button>
@@ -147,40 +177,77 @@ function setDefaultDateSettings() {
                             id="button-addon1">Месяц</button>
                     </div>
                 </div> -->
-            </div>
+            <!-- </div> -->
 
             <!-- chart -->
+            <div class="py-1 mb-1" style="max-height: 90%; overflow-y: scroll;">
+                <div class="charts-container">
+                    <div class="mb-1 border-bottom border-light">
+                        Калории
+                    </div>
+                    <div class="chart-container mb-1">
+                        <LineChart v-if="statisticStore.statistics.data.length > 0"
+                            :dataset="statisticStore.statisticToChart.kcalory" />
+                    </div>
 
-            <div class="charts-container" style="height: 100%; overflow-y: scroll;">
-                <div class="mb-1 border-bottom border-light">
-                    Калории
-                </div>
-                <div class="chart-container mb-1">
-                    <LineChart v-if="statisticStore.statistics.data.length > 0"
-                        :dataset="statisticStore.statisticToChart.kcalory" />
-                </div>
-                <div class="mb-1 border-bottom border-light">
-                    Углеводы, белки, жиры
-                </div>
-                <div class="chart-container mb-1">
-                    <LineChart v-if="statisticStore.statistics.data.length > 0"
-                        :dataset="statisticStore.statisticToChart.prot_carb_fats" />
-                </div>
-                <div class="mb-1 border-bottom border-light">
-                    Употребление по времени
-                </div>
-                <div class="chart-container mb-1">
-                    <LineChart v-if="statisticStore.statistics.data.length > 0"
-                        :dataset="statisticStore.statisticToChart.prot_carb_fats" />
-                </div>
-                <div class="mb-1 border-bottom border-light">
-                    Основные источники элементов
-                </div>
-                <div class="chart-container mb-1">
-                    <LineChart v-if="statisticStore.statistics.data.length > 0"
-                        :dataset="statisticStore.statisticToChart.prot_carb_fats" />
-                </div>
+                    <div class="mb-1 border-bottom border-light">
+                        Углеводы, белки, жиры
+                    </div>
+                    <div class="chart-container mb-1">
+                        <LineChart v-if="statisticStore.statistics.data.length > 0"
+                            :dataset="statisticStore.statisticToChart.prot_carb_fats" />
+                    </div>
 
+                    <div class="mb-1 border-bottom border-light">
+                        Употребление по времени
+                    </div>
+                    <div class="time-range-container">
+
+                        <div v-for="(item, index) in timeRangeForStatisticSepByTime" :key="index"
+                            class="time-range d-flex justify-content-around align-items-center mb-1">
+                            <div class="time-range-control">
+                                <button :disabled="timeRangeForStatisticSepByTime.length == 1"
+                                    @click="removeTimeInterval(index)"
+                                    class="btn btn-sm btn-light border-info-subtle me-1">
+                                    <IconDashLg />
+                                </button>
+
+                                <button @click="toggleTimeInterval(index)"
+                                    :disabled="timeRangeForStatisticSepByTime.length == 1"
+                                    class="btn btn-sm btn-light border-info-subtle me-1"
+                                    :class="{ 'bg-success-subtle': timeRangeForStatisticSepByTime[index].active }">
+                                    <IconCheckLg />
+                                </button>
+                            </div>
+
+                            <div class="time-from me-1">
+                                <TimePicker v-model="item.from" label="от" :is-readonly="!item.active" />
+
+                            </div>
+                            <div class="time-to me-1">
+                                <TimePicker v-model="item.to" label="до" :is-readonly="!item.active" />
+                            </div>
+                        </div>
+
+                        <div class="time-range-control d-flex justify-content-center">
+                            <button @click="addTimeRange" class="btn btn-sm btn-light border-info-subtle">
+                                <IconPlusLg /> Добавить временной интервал
+                            </button>
+                        </div>
+                    </div>
+                    <div class="chart-container mb-1">
+                        <LineChart v-if="statisticStore.statistics.data.length > 0"
+                            :dataset="statisticStore.statisticToChart.prot_carb_fats" />
+                    </div>
+
+                    <div class="mb-1 border-bottom border-light">
+                        Основные источники элементов
+                    </div>
+                    <div class="chart-container mb-1">
+                        <LineChart v-if="statisticStore.statistics.data.length > 0"
+                            :dataset="statisticStore.statisticToChart.prot_carb_fats" />
+                    </div>
+                </div>
             </div>
 
         </div>
@@ -198,11 +265,15 @@ function setDefaultDateSettings() {
 }
 
 .charts-container {
+    box-sizing: border-box;
     height: 100%;
+    width: 100%;
+    overflow-y: hidden;
 }
 
 .chart-container {
-    min-height: 25vh;
-    max-height: 30vh;
+    box-sizing: border-box;
+    min-height: 30vh;
+    max-height: 35vh;
 }
 </style>

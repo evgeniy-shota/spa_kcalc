@@ -127,12 +127,16 @@ export const useDailyRationsStore = defineStore('dailyRations', () => {
   }
 
   function changeRationProductTime(index, time) {
+    console.log('change time: ' + time)
+    console.log(dailyRationProducts.value[index])
+    console.log(typeof index)
     if (typeof index == 'number' && dailyRationProducts.value[index] != undefined) {
       dailyRationProducts.value[index].time = time
     }
   }
 
   async function getDailyRation(date = getDate().ymd) {
+    // dailyRationProducts.value.length = 0
     try {
       const response = await axios_instance.get(URL_API_DAILYRATION + date)
 

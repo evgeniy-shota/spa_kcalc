@@ -75,6 +75,35 @@ const dayOfWeekEn = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'fr
 function getTime(full = true, returnObj = false) {
   let date = new Date()
 
+  let hours = date.getHours()
+  let minutes = date.getMinutes()
+  let seconds = date.getSeconds()
+
+  if (returnObj) {
+    return {
+      hours: hours,
+      minutes: minutes,
+      seconds: full ? seconds : null,
+    }
+  }
+
+  let resHourse = String(hours).length == 1 ? '0' + String(hours) : String(hours)
+  let resMinutes = String(minutes).length == 1 ? '0' + String(minutes) : String(minutes)
+  let resSeconds = String(seconds).length == 1 ? '0' + String(seconds) : String(seconds)
+
+  // let res = `${resHourse}:${resMinutes}` + (full ? `:${resSeconds}` : '')
+  return `${resHourse}:${resMinutes}` + (full ? `:${resSeconds}` : '')
+}
+
+function formatTime(time) {
+  return (
+    (time.hours.length == 1 ? '0' + time.hours : time.hours) +
+    ':' +
+    (time.minutes.length == 1 ? '0' + time.minutes : time.minutes)
+  )
+}
+
+function formatFullTime(date, full = false) {
   let hours = String(date.getHours())
   let minutes = String(date.getMinutes())
   let seconds = String(date.getSeconds())
@@ -83,17 +112,37 @@ function getTime(full = true, returnObj = false) {
   let resMinutes = minutes.length == 1 ? '0' + minutes : minutes
   let resSeconds = seconds.length == 1 ? '0' + seconds : seconds
 
-  if (returnObj) {
-    return {
-      hours: resHourse,
-      minutes: resMinutes,
-      seconds: full ? resSeconds : null,
-    }
-  }
-
-  // let res = `${resHourse}:${resMinutes}` + (full ? `:${resSeconds}` : '')
   return `${resHourse}:${resMinutes}` + (full ? `:${resSeconds}` : '')
 }
+
+function formatTimeToDate(timeStr) {
+  let splitTime = timeStr.split(':')
+  if (splitTime.length < 2) {
+    return null
+  }
+
+  let date = new Date()
+  date.setHours(splitTime[0])
+  date.setMinutes(splitTime[1])
+
+  return date
+}
+
+function formatTimeStrToObj(timeStr) {
+  let splitTime = timeStr.split(':')
+  if (splitTime.length < 2) {
+    return null
+  }
+
+  // let resHourse = splitTime[0].length == 1 ? '0' + splitTime[0] : splitTime[0]
+  // let resMinutes = splitTime[1].length == 1 ? '0' + splitTime[1] : splitTime[1]
+
+  return {
+    hours: Number(splitTime[0]),
+    minutes: Number(splitTime[1]),
+  }
+}
+// function getFullTimeWithOffset(date,){}
 
 function getDayOfWeek(y, m = 0, d = 1, lang = 'ru') {
   let day = new Date(y, m, d).getDay()
@@ -162,6 +211,23 @@ function getDateWithOffset(time, offsetNum = 0) {
   return getDate(time + offsetMs)
 }
 
+function formatDate(date) {
+  if (typeof date == 'number') {
+    let date = new Date(date)
+  }
+  let day = String(date.getDate())
+
+  let month = String(date.getMonth() + 1)
+
+  return (
+    date.getFullYear() +
+    '-' +
+    (month.length == 1 ? '0' + month : month) +
+    '-' +
+    (day.length == 1 ? '0' + day : day)
+  )
+}
+
 function getDateYMD(y, m = 0, d = 1) {
   return getDate(new Date(y, m, d).getTime())
 }
@@ -208,6 +274,11 @@ function getDate(time = Date.now()) {
 }
 
 export {
+  formatDate,
+  formatTime,
+  formatFullTime,
+  formatTimeToDate,
+  formatTimeStrToObj,
   getTime,
   getYear,
   getDate,

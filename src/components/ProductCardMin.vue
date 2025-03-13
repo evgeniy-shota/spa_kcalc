@@ -3,7 +3,7 @@ import { computed, onMounted, ref, watch } from 'vue';
 import VueDatePicker from '@vuepic/vue-datepicker';
 import '@vuepic/vue-datepicker/dist/main.css'
 import TimePicker from './TimePicker.vue';
-import { getTime } from '@/resource/js/dateTime';
+import { getTime, formatTimeToDate, formatTimeStrToObj } from '@/resource/js/dateTime';
 import IconCloseXlg from './icons/IconCloseXlg.vue';
 import router from '@/router';
 import roundTo from '@/resource/js/mathFunctions';
@@ -40,7 +40,37 @@ const props = defineProps({
     }
 });
 
-const productUseTime = ref(props.product.time ? props.product.time : props.time);
+const emit = defineEmits({
+    onClickCloseBtn: (id) => {
+        if (id !== null && id !== undefined) {
+            return true;
+        }
+        return false;
+    },
+    onCangeQuantity: (id, quantity) => {
+        if (id !== null && id !== undefined && quantity >= 0) {
+            return true;
+        }
+        return false;
+    },
+    onInputQuantity: (id, quantity) => {
+        if (id !== null && id !== undefined && quantity >= 0) {
+            return true;
+        }
+        return false;
+    },
+    changeTime: (id, time) => {
+        if (id && time) {
+            return true
+        }
+        return false;
+    },
+    readonlyTrigger: () => {
+        return true
+    },
+});
+
+const productUseTime = ref(props.product.time ? formatTimeStrToObj(props.product.time) : props.time);
 
 const productEnergyValue = computed(() => {
     return {
@@ -71,41 +101,21 @@ function productId() {
 //     }
 // });
 
-const emit = defineEmits({
 
-    onClickCloseBtn: (id) => {
-        if (id !== null && id !== undefined) {
-            return true;
-        }
-        return false;
-    },
-    onCangeQuantity: (id, quantity) => {
-        if (id !== null && id !== undefined && quantity >= 0) {
-            return true;
-        }
-        return false;
-    },
-    onInputQuantity: (id, quantity) => {
-        if (id !== null && id !== undefined && quantity >= 0) {
-            return true;
-        }
-        return false;
-    },
-    changeTime: (id, time) => {
-        if (id && time) {
-            return true
-        }
-        return false;
-    },
-});
 
-watch(productUseTime, () => {
+watch(productUseTime.value, () => {
     emit('changeTime', productId(), productUseTime.value);
     console.log('time changed');
 
 });
 
 function inputQuantity(event, productId) {
+
+    if (props.isReadonly) {
+        console.log('readonly input')
+        emit('readonlyTrigger');
+        return
+    }
 
     let quantity = event.target.value.length == 0 ? 0 : event.target.value;
 
@@ -116,6 +126,24 @@ function inputQuantity(event, productId) {
 
     timerId = setTimeout(() => emit('onInputQuantity', productId, quantity), props.timerDelayMs);
 
+}
+
+function changeQuantity(target, productId) {
+    if (props.isReadonly) {
+        emit('readonlyTrigger');
+        return
+    }
+
+    emit('onCangeQuantity', productId, target)
+}
+
+function focusInputQuantity() {
+
+    if (props.isReadonly) {
+        console.log('focus');
+        emit('readonlyTrigger');
+        return
+    }
 }
 
 </script>
@@ -133,19 +161,18 @@ function inputQuantity(event, productId) {
             <div class="input-group input-group-sm">
                 <span class="input-group-text">Вес (гр)</span>
                 <input type="number" min="0" max="1000" onkeypress='return event.charCode >= 48 && event.charCode <= 57'
-                    @change="emit('onCangeQuantity', productId(), $event.target.value)"
+                    @focus="focusInputQuantity" @change="changeQuantity($event.target.value, productId())"
                     @input="inputQuantity($event, productId())" class="form-control px-1" :readonly="props.isReadonly"
                     aria-label="Text input with radio button" :value="product.quantity">
             </div>
         </div>
         <div class="col">
-            <div class="input-group input-group-sm">
-                <span class="input-group-text">Время</span>
-                <!-- <VueDatePicker v-model="time" time-picker></VueDatePicker> -->
-                <!-- <input type="time" v-model="productTime" class="form-control form-control-sm"
+            <!-- <VueDatePicker v-model="time" time-picker></VueDatePicker> -->
+            <!-- <input type="time" v-model="productTime" class="form-control form-control-sm"
                     :id="'dailyProductTime' + productId"> -->
-                <TimePicker v-model="productUseTime"></TimePicker>
-            </div>
+            <TimePicker v-model="productUseTime" :is-readonly="props.isReadonly"
+                @readonly-trigger="emit('readonlyTrigger')" label="Время"></TimePicker>
+
         </div>
     </div>
 

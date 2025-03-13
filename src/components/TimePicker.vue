@@ -1,6 +1,6 @@
 <script setup>
-import { computed, onMounted, ref } from 'vue';
-import { getTime } from '@/resource/js/dateTime';
+import { computed, onBeforeMount, onMounted, ref } from 'vue';
+import { getTime, formatFullTime } from '@/resource/js/dateTime';
 import IconCaretUpFill from './icons/IconCaretUpFill.vue';
 import IconCaretDownFill from './icons/IconCaretDownFill.vue';
 import IconCloseXlg from './icons/IconCloseXlg.vue';
@@ -13,10 +13,18 @@ const props = defineProps({
         type: Object,
         default: getTime(false, true),
     },
-    isEnable: {
+    isReadonly: {
         type: Boolean,
-        default: true,
-    }
+        default: false,
+    },
+    label: {
+        type: String,
+        default: null,
+    },
+    smallSize: {
+        type: Boolean,
+        default: true
+    },
 });
 
 const emit = defineEmits({
@@ -26,43 +34,53 @@ const emit = defineEmits({
         }
         return false
     },
+    readonlyTrigger: () => {
+        return true
+    },
 });
 
 // onMounted(() => {
 //     if(props)time.value = getTime(false, true);
 //     defaultTime.value = time.value;
 // });
+onBeforeMount(() => {
+    // Object.assign(time.value, defineTime.value)
+    // time.value = defineTime.value ? defineTime.value : getTime()
+})
 
 const defineTime = defineModel()
-const time = ref(props.time);
-const defaultTime = ref(props.time)
-const showControls = ref(false)
+// defineTime.value ? defineTime.value : 
+const time = ref({});
+// const defaultTime = ref({})
+const isShowControls = ref(false)
 
 function applyTime() {
-    emit('applyTime', time.value.hours + ':' + time.value.minutes)
-    defineTime.value = time.value.hours + ':' + time.value.minutes;
-    showControls.value = false;
+    emit('applyTime', time.value)
+    Object.assign(defineTime.value, time.value)
+    // defineTime.value = time.value;
+    isShowControls.value = false;
 }
 
 function hideControls(defaulTime = true) {
     if (defaulTime) {
-        setTime();
+        setTime(false);
     }
-    showControls.value = false;
+    isShowControls.value = false;
 }
 
 function setTime(currentTime = true) {
     if (currentTime) {
         time.value = getTime(false, true);
-        defineTime.value = time.value.hours + ':' + time.value.minutes
+        defineTime.value = time.value;
+        Object.assign(defineTime.value, time.value)
     } else {
-        time.value = defaultTime.value
-        defineTime.value = defaultTime.value.hours + ':' + defaultTime.value.minutes
+        // time.value = defaultTime.value
+        // defineTime.value = time.value
     }
 }
 
 function addHour() {
-    if (time.value.hours == 23) {
+    if (time.value.hours >= 23) {
         time.value.hours = 0
         return
     }
@@ -70,7 +88,7 @@ function addHour() {
 }
 
 function decHour() {
-    if (time.value.hours == 0) {
+    if (time.value.hours <= 0) {
         time.value.hours = 23
         return
     }
@@ -78,7 +96,7 @@ function decHour() {
 }
 
 function addMinutes() {
-    if (time.value.minutes == 59) {
+    if (time.value.minutes >= 59) {
         time.value.minutes = 0
         return
     }
@@ -86,27 +104,41 @@ function addMinutes() {
 }
 
 function decMinutes() {
-    if (time.value.minutes == 0) {
+    if (time.value.minutes <= 0) {
         time.value.minutes = 59
         return
     }
-    time.value.minutes -= 1;
+    time.value.minutes--;
+}
+
+function showControls() {
+    if (props.isReadonly) {
+        emit('readonlyTrigger');
+        return
+    }
+    console.log('show time');
+    Object.assign(time.value, defineTime.value)
+    // time.value=defineTime.value
+    isShowControls.value = !isShowControls.value
 }
 
 const currentTime = computed(() => {
-    let time = defineTime.value.split(':');
+    let hours = String(defineTime.value.hours);
+    let minutes = String(defineTime.value.minutes);
 
-    return time[0] + ' : ' + time[1];
+    return `${hours.length == 1 ? '0' + hours : hours} : ${minutes.length == 1 ? '0' + minutes : minutes}`;
 });
 
 </script>
 
 <template>
-    <div>
-        <div @click="() => showControls = !showControls"
-            class="form-control form-control-sm d-flex gap-2 justify-content-between align-items-center px-2">
-            <div>
-                <IconClock :size="20" />
+    <div class="input-group" :class="{ 'input-group-sm': props.smallSize }">
+        <span v-if="props.label" class="input-group-text">{{ props.label }}</span>
+        <div @click="showControls" style="cursor: pointer; max-width: rem;"
+            class="form-control d-flex justify-content-around align-items-center px-1"
+            :class="{ 'form-control-sm': props.smallSize }">
+            <div class="ps-1">
+                <IconClock :size="16" />
             </div>
 
             <div class="px-2">
@@ -122,7 +154,7 @@ const currentTime = computed(() => {
 
         <!-- <input class="form-control" readonly type="text" name="timePicker" id="timePicker"> -->
 
-        <div v-show="showControls" class="position-absolute card p-2 time-piker-controls">
+        <div v-show="isShowControls" class="position-absolute card time-piker-controls">
             <div class="d-flex justify-content-between">
 
                 <div class="d-flex flex-column justify-content-between align-items-center">
@@ -138,7 +170,8 @@ const currentTime = computed(() => {
                         <IconCaretUpFill :size="20" />
                     </div>
                     <div class="p-2">
-                        {{ String(time.hours).length == 1 ? '0' + time.hours : time.hours }}
+                        {{ String(time.hours).length == 1 ? '0' + time.hours :
+                            time.hours }}
                     </div>
                     <div @click="decHour" class="p-2 btn btn-sm">
                         <IconCaretDownFill :size="20" />
@@ -160,7 +193,8 @@ const currentTime = computed(() => {
                         <IconCaretUpFill :size="20" />
                     </div>
                     <div class="p-2">
-                        {{ String(time.minutes).length == 1 ? '0' + time.minutes : time.minutes }}
+                        {{ String(time.minutes).length == 1 ? '0' + time.minutes :
+                            time.minutes }}
                     </div>
                     <div @click="decMinutes" class="p-2 btn btn-sm">
                         <IconCaretDownFill :size="20" />
@@ -182,6 +216,8 @@ const currentTime = computed(() => {
 
 <style lang="scss">
 .time-piker-controls {
-    z-index: 5;
+    top: 4vh;
+    left: 0;
+    z-index: 15;
 }
 </style>

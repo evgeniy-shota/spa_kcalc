@@ -3,8 +3,8 @@ import { computed, onMounted, ref, useTemplateRef, watch } from 'vue';
 import { getDate, getDateYMD, getYear, getMonthName, getDateWithOffset, getDayOfWeek, dayOfWeekShortRu } from '@/resource/js/dateTime';
 import IconArrowLeftShort from './icons/IconArrowLeftShort.vue';
 import IconArrowRightShort from './icons/IconArrowRightShort.vue';
-import IconCaretRightFill from './icons/IconCaretRightFill .vue';
-import IconCaretLeftFill from './icons/IconCaretLeftFill .vue';
+import IconCaretRightFill from './icons/IconCaretRightFill.vue';
+import IconCaretLeftFill from './icons/IconCaretLeftFill.vue';
 import IconCheckLg from './icons/IconCheckLg.vue';
 import IconCloseXlg from './icons/IconCloseXlg.vue';
 
