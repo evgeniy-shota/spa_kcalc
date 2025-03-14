@@ -1,18 +1,20 @@
 <script setup>
 import { onBeforeMount, onMounted, ref, watch } from 'vue';
-import TimePicker from './TimePicker.vue';
+// import TimePicker from './TimePicker.vue';
 import IconPlusLg from './icons/IconPlusLg.vue';
 import IconDashLg from './icons/IconDashLg.vue';
 import IconCheckLg from './icons/IconCheckLg.vue';
 import IconCloseX from './icons/IconCloseX.vue';
 
-import VueDatePicker from '@vuepic/vue-datepicker';
-import '@vuepic/vue-datepicker/dist/main.css'
+// import VueDatePicker from '@vuepic/vue-datepicker';
+// import '@vuepic/vue-datepicker/dist/main.css'
 
 import VueDatePickerExtended from './VueDatePickerExtended.vue';
+import VueTimePickerExtended from './VueTimePickerExtended.vue';
 
-import DatePicker from './DatePicker.vue';
+// import DatePicker from './DatePicker.vue';
 import LineChart from './LineChart.vue';
+import BarChart from './BarChart.vue';
 import { useStatisticStore } from '@/stores/statisticStore';
 import { getDate, getDateWithOffset, getTimeWithOffset, getMonthName, formatDate, getTime } from '@/resource/js/dateTime';
 import { offset } from '@popperjs/core';
@@ -34,7 +36,7 @@ const fromDay = ref(new Date(getTimeWithOffset(currentDate.value, fromDayOffset.
 const toDay = ref(new Date(getTimeWithOffset(currentDate.value, toDayOffset.value)));
 // const toDay = ref(getDate(toDayTime.value))
 
-const timeRangeForStatisticSepByTime = ref([])
+// const timeRangeForStatisticSepByTime = ref([])
 
 const datePickerFormat = (date) => {
     const day = date.getDate();
@@ -44,9 +46,11 @@ const datePickerFormat = (date) => {
     return `${day} ${month}. ${year}`
 };
 
-onBeforeMount(() => {
+onMounted(() => {
     // setDefaultDateSettings();
-    addTimeRange();
+    if (statisticStore.timeSplits.length == 0) {
+        addTimeRange();
+    }
     getStatistic();
 });
 
@@ -69,7 +73,12 @@ watch([fromDay, toDay], () => {
 });
 
 function addTimeRange() {
-    timeRangeForStatisticSepByTime.value.push(
+    // timeRangeForStatisticSepByTime.value.push(
+    if (statisticStore.timeSplits.length >= 5) {
+        return
+    }
+
+    statisticStore.timeSplits.push(
         {
             active: true,
             from: getTime(false, true),
@@ -80,15 +89,19 @@ function addTimeRange() {
 
 function removeTimeInterval(index) {
     console.log(index)
-    console.log(timeRangeForStatisticSepByTime.value.splice(index, 1));
+    console.log(statisticStore.timeSplits.splice(index, 1));
 }
 
 function toggleTimeInterval(index) {
-    timeRangeForStatisticSepByTime.value[index].active = !timeRangeForStatisticSepByTime.value[index].active
+    statisticStore.timeSplits[index].active = !statisticStore.timeSplits[index].active
 }
 
 function getStatistic() {
     statisticStore.getStatistic(formatDate(fromDay.value), formatDate(toDay.value));
+}
+
+function getStatisticSplittedByTime() {
+    statisticStore.getStatisticSplittedByTime(formatDate(fromDay.value), formatDate(toDay.value))
 }
 
 // function changeFromDay(offset) {
@@ -203,41 +216,53 @@ function setDefaultDateSettings() {
                     </div>
                     <div class="time-range-container">
 
-                        <div v-for="(item, index) in timeRangeForStatisticSepByTime" :key="index"
+                        <div v-for="(item, index) in statisticStore.timeSplits" :key="index"
                             class="time-range d-flex justify-content-around align-items-center mb-1">
                             <div class="time-range-control">
-                                <button :disabled="timeRangeForStatisticSepByTime.length == 1"
-                                    @click="removeTimeInterval(index)"
-                                    class="btn btn-sm btn-light border-info-subtle me-1">
-                                    <IconDashLg />
-                                </button>
-
                                 <button @click="toggleTimeInterval(index)"
-                                    :disabled="timeRangeForStatisticSepByTime.length == 1"
+                                    :disabled="statisticStore.timeSplits.length == 1"
                                     class="btn btn-sm btn-light border-info-subtle me-1"
-                                    :class="{ 'bg-success-subtle': timeRangeForStatisticSepByTime[index].active }">
+                                    :class="{ 'bg-primary-subtle': item.active }">
                                     <IconCheckLg />
                                 </button>
                             </div>
 
                             <div class="time-from me-1">
-                                <TimePicker v-model="item.from" label="от" :is-readonly="!item.active" />
-
+                                <!-- <TimePicker v-model="item.from" label="от" :is-readonly="!item.active" /> -->
+                                <VueTimePickerExtended v-model="item.from" label="от" :max-time="item.to"
+                                    :readonly="!item.active">
+                                </VueTimePickerExtended>
                             </div>
                             <div class="time-to me-1">
-                                <TimePicker v-model="item.to" label="до" :is-readonly="!item.active" />
+                                <!-- <TimePicker v-model="item.to" label="до" :is-readonly="!item.active" /> -->
+                                <VueTimePickerExtended v-model="item.to" label="до" :min-time="item.from"
+                                    :readonly="!item.active">
+                                </VueTimePickerExtended>
                             </div>
+
+                            <div class="time-range-control">
+                                <button :disabled="statisticStore.timeSplits.length == 1"
+                                    @click="removeTimeInterval(index)"
+                                    class="btn btn-sm btn-light border-info-subtle me-1">
+                                    <IconDashLg />
+                                </button>
+                            </div>
+
                         </div>
 
-                        <div class="time-range-control d-flex justify-content-center">
-                            <button @click="addTimeRange" class="btn btn-sm btn-light border-info-subtle">
-                                <IconPlusLg /> Добавить временной интервал
+                        <div class="time-range-control d-flex gap-1 justify-content-center">
+                            <button :class="{ 'disabled': statisticStore.timeSplits.length >= 5 }" @click="addTimeRange"
+                                class="btn btn-sm btn-outline-primary ">
+                                <IconPlusLg /> Добавить интервал
                             </button>
+                            <button @click="getStatisticSplittedByTime"
+                                class="btn btn-sm btn-outline-success">Применить</button>
                         </div>
                     </div>
                     <div class="chart-container mb-1">
-                        <LineChart v-if="statisticStore.statistics.data.length > 0"
-                            :dataset="statisticStore.statisticToChart.prot_carb_fats" />
+                        <BarChart />
+                        <!-- <LineChart v-if="statisticStore.statistics.data.length > 0"
+                            :dataset="statisticStore.statisticToChart.prot_carb_fats" /> -->
                     </div>
 
                     <div class="mb-1 border-bottom border-light">

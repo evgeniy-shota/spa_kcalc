@@ -1,6 +1,7 @@
 import { defineStore } from 'pinia'
 import { ref } from 'vue'
 import axios_instance from '@/resource/js/axiosInstance'
+import { formatTime } from '@/resource/js/dateTime'
 
 const URL_STATISTIC = 'api/statistic/'
 
@@ -23,6 +24,8 @@ export const useStatisticStore = defineStore('statistics', () => {
     split_by_time: [],
   })
 
+  const timeSplits = ref([])
+
   function $reset() {
     statistics.value = {
       from: '',
@@ -34,6 +37,7 @@ export const useStatisticStore = defineStore('statistics', () => {
       kcalory: {},
       prot_carb_fats: {},
     }
+    timeSplits.value.length = 0
   }
 
   async function getStatistic(from, to, groupBy = 'd') {
@@ -56,6 +60,28 @@ export const useStatisticStore = defineStore('statistics', () => {
       console.warn(error)
     }
   }
+
+  async function getStatisticSplittedByTime(fromDay, toDay) {
+    let timeSplitsFormated = timeSplits.value.map((item) => {
+      return [formatTime(item.from), formatTime(item.to)]
+    })
+    try {
+      const response = await axios_instance.post(URL_STATISTIC, {
+        fromDay: fromDay,
+        toDay: toDay,
+        timeSplits: timeSplitsFormated,
+      })
+
+      if (response) {
+        statistics.value.split_by_time = response.data
+      }
+    } catch (error) {
+      console.log('geting statistic splited by time fail')
+      console.log(error)
+    }
+  }
+
+  function getSplitedByTimeDataToChart() {}
 
   function getDataToChart() {
     let labels = []
@@ -209,11 +235,14 @@ export const useStatisticStore = defineStore('statistics', () => {
   return {
     statistics,
     statisticToChart,
+    timeSplits,
     // statisticForDays,
     // statisticForWeeks,
     // statisticForMonths,
     getStatistic,
+    getStatisticSplittedByTime,
     getDataToChart,
+
     // getStatisticForDays,
     // getStatisticForWeeks,
     // getStatisticForMonths,

@@ -4,6 +4,7 @@ import VueDatePicker from '@vuepic/vue-datepicker';
 import '@vuepic/vue-datepicker/dist/main.css'
 import { getDate, getTimeWithOffset, getMonthName } from '@/resource/js/dateTime';
 import IconCheckLg from './icons/IconCheckLg.vue';
+import IconCloseX from './icons/IconCloseX.vue';
 import IconCaretLeftFill from './icons/IconCaretLeftFill.vue';
 import IconCaretRightFill from './icons/IconCaretRightFill.vue';
 import IconCalendar from './icons/IconCalendar.vue';
@@ -40,6 +41,10 @@ const props = defineProps({
     readonly: {
         type: Boolean,
         default: false,
+    },
+    showCalendarIcon: {
+        type: Boolean,
+        default: true,
     },
 });
 
@@ -93,23 +98,26 @@ function datePickerOutputClick() {
 <template>
     <div class="d-flex align-items-center">
         <button @click="desDate(defineDate)"
-            class="btn btn-outline-dark border-end-0 rounded-end-0 border-secondary-subtle px-1">
+            class="btn btn-light border-end-0 rounded-end-0 border-secondary-subtle px-1">
             <IconCaretLeftFill :size="16" />
         </button>
 
         <VueDatePicker :enable-time-picker="false" v-model="defineDate" :clearable="props.clearable"
             :readonly="props.readonly" :max-date="props.maxDate" :min-date="props.minDate" :format="props.format"
             :locale="props.locale">
-            <template #action-row="{ selectDate }">
+            <template #action-row="{ selectDate, closePicker }">
                 <div @click="selectDate" class="btn btn-sm btn-outline-primary mx-auto">
                     <IconCheckLg /> Подтвердить
+                </div>
+                <div @click="closePicker" class="btn btn-sm btn-outline-secondary mx-auto">
+                    <IconCloseX />Закрыть
                 </div>
             </template>
 
             <template #dp-input="{ value, onInput, onEnter, onTab, onClear, onBlur, onKeypress, onPaste, isMenuOpen }">
                 <div @click="datePickerOutputClick"
-                    class="date-picker-output btn btn-outline-dark rounded-start-0 rounded-end-0 border-secondary-subtle d-flex justify-content-around align-items-center">
-                    <IconCalendar />
+                    class="date-picker-output btn btn-light rounded-start-0 rounded-end-0 border-secondary-subtle d-flex justify-content-around align-items-center">
+                    <IconCalendar v-if="props.showCalendarIcon" />
                     <div>
                         {{ value }}
                     </div>
@@ -119,7 +127,7 @@ function datePickerOutputClick() {
         </VueDatePicker>
 
         <button @click="addDate(defineDate)"
-            class="btn btn-outline-dark border-start-0 rounded-start-0 border-secondary-subtle  px-1">
+            class="btn btn-light border-start-0 rounded-start-0 border-secondary-subtle  px-1">
             <IconCaretRightFill :size="16" />
         </button>
     </div>
