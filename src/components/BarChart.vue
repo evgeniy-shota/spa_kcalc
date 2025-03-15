@@ -19,10 +19,10 @@ const props = defineProps({
         type: Object,
         default: {
             labels: ['some', 'some', 'some'],
-            datasets: {
+            datasets: [{
                 data: [40, 39, 10],
                 label: 'label-1',
-            },
+            }],
         },
     },
 });
@@ -34,6 +34,13 @@ const chartOptions = ref({
 
 const chartData = computed(() => {
     console.log('chartDate');
+
+    if (!props.dataset || props.dataset.datasets.length == 0) {
+        return {
+            labels: '',
+            datasets: []
+        }
+    }
 
     if (props.dataset.datasets.length > 0) {
 
@@ -72,5 +79,6 @@ onBeforeMount(() => {
 </script>
 
 <template>
-    <Bar :data="chartData" :options="chartOptions" />
+    <div v-show="!props.dataset">Нет данных</div>
+    <Bar v-show="props.dataset" :data="chartData" :options="chartOptions" />
 </template>

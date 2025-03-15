@@ -100,8 +100,11 @@ function getStatistic() {
     statisticStore.getStatistic(formatDate(fromDay.value), formatDate(toDay.value));
 }
 
-function getStatisticSplittedByTime() {
-    statisticStore.getStatisticSplittedByTime(formatDate(fromDay.value), formatDate(toDay.value))
+async function getStatisticSplittedByTime() {
+    let res = await statisticStore.getStatisticSplittedByTime(formatDate(fromDay.value), formatDate(toDay.value))
+    if (res) {
+        statisticStore.getSplitedByTimeDataToChart()
+    }
 }
 
 // function changeFromDay(offset) {
@@ -260,7 +263,9 @@ function setDefaultDateSettings() {
                         </div>
                     </div>
                     <div class="chart-container mb-1">
-                        <BarChart />
+                        <!-- date format for chart label -->
+                        <BarChart v-if="statisticStore.statisticSplitedByTime.length != 0"
+                            :dataset="statisticStore.statisticToChart.split_by_time" />
                         <!-- <LineChart v-if="statisticStore.statistics.data.length > 0"
                             :dataset="statisticStore.statisticToChart.prot_carb_fats" /> -->
                     </div>

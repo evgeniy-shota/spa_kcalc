@@ -1,6 +1,7 @@
 import { defineStore } from 'pinia'
 import { ref } from 'vue'
 import axios_instance from '@/resource/js/axiosInstance'
+import { getDatasetsObj } from '@/resource/js/prepareStatForChart'
 import { formatTime } from '@/resource/js/dateTime'
 
 const URL_STATISTIC = 'api/statistic/'
@@ -18,10 +19,19 @@ export const useStatisticStore = defineStore('statistics', () => {
     data: [],
   })
 
+  const statisticSplitedByTime = ref({
+    from: '',
+    to: '',
+    data: [],
+  })
+
   const statisticToChart = ref({
-    kcalory: [],
-    prot_carb_fats: [],
-    split_by_time: [],
+    kcalory: {},
+    prot_carb_fats: {},
+    split_by_time: {
+      labels: [],
+      datasets: [],
+    },
   })
 
   const timeSplits = ref([])
@@ -33,9 +43,15 @@ export const useStatisticStore = defineStore('statistics', () => {
       groupBy: '',
       data: [],
     }
+    statisticSplitedByTime.value = {
+      from: '',
+      to: '',
+      data: [],
+    }
     statisticToChart.value = {
       kcalory: {},
       prot_carb_fats: {},
+      split_by_time: {},
     }
     timeSplits.value.length = 0
   }
@@ -73,7 +89,9 @@ export const useStatisticStore = defineStore('statistics', () => {
       })
 
       if (response) {
-        statistics.value.split_by_time = response.data
+        // statisticSplitedByTime.value.split_by_time = response.data
+        statisticSplitedByTime.value.data = response.data
+        return true
       }
     } catch (error) {
       console.log('geting statistic splited by time fail')
@@ -81,7 +99,67 @@ export const useStatisticStore = defineStore('statistics', () => {
     }
   }
 
-  function getSplitedByTimeDataToChart() {}
+  function getSplitedByTimeDataToChart() {
+    let datasets_kcal = {
+      labels: [],
+      datasets: [],
+    }
+
+    // new Array(length).fill().map((_,i)=>getDatasetsObj(...))
+    for (let i = 0; i < timeSplits.value.length; i++) {
+      datasets_kcal.datasets.push(
+        getDatasetsObj(
+          `${formatTime(timeSplits.value[i].from)}-${formatTime(timeSplits.value[i].to)}`,
+          COLORS.value[i],
+        ),
+      )
+    }
+
+    // let datasets_pcf = {
+    //   label: '',
+    //   backgroundColor: '',
+    //   data: [],
+    //   stack: '',
+    // }
+
+    // let datasets_prot = {}
+    // let datasets_carb = {}
+    // let datasets_fats = {}
+
+    let labels = []
+
+    for (let i = 0; i < statisticSplitedByTime.value.data.length; i++) {
+      labels.push(statisticSplitedByTime.value.data[i].date)
+
+      // let kcalory = []
+      // let carbohydrates = []
+      // let proteins = []
+      // let fats = []
+
+      if (statisticSplitedByTime.value.data[i].date.length != 0) {
+        for (let j = 0; j < statisticSplitedByTime.value.data[i].data.length; j++) {
+          // console.log(statisticSplitedByTime.value.data[i])
+          if (statisticSplitedByTime.value.data[i].data[j].kcalory == 0) {
+            datasets_kcal.datasets[j].data.push(NaN)
+            // carbohydrates.push(NaN)
+            // proteins.push(NaN)
+            // fats.push(NaN)
+            continue
+          }
+
+          datasets_kcal.datasets[j].data.push(statisticSplitedByTime.value.data[i].data[j].kcalory)
+          // carbohydrates.push(statisticSplitedByTime.value[i].date[j].carbohydrates)
+          // proteins.push(statisticSplitedByTime.value[i].date[j].proteins)
+          // fats.push(statisticSplitedByTime.value[i].date[j].fats)
+        }
+
+        // datasets_pcf.data.push()
+      }
+    }
+    datasets_kcal.labels = labels
+    console.log(datasets_kcal)
+    statisticToChart.value.split_by_time = datasets_kcal
+  }
 
   function getDataToChart() {
     let labels = []
@@ -236,12 +314,14 @@ export const useStatisticStore = defineStore('statistics', () => {
     statistics,
     statisticToChart,
     timeSplits,
+    statisticSplitedByTime,
     // statisticForDays,
     // statisticForWeeks,
     // statisticForMonths,
     getStatistic,
     getStatisticSplittedByTime,
     getDataToChart,
+    getSplitedByTimeDataToChart,
 
     // getStatisticForDays,
     // getStatisticForWeeks,

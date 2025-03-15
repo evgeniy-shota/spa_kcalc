@@ -31,10 +31,10 @@ const props = defineProps({
     format: {
         type: Function,
         default: (date) => {
-            const hours = date.getHours();
-            const minutes = date.getMinutes();
+            const hours = String(date.getHours());
+            const minutes = String(date.getMinutes());
 
-            return `${hours} : ${minutes}`
+            return `${hours.length == 1 ? '0' + hours : hours} : ${minutes.length == 1 ? '0' + minutes : minutes}`
         }
     },
     readonly: {
@@ -81,8 +81,8 @@ const dpInputClasses = computed(() => {
         <span v-if="props.label" class="btn border rounded rounded-end-0 text-bg-light px-2"
             :class="{ 'btn-sm': props.smallSize == true }">{{ props.label }}</span>
 
-        <VueDatePicker time-picker v-model="defineTime" :clearable="props.clearable" :readonly="props.readonly"
-            :max-time="props.maxTime" :min-time="props.minTime" :format="props.format" :locale="props.locale">
+        <VueDatePicker time-picker v-model="defineTime" :format="props.format" :clearable="props.clearable"
+            :readonly="props.readonly" :max-time="props.maxTime" :min-time="props.minTime" :locale="props.locale">
             <template #action-row="{ selectDate, closePicker }">
                 <div @click="selectDate" class="btn btn-sm btn-outline-primary mx-auto">
                     <IconCheckLg /> Подтвердить
