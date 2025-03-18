@@ -1,5 +1,5 @@
 <script setup>
-import { onBeforeMount, onMounted, ref, watch } from 'vue';
+import { computed, onBeforeMount, onMounted, ref, watch } from 'vue';
 // import TimePicker from './TimePicker.vue';
 import IconPlusLg from './icons/IconPlusLg.vue';
 import IconDashLg from './icons/IconDashLg.vue';
@@ -16,8 +16,7 @@ import VueTimePickerExtended from './VueTimePickerExtended.vue';
 import LineChart from './LineChart.vue';
 import BarChart from './BarChart.vue';
 import { useStatisticStore } from '@/stores/statisticStore';
-import { getDate, getDateWithOffset, getTimeWithOffset, getMonthName, formatDate, getTime } from '@/resource/js/dateTime';
-import { offset } from '@popperjs/core';
+import { getDate, getFullTimeWithOffset, getDateWithOffset, getTimeWithOffset, getMonthName, formatDate, getTime } from '@/resource/js/dateTime';
 
 const statisticStore = useStatisticStore();
 
@@ -35,7 +34,7 @@ const fromDay = ref(new Date(getTimeWithOffset(currentDate.value, fromDayOffset.
 // const fromDay = ref(getDate(fromDayTime.value))
 const toDay = ref(new Date(getTimeWithOffset(currentDate.value, toDayOffset.value)));
 // const toDay = ref(getDate(toDayTime.value))
-
+const selectedTypeSplitedData = ref('proteins')
 // const timeRangeForStatisticSepByTime = ref([])
 
 const datePickerFormat = (date) => {
@@ -52,11 +51,7 @@ onMounted(() => {
         addTimeRange();
     }
     getStatistic();
-});
-
-onMounted(() => {
-    console.log(formatDate(fromDay.value))
-    console.log(toDay.value)
+    getStatisticSplittedByTime();
 });
 
 watch([fromDay, toDay], () => {
@@ -72,17 +67,53 @@ watch([fromDay, toDay], () => {
     timerId = setTimeout(() => getStatistic(), defaultDelayMs)
 });
 
+const splitedDataForBarChart = computed(() => {
+    // if (selectedTypeSplitedData.value == 'stack') {
+    //     return statisticStore.statisticToChart.split_by_time_pcf
+    // }
+
+    if (selectedTypeSplitedData.value == 'proteins') {
+        return statisticStore.statisticToChart.split_by_time_prot
+    }
+
+    if (selectedTypeSplitedData.value == 'carbohydrates') {
+        return statisticStore.statisticToChart.split_by_time_carb
+    }
+
+    if (selectedTypeSplitedData.value == 'fats') {
+        return statisticStore.statisticToChart.split_by_time_fats
+    }
+
+
+    return statisticStore.statisticToChart.split_by_time_pcf
+
+    // return statisticStore.statisticToChart.split_by_time_kcal
+
+});
+
 function addTimeRange() {
+
     // timeRangeForStatisticSepByTime.value.push(
     if (statisticStore.timeSplits.length >= 5) {
         return
+    }
+    let from;
+
+    if (statisticStore.timeSplits.length == 0) {
+        from = {
+            hours: 6,
+            minutes: 0,
+        }
+    } else {
+        from = getFullTimeWithOffset(statisticStore.timeSplits[statisticStore.timeSplits.length - 1].from, 4)
     }
 
     statisticStore.timeSplits.push(
         {
             active: true,
-            from: getTime(false, true),
-            to: getTime(false, true)
+            from: from,
+            to: getFullTimeWithOffset(from, 4)
+
 
         });
 }
@@ -265,9 +296,24 @@ function setDefaultDateSettings() {
                     <div class="chart-container mb-1">
                         <!-- date format for chart label -->
                         <BarChart v-if="statisticStore.statisticSplitedByTime.length != 0"
-                            :dataset="statisticStore.statisticToChart.split_by_time" />
+                            :dataset="statisticStore.statisticToChart.split_by_time_kcal" />
                         <!-- <LineChart v-if="statisticStore.statistics.data.length > 0"
                             :dataset="statisticStore.statisticToChart.prot_carb_fats" /> -->
+                    </div>
+                    <div class="mb-1">
+                        <div class="mb-1">Тип вещества </div>
+                        <select class="form-select form-select-sm" v-model="selectedTypeSplitedData"
+                            aria-label="Small select example">
+                            <option value="stack" selected>БЖУ</option>
+                            <option value="proteins">Белки</option>
+                            <option value="carbohydrates">Углеводы</option>
+                            <option value="fats">Жиры</option>
+                        </select>
+                    </div>
+                    <div class="chart-container mb-1">
+                        <!-- date format for chart label -->
+                        <BarChart v-if="statisticStore.statisticSplitedByTime.length != 0"
+                            :dataset="splitedDataForBarChart" />
                     </div>
 
                     <div class="mb-1 border-bottom border-light">

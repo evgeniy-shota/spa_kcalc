@@ -3,6 +3,7 @@ import { ref } from 'vue'
 import axios_instance from '@/resource/js/axiosInstance'
 import { getDatasetsObj } from '@/resource/js/prepareStatForChart'
 import { formatTime } from '@/resource/js/dateTime'
+import { COLORS, COLORS_RED_LIKE, COLORS_BLUE_LIKE, COLORS_GREEN_LIKE } from '@/resource/colors'
 
 const URL_STATISTIC = 'api/statistic/'
 
@@ -10,8 +11,6 @@ const skipped = (ctx, value) => (ctx.p0.skip || ctx.p1.skip ? value : undefined)
 const down = (ctx, value) => (ctx.p0.parsed.y > ctx.p1.parsed.y ? value : undefined)
 
 export const useStatisticStore = defineStore('statistics', () => {
-  const COLORS = ref(['#94D2BD', '#005F73', '#EE9B00', '#AE2012', '#B5179E'])
-
   const statistics = ref({
     from: '',
     to: '',
@@ -28,7 +27,23 @@ export const useStatisticStore = defineStore('statistics', () => {
   const statisticToChart = ref({
     kcalory: {},
     prot_carb_fats: {},
-    split_by_time: {
+    split_by_time_kcal: {
+      labels: [],
+      datasets: [],
+    },
+    split_by_time_pcf: {
+      labels: [],
+      datasets: [],
+    },
+    split_by_time_prot: {
+      labels: [],
+      datasets: [],
+    },
+    split_by_time_carb: {
+      labels: [],
+      datasets: [],
+    },
+    split_by_time_fats: {
       labels: [],
       datasets: [],
     },
@@ -51,7 +66,26 @@ export const useStatisticStore = defineStore('statistics', () => {
     statisticToChart.value = {
       kcalory: {},
       prot_carb_fats: {},
-      split_by_time: {},
+      split_by_time_kcal: {
+        labels: [],
+        datasets: [],
+      },
+      split_by_time_pcf: {
+        labels: [],
+        datasets: [],
+      },
+      split_by_time_prot: {
+        labels: [],
+        datasets: [],
+      },
+      split_by_time_carb: {
+        labels: [],
+        datasets: [],
+      },
+      split_by_time_fats: {
+        labels: [],
+        datasets: [],
+      },
     }
     timeSplits.value.length = 0
   }
@@ -105,60 +139,103 @@ export const useStatisticStore = defineStore('statistics', () => {
       datasets: [],
     }
 
+    let datasets_prot = {
+      labels: [],
+      datasets: [],
+    }
+
+    let datasets_carb = {
+      labels: [],
+      datasets: [],
+    }
+
+    let datasets_fats = {
+      labels: [],
+      datasets: [],
+    }
+
     // new Array(length).fill().map((_,i)=>getDatasetsObj(...))
     for (let i = 0; i < timeSplits.value.length; i++) {
       datasets_kcal.datasets.push(
         getDatasetsObj(
           `${formatTime(timeSplits.value[i].from)}-${formatTime(timeSplits.value[i].to)}`,
-          COLORS.value[i],
+          COLORS[i],
+        ),
+      )
+
+      datasets_prot.datasets.push(
+        getDatasetsObj(
+          `${formatTime(timeSplits.value[i].from)}-${formatTime(timeSplits.value[i].to)}-белки`,
+          COLORS_RED_LIKE[i],
+        ),
+      )
+
+      datasets_carb.datasets.push(
+        getDatasetsObj(
+          `${formatTime(timeSplits.value[i].from)}-${formatTime(timeSplits.value[i].to)}-углеводы`,
+          COLORS_BLUE_LIKE[i],
+        ),
+      )
+
+      datasets_fats.datasets.push(
+        getDatasetsObj(
+          `${formatTime(timeSplits.value[i].from)}-${formatTime(timeSplits.value[i].to)}-жиры`,
+          COLORS_GREEN_LIKE[i],
         ),
       )
     }
-
-    // let datasets_pcf = {
-    //   label: '',
-    //   backgroundColor: '',
-    //   data: [],
-    //   stack: '',
-    // }
-
-    // let datasets_prot = {}
-    // let datasets_carb = {}
-    // let datasets_fats = {}
 
     let labels = []
 
     for (let i = 0; i < statisticSplitedByTime.value.data.length; i++) {
       labels.push(statisticSplitedByTime.value.data[i].date)
 
-      // let kcalory = []
-      // let carbohydrates = []
-      // let proteins = []
-      // let fats = []
-
+      // let stackName = 'Stack ' + i
       if (statisticSplitedByTime.value.data[i].date.length != 0) {
         for (let j = 0; j < statisticSplitedByTime.value.data[i].data.length; j++) {
           // console.log(statisticSplitedByTime.value.data[i])
+          // datasets_prot.datasets[j].stack = i
+
           if (statisticSplitedByTime.value.data[i].data[j].kcalory == 0) {
+            datasets_kcal.datasets[j].stack = i
+            datasets_prot.datasets[j].stack = i
+            datasets_carb.datasets[j].stack = i
+            datasets_fats.datasets[j].stack = i
             datasets_kcal.datasets[j].data.push(NaN)
-            // carbohydrates.push(NaN)
-            // proteins.push(NaN)
-            // fats.push(NaN)
+            datasets_prot.datasets[j].data.push(NaN)
+            datasets_carb.datasets[j].data.push(NaN)
+            datasets_fats.datasets[j].data.push(NaN)
             continue
           }
-
           datasets_kcal.datasets[j].data.push(statisticSplitedByTime.value.data[i].data[j].kcalory)
-          // carbohydrates.push(statisticSplitedByTime.value[i].date[j].carbohydrates)
-          // proteins.push(statisticSplitedByTime.value[i].date[j].proteins)
-          // fats.push(statisticSplitedByTime.value[i].date[j].fats)
+          datasets_prot.datasets[j].data.push(statisticSplitedByTime.value.data[i].data[j].proteins)
+          datasets_carb.datasets[j].data.push(
+            statisticSplitedByTime.value.data[i].data[j].carbohydrates,
+          )
+          datasets_fats.datasets[j].data.push(statisticSplitedByTime.value.data[i].data[j].fats)
         }
 
         // datasets_pcf.data.push()
       }
     }
     datasets_kcal.labels = labels
+    datasets_prot.labels = labels
+    datasets_carb.labels = labels
+    datasets_fats.labels = labels
+
+    let res_datasets = {
+      labels: labels,
+      datasets: [].concat(datasets_prot.datasets, datasets_carb.datasets, datasets_fats.datasets),
+    }
+
     console.log(datasets_kcal)
-    statisticToChart.value.split_by_time = datasets_kcal
+    console.log(datasets_prot)
+    // console.log(res_datasets)
+    statisticToChart.value.split_by_time_kcal = datasets_kcal
+    statisticToChart.value.split_by_time_pcf = res_datasets
+    statisticToChart.value.split_by_time_prot = datasets_prot
+    statisticToChart.value.split_by_time_carb = datasets_carb
+    statisticToChart.value.split_by_time_fats = datasets_fats
   }
 
   function getDataToChart() {
@@ -189,10 +266,10 @@ export const useStatisticStore = defineStore('statistics', () => {
       {
         label: 'Калории, ккал',
         data: kcalory,
-        backgroundColor: COLORS.value[0],
+        backgroundColor: COLORS[0],
         // borderColor: COLORS.value[0],
         segment: {
-          borderColor: COLORS.value[0],
+          borderColor: COLORS[0],
           borderDash: (ctx) => skipped(ctx, [6, 6]),
         },
         spanGaps: true,
@@ -203,11 +280,11 @@ export const useStatisticStore = defineStore('statistics', () => {
       {
         label: 'Углеводы, гр.',
         data: carbohydrates,
-        backgroundColor: COLORS.value[1],
-        borderColor: COLORS.value[1],
+        backgroundColor: COLORS[1],
+        borderColor: COLORS[1],
 
         segment: {
-          borderColor: COLORS.value[1],
+          borderColor: COLORS[1],
           borderDash: (ctx) => skipped(ctx, [6, 6]),
         },
         spanGaps: true,
@@ -215,11 +292,11 @@ export const useStatisticStore = defineStore('statistics', () => {
       {
         label: 'Белки, гр.',
         data: proteins,
-        backgroundColor: COLORS.value[2],
-        borderColor: COLORS.value[2],
+        backgroundColor: COLORS[2],
+        borderColor: COLORS[2],
 
         segment: {
-          borderColor: COLORS.value[2],
+          borderColor: COLORS[2],
           borderDash: (ctx) => skipped(ctx, [6, 6]),
         },
         spanGaps: true,
@@ -227,11 +304,11 @@ export const useStatisticStore = defineStore('statistics', () => {
       {
         label: 'Жиры, гр.',
         data: fats,
-        backgroundColor: COLORS.value[3],
-        borderColor: COLORS.value[3],
+        backgroundColor: COLORS[3],
+        borderColor: COLORS[3],
 
         segment: {
-          borderColor: COLORS.value[3],
+          borderColor: COLORS[3],
           borderDash: (ctx) => skipped(ctx, [6, 6]),
         },
         spanGaps: true,

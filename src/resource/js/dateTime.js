@@ -1,3 +1,8 @@
+const msInSec = 1000
+const msInMin = msInSec * 60
+const msInHour = msInMin * 60
+const msInDay = msInHour * 24
+
 const monthNameRu = [
   'январь',
   'февраль',
@@ -93,6 +98,28 @@ function getTime(full = true, returnObj = false) {
 
   // let res = `${resHourse}:${resMinutes}` + (full ? `:${resSeconds}` : '')
   return `${resHourse}:${resMinutes}` + (full ? `:${resSeconds}` : '')
+}
+
+function getFullTimeWithOffset(time, offsetHours = 0, offsetMinutes = 0) {
+  let hours = time.hours + offsetHours
+  let minutes = time.minutes + offsetMinutes
+
+  if (hours > 24) {
+    hours -= 24
+  } else if (hours < 0) {
+    hours += 24
+  }
+
+  if (minutes > 59) {
+    minutes -= 59
+  } else if (minutes < 0) {
+    minutes += 59
+  }
+
+  return {
+    hours: hours,
+    minutes: minutes,
+  }
 }
 
 function formatTime(time) {
@@ -203,9 +230,9 @@ function getTimeWithOffset(time, offsetNum = 0) {
 function getDateWithOffset(time, offsetNum = 0) {
   console.log(time + '+' + offsetNum)
 
-  let msInSec = 1000
-  let msInHour = msInSec * 60 * 60
-  let msInDay = msInHour * 24
+  // let msInSec = 1000
+  // let msInHour = msInSec * 60 * 60
+  // let msInDay = msInHour * 24
   let offsetMs = msInDay * offsetNum
 
   return getDate(time + offsetMs)
@@ -280,6 +307,7 @@ export {
   formatTimeToDate,
   formatTimeStrToObj,
   getTime,
+  getFullTimeWithOffset,
   getYear,
   getDate,
   getDateYMD,
