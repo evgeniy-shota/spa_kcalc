@@ -103,22 +103,6 @@ function selectElement(element) {
 
   </ModalWindow>
 
-  <!-- <SearchModalWindow :for-slots="{ ...searchInputProps, ...searchResultProps }" :show-window="showSearchWindow"
-    v-on:hide-window="hideSearch" :window-title="searchTitle">
-
-    <template #searchInput="{ propsForSlot }">
-      <SearchInput :search-label="propsForSlot.searchLabel" :time-delay-ms="propsForSlot.timeDelayMs"
-        :search-text="propsForSlot.searchText" :search-history="propsForSlot.searchHistory"
-        @search="propsForSlot.search" :search-is-complete="propsForSlot.searchIsComplete" />
-    </template>
-
-    <template #searchOutput="{ propsForSlot }">
-      <SearchResult :search-result-label="propsForSlot.searchResultLabel" :search-result="propsForSlot.searchResponse"
-        :is-nothing-found="propsForSlot.isNothingFound" @select-search-result="propsForSlot.selectSearchResult" />
-    </template>
-
-  </SearchModalWindow> -->
-
   <!-- daily diet -->
   <div class="col mb-2" style="max-height: 100%;">
     <DailyProductFrom v-on:show-search="showSearch" />

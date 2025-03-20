@@ -250,6 +250,39 @@ export const useProductsStore = defineStore('products', () => {
       return false
     }
   }
+  async function changeCategoryGroup(id, data) {
+    try {
+      axios_instance.patch(URL_API_CATEGORY_GROUPS + id, {
+        id: 'id' in data ? data.id : null,
+        name: 'name' in data ? data.name : null,
+        description: 'description' in data ? data.description : null,
+        is_enabled: 'is_enabled' in data ? data.is_enabled : null,
+        is_favorite: 'is_favorite' in data ? data.is_favorite : null,
+        is_hidden: 'is_hidden' in data ? data.is_hidden : null,
+      })
+    } catch (error) {
+      console.log('changeCategoryGroup fail')
+      console.log(error)
+    }
+  }
+
+  async function changeCategory(id, data) {
+    try {
+      axios_instance.patch(URL_API_CATEGORIES + id, {})
+    } catch (error) {
+      console.log('changeCategory fail')
+      console.log(error)
+    }
+  }
+
+  async function changeProduct(id, data) {
+    try {
+      axios_instance.patch(URL_API_PRODUCTS + id, {})
+    } catch (error) {
+      console.log('changeProduct fail')
+      console.log(error)
+    }
+  }
 
   return {
     categories,
@@ -272,6 +305,9 @@ export const useProductsStore = defineStore('products', () => {
     getProduct,
     getFilteredProducts,
     addNewProduct,
+    changeCategoryGroup,
+    changeCategory,
+    changeProduct,
     $reset,
   }
 })

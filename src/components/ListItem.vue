@@ -26,6 +26,10 @@ const props = defineProps({
         type: Boolean,
         default: false
     },
+    isHidden: {
+        type: Boolean,
+        default: false,
+    },
     showControls: {
         type: Boolean,
         default: true
@@ -39,6 +43,19 @@ const emit = defineEmits({
         }
         return false
     },
+    changeFavoriteStatus: (id, status) => {
+        if (id && status) {
+            return true
+        }
+        return false
+    },
+    changeHiddenStatus: (id, status) => {
+        if (id && status) {
+            return true
+        }
+        return false
+    },
+
 });
 
 function selectElement(event, id) {
@@ -52,12 +69,14 @@ function selectElement(event, id) {
     emit('selectElement', id)
 }
 
-function addElementToHidden(id) {
+function changeElementHiddenStatus(id, status) {
     console.log('Added to hidden list :' + id)
+    emit('changeHiddenStatus', id, status);
 }
 
-function addElementToFavorite(id) {
+function changeElementFavoriteStatus(id, status) {
     console.log('add to favorite list: ' + id)
+    emit('changeFavoriteStatus', id, status);
 }
 
 
@@ -93,11 +112,13 @@ function addElementToFavorite(id) {
                 </button>
                 <ul class="dropdown-menu">
                     <li>
-                        <a @click="addElementToFavorite(props.id)" class="dropdown-item" href="#">Добавить в
+                        <a @click="changeElementFavoriteStatus(props.id, !props.isFavorite)" class="dropdown-item"
+                            href="#">Добавить в
                             избранное</a>
                     </li>
                     <li>
-                        <a @click="addElementToHidden(props.id)" class="dropdown-item" href="#">Скрыть</a>
+                        <a @click="changeElementHiddenStatus(props.id, !props.isHidden)" class="dropdown-item"
+                            href="#">Скрыть</a>
                     </li>
                     <li><a class="dropdown-item" href="#">Something else here</a></li>
                 </ul>
@@ -115,6 +136,10 @@ function addElementToFavorite(id) {
 
 .lits-item:hover {
     background-color: #f8f9fa;
+}
+
+.item-name {
+    cursor: pointer;
 }
 
 .item-info {

@@ -168,6 +168,50 @@ function hideFilteredProducts() {
     isShowFilteredProducts.value = false
 }
 
+function changeCategoryGroupFavoriteStatus(id, status) {
+    productsStore.changeCategoryGroup(id, {
+        id: id,
+        is_favorite: status
+    });
+}
+
+function changeCategoryGroupHiddenStatus(id, status) {
+    productsStore.changeCategoryGroup(id, {
+        id: id,
+        is_hidden: status
+    });
+}
+
+function changeCategoryFavoriteStatus(id, status) {
+    productsStore.changeCategory(id, {
+        id: id,
+        is_favorite: status
+    });
+}
+
+function changeCategoryHiddenStatus(id, status) {
+    productsStore.changeCategory(id, {
+        id: id,
+        is_hidden: status
+    });
+}
+
+function changeProductFavoriteStatus(id, status) {
+    productsStore.changeProduct(id, {
+        id: id,
+        is_favorite: status
+    });
+}
+
+function changeProductHiddenStatus(id, status) {
+    productsStore.changeProduct(id, {
+        id: id,
+        is_hidden: status
+    });
+}
+
+
+
 async function saveNewProduct(product, category) {
     console.log('save new product');
     const response = await productsStore.addNewProduct(product, category);
@@ -226,7 +270,13 @@ async function saveNewProduct(product, category) {
             :is-products-found="isProductsFound" :show-filtered-products="isShowFilteredProducts"
             :next-page-cursor="productsStore.productsNextCursor" @hide-filtered-product="hideFilteredProducts"
             @get-category-gropus="productsStore.getCategoryGroups();" @get-categories="getCategories"
-            @get-products="getProducts" @get-product="getProduct" @show-filter="showProductFilter">
+            @get-products="getProducts" @get-product="getProduct" @show-filter="showProductFilter"
+            @change-category-group-favorite-status="changeCategoryGroupFavoriteStatus"
+            @change-category-group-hidden-status="changeCategoryGroupHiddenStatus"
+            @change-category-favorite-status="changeCategoryFavoriteStatus"
+            @change-category-hidden-status="changeCategoryHiddenStatus"
+            @change-product-favorite-status="changeProductFavoriteStatus"
+            @change-product-hidden-status="changeProductHiddenStatus">
         </CategoryAndProductList>
 
         <!-- <ProductsList @on-click-add-new-product="showNewProductWindow" @show-product-info="showProductInfoWindow"

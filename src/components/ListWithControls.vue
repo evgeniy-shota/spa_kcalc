@@ -35,6 +35,18 @@ const emit = defineEmits({
   control: () => {
     return true
   },
+  changeFavoriteStatus: (id, status) => {
+    if (id && status) {
+      return true
+    }
+    return false
+  },
+  changeHiddenStatus: (id, status) => {
+    if (id && status) {
+      return true
+    }
+    return false
+  },
 })
 
 function selectElement(id) {
@@ -68,7 +80,9 @@ function selectElement(id) {
     <div class="preloader p-1" v-show="!props.isDataFound">Информация не найдена ...</div>
 
     <ListItem v-for="item in props.data" :key="item.id" :id="item.id" :name="item.name" :description="item.description"
-      :is-personal="item.is_personal" :is-favorite="item.is_favorite" @select-element="selectElement" />
+      :is-personal="item.is_personal" :is-favorite="item.is_favorite" @select-element="selectElement"
+      @change-favorite-status="emit('changeFavoriteStatus', id, status)"
+      @change-hidden-status="emit('changeHiddenStatus', id, status)" />
 
   </div>
   <!-- </div> -->

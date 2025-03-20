@@ -65,6 +65,42 @@ const emit = defineEmits({
         }
         return false;
     },
+    changeCategoryGroupFavoriteStatus: (id, status) => {
+        if (id && status) {
+            return true;
+        }
+        return false;
+    },
+    changeCategoryGroupHiddenStatus: (id, status) => {
+        if (id && status) {
+            return true;
+        }
+        return false;
+    },
+    changeCategoryFavoriteStatus: (id, status) => {
+        if (id && status) {
+            return true;
+        }
+        return false;
+    },
+    changeCategoryHiddenStatus: (id, status) => {
+        if (id && status) {
+            return true;
+        }
+        return false;
+    },
+    changeProductFavoriteStatus: (id, status) => {
+        if (id && status) {
+            return true;
+        }
+        return false;
+    },
+    changeProductHiddenStatus: (id, status) => {
+        if (id && status) {
+            return true;
+        }
+        return false;
+    },
     showFilter: () => {
         return true;
     },
@@ -148,6 +184,37 @@ function selectProduct(id) {
 function showFilter() {
     emit('showFilter');
 }
+
+function changeCategoryGroupFavorieStatus(id, status) {
+    console.log(`changeCategoryGroupFavorieStatus ${id}-${status}`);
+    emit('changeCategoryGroupFavoriteStatus', id, status);
+}
+
+function changeCategoryGroupHiddenStatus(id, status) {
+    console.log(`changeCategoryGroupHiddenStatus ${id}-${status}`);
+    emit('changeCategoryGroupHiddenStatus', id, status);
+}
+
+function changeCategoryFavorieStatus(id, status) {
+    console.log(`changeCategoryFavorieStatus ${id}-${status}`);
+    emit('changeCategoryFavoriteStatus', id, status);
+}
+
+function changeCategoryHiddenStatus(id, status) {
+    console.log(`changeCategoryHiddenStatus ${id}-${status}`);
+    emit('changeCategoryHiddenStatus', id, status);
+}
+
+function changeProductFavorieStatus(id, status) {
+    console.log(`changeProductFavorieStatus ${id}-${status}`);
+    emit('changeProductFavoriteStatus', id, status);
+}
+
+function changeProductHiddenStatus(id, status) {
+    console.log(`changeProductHiddenStatus ${id}-${status}`);
+    emit('changeProductHiddenStatus', id, status);
+}
+
 
 function resetTimer() {
     console.log('timer reset');
@@ -242,15 +309,19 @@ function scrollList(event) {
         </div>
         <div id="groupsSlide" v-show="currentSlide == 1" class="slide ps-2 pe-2">
             <ListWithControls :data="props.categoryGroups" :is-data-found="props.isCategoryGroupsFound"
-                @select-element="selectGroup" />
+                @select-element="selectGroup" @change-favorite-status="changeCategoryGroupFavorieStatus"
+                @change-hidden-status="changeCategoryGroupHiddenStatus" />
         </div>
         <div id="categoriesSlide" v-show="currentSlide == 2" class="slide ps-2 pe-2">
             <ListWithControls :data="props.categories" :is-data-found="props.isCategoriesFound"
-                @select-element="selectCategory" />
+                @select-element="selectCategory" @change-favorite-status="changeCategoryFavorieStatus"
+                @change-hidden-status="changeCategoryHiddenStatus" />
         </div>
         <div id="productsSlide" @scroll="scrollList($event)" v-show="currentSlide == 3" class="slide ps-2 pe-2">
             <ListWithControls :data="!props.showFilteredProducts ? props.products : []"
-                :is-data-found="props.isProductsFound" @select-element="selectProduct" />
+                :is-data-found="props.isProductsFound" @select-element="selectProduct"
+                @change-favorite-status="changeProductFavorieStatus"
+                @change-hidden-status="changeProductHiddenStatus" />
         </div>
 
         <!-- </div> -->

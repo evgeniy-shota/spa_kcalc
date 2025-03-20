@@ -29,7 +29,7 @@ const props = defineProps({
                     <ul class="navbar-nav me-auto mb-2 mb-lg-0">
                         <li class="nav-item">
                             <RouterLink class="nav-link px-3" :class="{ 'active': route.name == 'home' }"
-                                aria-current="page" to="/">Главная</RouterLink>
+                                aria-current="page" to="/">Ежедневник</RouterLink>
                         </li>
 
                         <li class="nav-item">
