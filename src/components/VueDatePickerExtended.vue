@@ -1,5 +1,5 @@
 <script setup>
-import { ref } from 'vue';
+import { computed, ref } from 'vue';
 import VueDatePicker from '@vuepic/vue-datepicker';
 import '@vuepic/vue-datepicker/dist/main.css'
 import { getDate, getTimeWithOffset, getMonthName } from '@/resource/js/dateTime';
@@ -46,12 +46,34 @@ const props = defineProps({
         type: Boolean,
         default: true,
     },
+    showControls: {
+        type: Boolean,
+        default: true,
+    },
+    dpInputJustifyContent: {
+        type: String,
+        default: 'around',
+    },
 });
 
 const emit = defineEmits({
     readonlyTrigger: () => {
         return true
     }
+});
+
+const dpInputClasses = computed(() => {
+    let classes = ''
+
+    if (props.showControls) {
+        classes += 'rounded-start-0 rounded-end-0 ';
+    }
+    if (props.dpInputJustifyContent.length !== 0) {
+        classes += `justify-content-${props.dpInputJustifyContent} `
+    }
+
+    classes += `${props.dpInputContentAlign} `
+    return classes
 });
 
 function desDate(date) {
@@ -97,7 +119,7 @@ function datePickerOutputClick() {
 
 <template>
     <div class="d-flex align-items-center">
-        <button @click="desDate(defineDate)"
+        <button v-if="props.showControls" @click="desDate(defineDate)"
             class="btn btn-light border-end-0 rounded-end-0 border-secondary-subtle px-1">
             <IconCaretLeftFill :size="16" />
         </button>
@@ -115,8 +137,8 @@ function datePickerOutputClick() {
             </template>
 
             <template #dp-input="{ value, onInput, onEnter, onTab, onClear, onBlur, onKeypress, onPaste, isMenuOpen }">
-                <div @click="datePickerOutputClick"
-                    class="date-picker-output btn btn-light rounded-start-0 rounded-end-0 border-secondary-subtle d-flex justify-content-around align-items-center">
+                <div @click="datePickerOutputClick" :class="dpInputClasses"
+                    class="date-picker-output btn btn-light border-secondary-subtle d-flex gap-2 align-items-center">
                     <IconCalendar v-if="props.showCalendarIcon" />
                     <div>
                         {{ value }}
@@ -126,7 +148,7 @@ function datePickerOutputClick() {
 
         </VueDatePicker>
 
-        <button @click="addDate(defineDate)"
+        <button v-if="props.showControls" @click="addDate(defineDate)"
             class="btn btn-light border-start-0 rounded-start-0 border-secondary-subtle  px-1">
             <IconCaretRightFill :size="16" />
         </button>

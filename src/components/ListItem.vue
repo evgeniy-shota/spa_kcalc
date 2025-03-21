@@ -4,6 +4,7 @@ import IconStar from './icons/IconStar.vue'
 import IconStarFill from './icons/IconStarFill.vue'
 import IconBookmarkStarFill from './icons/IconBookmarkStarFill.vue'
 import IconBookmarkStar from './icons/IconBookmarkStar.vue'
+import IconAbstractEgg from './icons/IconAbstract-egg.vue'
 
 const props = defineProps({
     id: {
@@ -17,6 +18,10 @@ const props = defineProps({
     description: {
         type: String,
         default: null
+    },
+    isAbstract: {
+        type: Boolean,
+        default: false,
     },
     isPersonal: {
         type: Boolean,
@@ -89,7 +94,7 @@ function changeElementFavoriteStatus(id, status) {
         <div class="item-info me-auto ps-1 pb-1">
             <div class="item-name" data-btn-controll="item">{{ props.name }}</div>
             <div class="item-additional-info d-flex gap-2">
-                <div class="item-marks">
+                <div class="d-flex gap-1 item-marks">
                     <div v-if="props.isPersonal">
                         <IconBookmarkStarFill :size="20" style="color: orange" v-if="props.isFavorite" />
                         <IconBookmarkStar :size="20" v-else />
@@ -97,6 +102,9 @@ function changeElementFavoriteStatus(id, status) {
                     <div v-else>
                         <IconStarFill :size="20" v-if="props.isFavorite" style="color: orange" />
                         <IconStar :size="20" v-else />
+                    </div>
+                    <div v-if="props.isAbstract" class="abstract-product-icon">
+                        <IconAbstractEgg :size="20" />
                     </div>
                 </div>
                 <div class="description">
@@ -144,5 +152,9 @@ function changeElementFavoriteStatus(id, status) {
 
 .item-info {
     box-sizing: border-box;
+}
+
+.abstract-product-icon {
+    display: inline;
 }
 </style>

@@ -57,18 +57,23 @@ function validateFormData(name, email, password, conf_password) {
   return { dataIsValid, validationError }
 }
 
-function validateName(name, minLenName = 3, maxLenName = 16) {
+function validateLogin(name, minLenName = 3, maxLenName = 16) {
   let notValidRegex = /[^\w]/
   let validationError = []
 
+  if (name === null) {
+    validationError.push('Поле обязательно к заполнению')
+    return { isValid: validationError.length > 0 ? false : true, errors: validationError }
+  }
+
   if (name.length < minLenName) {
-    validationError.push('Поле имя должно содержать не менее ' + minLenName + 'х символов.')
+    validationError.push('Поле должно содержать не менее ' + minLenName + 'х символов.')
   } else if (name.length > maxLenName) {
-    validationError.push('Поле имя должно содержать не более ' + maxLenName + 'х символов.')
+    validationError.push('Поле должно содержать не более ' + maxLenName + 'х символов.')
   }
 
   if (notValidRegex.test(name)) {
-    validationError.push('Поле имя может содержать латинские буквы, цифры и символ подчёркивания.')
+    validationError.push('Поле может содержать латинские буквы, цифры и символ подчёркивания.')
   }
 
   return { isValid: validationError.length > 0 ? false : true, errors: validationError }
@@ -100,6 +105,11 @@ function validateEmail(email, minLength = 8, maxLength = 255) {
   let validRegex = /^\w+[-.\w]{2,}@\w+[-.\w]{2,}\w+\.((com)|(by)|(ru)|(pl))$/
   let validationError = []
 
+  if (email === null) {
+    validationError.push('Поле обязательно к заполнению')
+    return { isValid: validationError.length > 0 ? false : true, errors: validationError }
+  }
+
   if (email.length < minLength) {
     validationError.push('Минимальная длинна email ' + minLength + ' символов.')
   }
@@ -119,6 +129,11 @@ function validatePassword(password, minPasswordLen = 8, maxPasswordLen = 16) {
   // let notValidRegex = /[^-\W]/
   let notValidRegex = /[^\w!?-]/g
   let validationError = []
+
+  if (password === null) {
+    validationError.push('Поле обязательно к заполнению')
+    return { isValid: validationError.length > 0 ? false : true, errors: validationError }
+  }
 
   if (password.length < minPasswordLen) {
     validationError.push('Минимальная длина пароля ' + minPasswordLen + ' символов.')
@@ -200,7 +215,7 @@ function validateIntNumber(number, minLen = 0, maxLength = null) {
 
 export {
   validateFormData,
-  validateName,
+  validateLogin,
   validateEmail,
   validatePassword,
   validateText,

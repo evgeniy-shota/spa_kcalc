@@ -239,6 +239,9 @@ function getDateWithOffset(time, offsetNum = 0) {
 }
 
 function formatDate(date) {
+  if (!date) {
+    return null
+  }
   if (typeof date == 'number') {
     let date = new Date(date)
   }
@@ -253,6 +256,18 @@ function formatDate(date) {
     '-' +
     (day.length == 1 ? '0' + day : day)
   )
+}
+
+function formatStrYMDDateToDate(str) {
+  if (!str) {
+    return null
+  }
+  let splitedDate = str.split('-')
+  let date = new Date()
+  date.setFullYear(splitedDate[0])
+  date.setMonth(Number(splitedDate[1]) - 1)
+  date.setDate(splitedDate[2])
+  return date
 }
 
 function getDateYMD(y, m = 0, d = 1) {
@@ -302,6 +317,7 @@ function getDate(time = Date.now()) {
 
 export {
   formatDate,
+  formatStrYMDDateToDate,
   formatTime,
   formatFullTime,
   formatTimeToDate,

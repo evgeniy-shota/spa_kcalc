@@ -44,7 +44,7 @@ export const useUsersStore = defineStore('users', () => {
   const currentWeight = computed(() => {
     console.log(weight.value)
 
-    return weight.value.length > 0 ? weight.value[weight.value.length - 1] : null
+    return weight.value && weight.value.length > 0 ? weight.value[weight.value.length - 1] : null
   })
 
   async function checkUserStatus() {
@@ -109,13 +109,22 @@ export const useUsersStore = defineStore('users', () => {
   }
 
   async function updateUserInfo(info) {
-    if (info.dateUpdatedWeight !== weight.value[weight.value.length - 1].date) {
-      weight.value.push({
-        date: info.dateUpdatedWeight,
-        value: info.updatedWeight,
-      })
-    } else {
-      weight.value[weight.value.length - 1].value = info.updatedWeight
+    if (info.updatedWeight !== null) {
+      if (weight.value === null || weight.value.length === 0) {
+        weight.value = [
+          {
+            date: info.dateUpdatedWeight,
+            value: info.updatedWeight,
+          },
+        ]
+      } else if (info.dateUpdatedWeight !== weight.value[weight.value.length - 1].date) {
+        weight.value.push({
+          date: info.dateUpdatedWeight,
+          value: info.updatedWeight,
+        })
+      } else {
+        weight.value[weight.value.length - 1].value = info.updatedWeight
+      }
     }
 
     try {
@@ -130,8 +139,6 @@ export const useUsersStore = defineStore('users', () => {
       })
 
       if (response) {
-        console.log('some fucking dial')
-
         userId.value = response.data.data.id
         userName.value = response.data.data.name
         userEmail.value = response.data.data.email
@@ -207,7 +214,7 @@ export const useUsersStore = defineStore('users', () => {
     }
   }
 
-  const register = async (name, email, password) => {
+  async function register(name, email, password) {
     try {
       const response = await axios_instance.post(URL_API_REGISTER, {
         name: name,
@@ -217,7 +224,8 @@ export const useUsersStore = defineStore('users', () => {
 
       return { result: true, response: response.data.data }
     } catch (error) {
-      return { result: false, response: error }
+      console.log(error.response.data.errors)
+      return { result: false, response: error.response.data.errors, error: error }
     }
 
     // axios_instance

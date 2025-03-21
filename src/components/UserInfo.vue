@@ -1,12 +1,10 @@
 <script setup>
 import { computed, watch, ref } from 'vue';
-import { getDate } from '@/resource/js/dateTime';
+import { formatStrYMDDateToDate, formatDate } from '@/resource/js/dateTime';
 import { validateDate } from '@/resource/js/dataValidation';
+import VueDatePickerExtended from './VueDatePickerExtended.vue';
 import LineChart from './LineChart.vue';
-import Calendar from './Calendar.vue';
 import IconPersonFill from './icons/IconPersonFill.vue';
-import IconCloseX from './icons/IconCloseX.vue';
-import IconClipboardPlus from './icons/IconClipboardPlus.vue';
 import IconEnvelope from './icons/IconEnvelope.vue';
 import IconEnvelopeCheck from './icons/IconEnvelopeCheck.vue';
 
@@ -29,7 +27,7 @@ const props = defineProps({
     },
     gender: {
         type: String,
-        default: null,
+        default: 'unknow',
     },
     dateOfBirth: {
         type: String,
@@ -37,11 +35,11 @@ const props = defineProps({
     },
     trainingLevel: {
         type: String,
-        default: null,
+        default: 'unknow',
     },
     activityLevel: {
         type: String,
-        default: null,
+        default: 'unknow',
     },
     height: {
         type: Number,
@@ -67,7 +65,8 @@ const currentWeightDate = ref(props.currentWeight ? props.currentWeight.date : '
 const targetWeight = ref(props.targetWeight)
 const height = ref(props.height)
 const gender = ref(props.gender);
-const dateOfBirth = ref(props.dateOfBirth);
+const dateOfBirth = ref(formatStrYMDDateToDate(props.dateOfBirth));
+// const calendarDateOfBirth = ref(formatStrYMDDateToDate(dateOfBirth));
 const trainingLevel = ref(props.trainingLevel);
 const activityLevel = ref(props.activityLevel);
 
@@ -125,36 +124,51 @@ watch([
     console.log('watch');
 
     if (props.gender !== null) {
+        // console.log('gender changed from props')
         gender.value = props.gender;
+        validationResult.value.userGender.isChanged = false
     }
 
     if (props.dateOfBirth !== null) {
-        dateOfBirth.value = props.dateOfBirth;
+        // console.log('dateOfBirth changed from props')
+        dateOfBirth.value = formatStrYMDDateToDate(props.dateOfBirth);
+        validationResult.value.userDateOfBirth.isChanged = false
     }
 
     if (props.trainingLevel !== null) {
+        // console.log('trainingLevel changed from props')
         trainingLevel.value = props.trainingLevel;
+        validationResult.value.userTrainingLevel.isChanged = false
     }
 
     if (props.activityLevel !== null) {
+        // console.log('activityLevel changed from props')
         activityLevel.value = props.activityLevel;
+        validationResult.value.userActivityLevel.isChanged = false
     }
 
     if (props.height !== null) {
+        // console.log('height changed from props')
         height.value = props.height;
+        validationResult.value.userHeight.isChanged = false
     }
 
     if (props.weight !== null) {
+        // console.log('weight changed from props')
         weight.value = props.weight;
+        validationResult.value.userWeight.isChanged = false
     }
 
     if (props.currentWeight !== null) {
+        // console.log('currentWeight changed from props')
         currentWeight.value = props.currentWeight.value;
         currentWeightDate.value = props.currentWeight.date
     }
 
     if (props.targetWeight !== null) {
+        // console.log('targetWeight changed from props')
         targetWeight.value = props.targetWeight;
+        validationResult.value.userTargetWeight.isChanged = false
     }
 
 });
@@ -168,10 +182,12 @@ watch(gender, () => {
 });
 
 watch(dateOfBirth, () => {
-    if (dateOfBirth.value !== props.dateOfBirth) {
+    let formatedDate = formatDate(dateOfBirth.value);
+
+    if (formatedDate !== props.dateOfBirth) {
         validationResult.value.userDateOfBirth.isChanged = true
 
-        if (validateDate(dateOfBirth.value, 'yyyy-mm-dd').isValid) {
+        if (validateDate(formatedDate, 'yyyy-mm-dd').isValid) {
             validationResult.value.userDateOfBirth.isValid = true
         } else {
             validationResult.value.userDateOfBirth.isValid = false
@@ -217,7 +233,7 @@ watch(height, () => {
 });
 
 watch(currentWeight, () => {
-    if (currentWeight.value !== props.currentWeight.value) {
+    if ((currentWeight.value) && currentWeight.value !== props.currentWeight) {
         validationResult.value.userWeight.isChanged = true
 
         if (currentWeight.value < 35 || currentWeight.value > 200) {
@@ -252,37 +268,71 @@ watch(targetWeight, () => {
 });
 
 const emit = defineEmits({
-    saveInfo: () => { },
+    saveInfo: () => {
+        return true
+    },
 });
 
 const dataIsModified = computed(() => {
     console.log('modifaed');
+    console.log(validationResult.value);
+    let numberValidationError = 0;
+    let numberChangedValues = 0;
 
-    if (validationResult.value.userTargetWeight.isChanged && validationResult.value.userTargetWeight.isValid) {
-        return true
+    if (validationResult.value.userTargetWeight.isChanged) {
+        numberChangedValues += 1;
+        if (!validationResult.value.userTargetWeight.isValid) {
+            numberValidationError += 1;
+        }
     }
 
-    if (validationResult.value.userGender.isChanged && validationResult.value.userGender.isValid) {
-        return true
+    if (validationResult.value.userGender.isChanged) {
+        numberChangedValues += 1;
+        if (!validationResult.value.userGender.isValid) {
+            numberValidationError += 1;
+        }
     }
 
-    if (validationResult.value.userDateOfBirth.isChanged && validationResult.value.userDateOfBirth.isValid) {
-        return true
+    if (validationResult.value.userDateOfBirth.isChanged) {
+        numberChangedValues += 1;
+        if (!validationResult.value.userDateOfBirth.isValid) {
+            numberValidationError += 1;
+        }
     }
 
-    if (validationResult.value.userTrainingLevel.isChanged && validationResult.value.userTrainingLevel.isValid) {
-        return true
+    if (validationResult.value.userTrainingLevel.isChanged) {
+        numberChangedValues += 1;
+        if (!validationResult.value.userTrainingLevel.isValid) {
+            numberValidationError += 1;
+        }
     }
 
-    if (validationResult.value.userActivityLevel.isChanged && validationResult.value.userActivityLevel.isValid) {
-        return true
+    if (validationResult.value.userActivityLevel.isChanged) {
+        numberChangedValues += 1;
+        if (!validationResult.value.userActivityLevel.isValid) {
+            numberValidationError += 1;
+        }
     }
 
-    if (validationResult.value.userWeight.isChanged && validationResult.value.userWeight.isValid) {
-        return true
+    if (validationResult.value.userWeight.isChanged) {
+        numberChangedValues += 1;
+        if (!validationResult.value.userWeight.isValid) {
+            numberValidationError += 1;
+        }
     }
 
-    if (validationResult.value.userHeight.isChanged && validationResult.value.userHeight.isValid) {
+    if (validationResult.value.userHeight.isChanged) {
+        numberChangedValues += 1;
+        if (!validationResult.value.userHeight.isValid) {
+            numberValidationError += 1;
+        }
+    }
+
+    if (numberValidationError !== 0) {
+        return false;
+    }
+
+    if (numberChangedValues > 0) {
         return true
     }
 
@@ -291,10 +341,18 @@ const dataIsModified = computed(() => {
 
 const datasetChartWeight = computed(() => {
 
+    let labels = [];
+    let data = [];
+
+    for (let i = 0; i < props.weight.length; i++) {
+        labels.push(props.weight[i].date)
+        data.push(props.weight[i].value);
+    }
+
     return {
-        labels: ['2025-02-20', '2025-02-21', '2025-02-22'],
+        labels: labels,
         datasets: [{
-            data: [117, 115, 114],
+            data: data,
             label: 'Вес, кг'
         }]
     };
@@ -303,13 +361,13 @@ const datasetChartWeight = computed(() => {
 function saveInfo() {
     let info = {
         gender: gender.value,
-        dateOfBirth: dateOfBirth.value,
+        dateOfBirth: dateOfBirth.value ? formatDate(dateOfBirth.value) : null,
         level_of_training: trainingLevel.value,
         level_of_activity: activityLevel.value,
         height: height.value,
         updatedWeight: currentWeight.value,
         // dateUpdatedWeight: currentWeightDate.value,
-        dateUpdatedWeight: getDate(),
+        dateUpdatedWeight: formatDate(new Date()),
         targetWeight: targetWeight.value
     };
 
@@ -361,8 +419,10 @@ function saveInfo() {
             </div> -->
             <div class="mb-2">
                 <label for="userDateOfBirth" class="form-label mb-1">Дата рождения</label>
-                <input type="text" v-model="dateOfBirth" onekeyup="" name="userDateOfBirth" id="userDateOfBirth"
-                    class="form-control" :class="dataIsValid('userDateOfBirth')" placeholder="гггг-мм-дд">
+                <VueDatePickerExtended v-model="dateOfBirth" :show-controls="false" dp-input-justify-content="" />
+
+                <!-- <input type="text" v-model="dateOfBirth" onekeyup="" name="userDateOfBirth" id="userDateOfBirth"
+                    class="form-control" :class="dataIsValid('userDateOfBirth')" placeholder="гггг-мм-дд"> -->
             </div>
 
             <div class="mb-2">
@@ -399,7 +459,9 @@ function saveInfo() {
             <div class="row">
                 <div class="col-12 col-md-6">
                     <div class="mb-2">
-                        <label for="userWeight" class="form-label mb-1 me-1">Вес от {{ currentWeightDate }}, кг</label>
+                        <label for="userWeight" class="form-label mb-1 me-1">
+                            Вес{{ currentWeightDate ? ' от ' + currentWeightDate : '' }}, кг
+                        </label>
                         <div class="d-flex justify-content-between gap-1">
                             <input type="number" onkeypress='return event.charCode >= 48 && event.charCode <= 57'
                                 v-model="currentWeight" name="userWeight" id="userWeight" class="form-control"
