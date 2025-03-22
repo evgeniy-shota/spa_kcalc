@@ -139,8 +139,8 @@ watch(registerResult, () => {
 <template>
     <div class="col-12 col-sm-2 col-md-3 col-lg"></div>
     <div class="col-12 col-sm col-md col-lg">
-        <div id="registrationFormCard" v-show="!registerResult.result" class="card">
-            <h4 class="card-header">Регистрация</h4>
+        <div id="registrationFormCard" v-show="!registerResult.result" class="card border-light">
+            <h4 class="card-header border-light">Регистрация</h4>
             <div class="card-body">
                 <form action="">
                     <div class="mb-2">

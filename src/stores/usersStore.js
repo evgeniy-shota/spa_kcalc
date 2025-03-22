@@ -157,11 +157,11 @@ export const useUsersStore = defineStore('users', () => {
     }
   }
 
-  const login = async (email, password) => {
+  const login = async (login, password) => {
     try {
       const response = await axios_instance.post(URL_API_LOGIN, {
-        email,
-        password,
+        name: login,
+        password: password,
       })
 
       userIsAuthorized.value = true
@@ -201,7 +201,11 @@ export const useUsersStore = defineStore('users', () => {
         },
       }
     } catch (error) {
-      return { result: false, response: error }
+      // console.log(error)
+      return {
+        result: false,
+        response: error.response.data.errors,
+      }
     }
   }
 
