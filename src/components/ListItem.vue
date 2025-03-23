@@ -97,11 +97,11 @@ function changeElementFavoriteStatus(id, status) {
                 <div class="d-flex gap-1 item-marks">
                     <div v-if="props.isPersonal">
                         <IconBookmarkStarFill :size="20" style="color: orange" v-if="props.isFavorite" />
-                        <IconBookmarkStar :size="20" v-else />
+                        <IconBookmarkStar :size="20" class="text-secondary" v-else />
                     </div>
                     <div v-else>
                         <IconStarFill :size="20" v-if="props.isFavorite" style="color: orange" />
-                        <IconStar :size="20" v-else />
+                        <IconStar :size="20" class="text-secondary" v-else />
                     </div>
                     <div v-if="props.isAbstract" class="abstract-product-icon">
                         <IconAbstractEgg :size="20" />
@@ -121,14 +121,13 @@ function changeElementFavoriteStatus(id, status) {
                 <ul class="dropdown-menu">
                     <li>
                         <a @click="changeElementFavoriteStatus(props.id, !props.isFavorite)" class="dropdown-item"
-                            href="#">Добавить в
-                            избранное</a>
+                            href="#">{{ props.isFavorite ? 'Удалить из избранного' : 'Добавить в избранное' }} </a>
                     </li>
                     <li>
-                        <a @click="changeElementHiddenStatus(props.id, !props.isHidden)" class="dropdown-item"
-                            href="#">Скрыть</a>
+                        <a @click="changeElementHiddenStatus(props.id, !props.isHidden)" class="dropdown-item" href="#">
+                            {{ props.isHidden ? 'Удалить из скрытого' : 'Скрыть' }} </a>
                     </li>
-                    <li><a class="dropdown-item" href="#">Something else here</a></li>
+                    <!-- <li><a class="dropdown-item" href="#">Something else here</a></li> -->
                 </ul>
             </div>
         </div>

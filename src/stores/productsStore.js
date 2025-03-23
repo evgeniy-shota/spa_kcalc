@@ -268,7 +268,18 @@ export const useProductsStore = defineStore('products', () => {
 
   async function changeCategory(id, data) {
     try {
-      axios_instance.patch(URL_API_CATEGORIES + id, {})
+      axios_instance.patch(URL_API_CATEGORIES + id, {
+        user_id: data.user_id,
+        category_group_id: data.category_group_id,
+        name: data.name,
+        description: data.description,
+        is_personal: data.is_personal,
+        is_enabled: data.is_enabled,
+        icon_path: data.icon_path,
+        is_favorite: data.is_favorite,
+        is_hidden: data.is_hidden,
+        thumbnail_image_path: data.thumbnail_image_path,
+      })
     } catch (error) {
       console.log('changeCategory fail')
       console.log(error)
