@@ -35,25 +35,25 @@ const emit = defineEmits({
   control: () => {
     return true
   },
-  changeFavoriteStatus: (id, status) => {
-    if (id && status) {
+  changeFavoriteStatus: (id, status, index) => {
+    if (id && status && index) {
       return true
     }
     return false
   },
-  changeHiddenStatus: (id, status) => {
-    if (id && status) {
+  changeHiddenStatus: (id, status, index) => {
+    if (id && status && index) {
       return true
     }
     return false
   },
 })
 
-function changeFavoriteStatus(id, status) {
-  emit('changeFavoriteStatus', id, status);
+function changeFavoriteStatus(id, status, index) {
+  emit('changeFavoriteStatus', id, status, index);
 }
-function changeHiddenStatus(id, status) {
-  emit('changeHiddenStatus', id, status);
+function changeHiddenStatus(id, status, index) {
+  emit('changeHiddenStatus', id, status, index);
 }
 
 function selectElement(id) {
@@ -86,9 +86,9 @@ function selectElement(id) {
     <div class="preloader p-1" v-show="props.data.length == 0 && props.isDataFound">Загрузка ...</div>
     <div class="preloader p-1" v-show="!props.isDataFound">Информация не найдена ...</div>
 
-    <ListItem v-for="item in props.data" :key="item.id" :id="item.id" :name="item.name" :description="item.description"
-      :is-abstract="item.is_abstract" :is-personal="item.is_personal" :is-favorite="item.is_favorite"
-      @select-element="selectElement" @change-favorite-status="changeFavoriteStatus"
+    <ListItem v-for="(item, index) in props.data" :key="item.id" :index="index" :id="item.id" :name="item.name"
+      :description="item.description" :is-abstract="item.is_abstract" :is-personal="item.is_personal"
+      :is-favorite="item.is_favorite" @select-element="selectElement" @change-favorite-status="changeFavoriteStatus"
       @change-hidden-status="changeHiddenStatus" />
 
   </div>

@@ -250,9 +250,10 @@ export const useProductsStore = defineStore('products', () => {
       return false
     }
   }
-  async function changeCategoryGroup(id, data) {
+
+  async function changeCategoryGroup(id, data, categoriesGroupIndex) {
     try {
-      axios_instance.patch(URL_API_CATEGORY_GROUPS + id, {
+      const response = await axios_instance.patch(URL_API_CATEGORY_GROUPS + id, {
         id: 'id' in data ? data.id : null,
         name: 'name' in data ? data.name : null,
         description: 'description' in data ? data.description : null,
@@ -260,15 +261,20 @@ export const useProductsStore = defineStore('products', () => {
         is_favorite: 'is_favorite' in data ? data.is_favorite : null,
         is_hidden: 'is_hidden' in data ? data.is_hidden : null,
       })
+      if (response) {
+        console.log('index: ' + categoriesGroupIndex)
+        console.log(response.data)
+        categoriesGroup.value[categoriesGroupIndex] = response.data
+      }
     } catch (error) {
       console.log('changeCategoryGroup fail')
       console.log(error)
     }
   }
 
-  async function changeCategory(id, data) {
+  async function changeCategory(id, data, index) {
     try {
-      axios_instance.patch(URL_API_CATEGORIES + id, {
+      const response = await axios_instance.patch(URL_API_CATEGORIES + id, {
         user_id: data.user_id,
         category_group_id: data.category_group_id,
         name: data.name,
@@ -280,13 +286,17 @@ export const useProductsStore = defineStore('products', () => {
         is_hidden: data.is_hidden,
         thumbnail_image_path: data.thumbnail_image_path,
       })
+      if (response) {
+        console.log(response.data)
+        categories.value[index] = response.data.data
+      }
     } catch (error) {
       console.log('changeCategory fail')
       console.log(error)
     }
   }
 
-  async function changeProduct(id, data) {
+  async function changeProduct(id, data, index) {
     try {
       axios_instance.patch(URL_API_PRODUCTS + id, {})
     } catch (error) {

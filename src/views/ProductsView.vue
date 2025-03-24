@@ -168,46 +168,46 @@ function hideFilteredProducts() {
     isShowFilteredProducts.value = false
 }
 
-function changeCategoryGroupFavoriteStatus(id, status) {
+function changeCategoryGroupFavoriteStatus(id, status, index) {
     productsStore.changeCategoryGroup(id, {
         id: id,
         is_favorite: status
-    });
+    }, index);
 }
 
-function changeCategoryGroupHiddenStatus(id, status) {
+function changeCategoryGroupHiddenStatus(id, status, index) {
     productsStore.changeCategoryGroup(id, {
         id: id,
         is_hidden: status
-    });
+    }, index);
 }
 
-function changeCategoryFavoriteStatus(id, status) {
+function changeCategoryFavoriteStatus(id, status, index) {
     productsStore.changeCategory(id, {
         id: id,
         is_favorite: status
-    });
+    }, index);
 }
 
-function changeCategoryHiddenStatus(id, status) {
+function changeCategoryHiddenStatus(id, status, index) {
     productsStore.changeCategory(id, {
         id: id,
         is_hidden: status
-    });
+    }, index);
 }
 
-function changeProductFavoriteStatus(id, status) {
+function changeProductFavoriteStatus(id, status, index) {
     productsStore.changeProduct(id, {
         id: id,
         is_favorite: status
-    });
+    }, index);
 }
 
-function changeProductHiddenStatus(id, status) {
+function changeProductHiddenStatus(id, status, index) {
     productsStore.changeProduct(id, {
         id: id,
         is_hidden: status
-    });
+    }, index);
 }
 
 

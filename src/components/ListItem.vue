@@ -11,6 +11,10 @@ const props = defineProps({
         type: Number,
         default: null
     },
+    index: {
+        type: Number,
+        default: null,
+    },
     name: {
         type: String,
         default: null
@@ -48,14 +52,14 @@ const emit = defineEmits({
         }
         return false
     },
-    changeFavoriteStatus: (id, status) => {
-        if (id && status) {
+    changeFavoriteStatus: (id, status, index) => {
+        if (id && status && index) {
             return true
         }
         return false
     },
-    changeHiddenStatus: (id, status) => {
-        if (id && status) {
+    changeHiddenStatus: (id, status, index) => {
+        if (id && status && index) {
             return true
         }
         return false
@@ -74,14 +78,14 @@ function selectElement(event, id) {
     emit('selectElement', id)
 }
 
-function changeElementHiddenStatus(id, status) {
+function changeElementHiddenStatus(id, status, index) {
     console.log('Added to hidden list :' + id)
-    emit('changeHiddenStatus', id, status);
+    emit('changeHiddenStatus', id, status, index);
 }
 
-function changeElementFavoriteStatus(id, status) {
+function changeElementFavoriteStatus(id, status, index) {
     console.log('add to favorite list: ' + id)
-    emit('changeFavoriteStatus', id, status);
+    emit('changeFavoriteStatus', id, status, index);
 }
 
 
@@ -120,12 +124,16 @@ function changeElementFavoriteStatus(id, status) {
                 </button>
                 <ul class="dropdown-menu">
                     <li>
-                        <a @click="changeElementFavoriteStatus(props.id, !props.isFavorite)" class="dropdown-item"
-                            href="#">{{ props.isFavorite ? 'Удалить из избранного' : 'Добавить в избранное' }} </a>
+                        <a @click="changeElementFavoriteStatus(props.id, !props.isFavorite, props.index)"
+                            class="dropdown-item" href="#">
+                            {{ props.isFavorite ? 'Удалить из избранного' : 'Добавить в избранное' }}
+                        </a>
                     </li>
                     <li>
-                        <a @click="changeElementHiddenStatus(props.id, !props.isHidden)" class="dropdown-item" href="#">
-                            {{ props.isHidden ? 'Удалить из скрытого' : 'Скрыть' }} </a>
+                        <a @click="changeElementHiddenStatus(props.id, !props.isHidden, props.index)"
+                            class="dropdown-item" href="#">
+                            {{ props.isHidden ? 'Удалить из скрытого' : 'Скрыть' }}
+                        </a>
                     </li>
                     <!-- <li><a class="dropdown-item" href="#">Something else here</a></li> -->
                 </ul>

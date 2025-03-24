@@ -185,34 +185,34 @@ function showFilter() {
     emit('showFilter');
 }
 
-function changeCategoryGroupFavorieStatus(id, status) {
+function changeCategoryGroupFavorieStatus(id, status, index) {
     console.log(`changeCategoryGroupFavorieStatus ${id}-${status}`);
-    emit('changeCategoryGroupFavoriteStatus', id, status);
+    emit('changeCategoryGroupFavoriteStatus', id, status, index);
 }
 
-function changeCategoryGroupHiddenStatus(id, status) {
+function changeCategoryGroupHiddenStatus(id, status, index) {
     console.log(`changeCategoryGroupHiddenStatus ${id}-${status}`);
-    emit('changeCategoryGroupHiddenStatus', id, status);
+    emit('changeCategoryGroupHiddenStatus', id, status, index);
 }
 
-function changeCategoryFavorieStatus(id, status) {
+function changeCategoryFavorieStatus(id, status, index) {
     console.log(`changeCategoryFavorieStatus ${id}-${status}`);
-    emit('changeCategoryFavoriteStatus', id, status);
+    emit('changeCategoryFavoriteStatus', id, status, index);
 }
 
-function changeCategoryHiddenStatus(id, status) {
+function changeCategoryHiddenStatus(id, status, index) {
     console.log(`changeCategoryHiddenStatus ${id}-${status}`);
-    emit('changeCategoryHiddenStatus', id, status);
+    emit('changeCategoryHiddenStatus', id, status, index);
 }
 
-function changeProductFavorieStatus(id, status) {
+function changeProductFavorieStatus(id, status, index) {
     console.log(`changeProductFavorieStatus ${id}-${status}`);
-    emit('changeProductFavoriteStatus', id, status);
+    emit('changeProductFavoriteStatus', id, status, index);
 }
 
-function changeProductHiddenStatus(id, status) {
+function changeProductHiddenStatus(id, status, index) {
     console.log(`changeProductHiddenStatus ${id}-${status}`);
-    emit('changeProductHiddenStatus', id, status);
+    emit('changeProductHiddenStatus', id, status, index);
 }
 
 
