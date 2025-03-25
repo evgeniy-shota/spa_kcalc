@@ -101,6 +101,18 @@ const emit = defineEmits({
         }
         return false;
     },
+    editCategory: (id, index) => {
+        if (id, index) {
+            return true
+        }
+        return true
+    },
+    editProduct: (id, index) => {
+        if (id, index) {
+            return true
+        }
+        return true
+    },
     showFilter: () => {
         return true;
     },
@@ -135,7 +147,6 @@ function slideTo(slideNum) {
     if (slideNum > slideLimit) {
         return;
     }
-    console.log('slide top');
 
     if (currentSlide.value == 0) {
         emit('hideFilteredProduct');
@@ -149,13 +160,11 @@ function slideTo(slideNum) {
     if (slideNum < 0) {
         return
     }
-    console.log('slide mid');
 
     if (slideNum == currentSlide.value) {
         return;
     }
 
-    console.log('slide last');
     previouslySlide.value = currentSlide.value
     currentSlide.value = slideNum;
 }
@@ -215,6 +224,15 @@ function changeProductHiddenStatus(id, status, index) {
     emit('changeProductHiddenStatus', id, status, index);
 }
 
+function editCategory(id, index) {
+    console.log('editCategory: ' + id);
+    emit('editCategory', id, index);
+}
+
+function editProduct(id, index) {
+    console.log('editProduct: ' + id);
+    emit('editProduct', id, index);
+}
 
 function resetTimer() {
     console.log('timer reset');
@@ -305,7 +323,9 @@ function scrollList(event) {
 
         <div id="filterResultSlide" @scroll="scrollList($event)" v-show="currentSlide == 0" class="slide ps-2 pe-2">
             <ListWithControls :data="props.showFilteredProducts ? props.products : []"
-                :is-data-found="props.isProductsFound" @select-element="selectProduct" />
+                :is-data-found="props.isProductsFound" @select-element="selectProduct"
+                @change-favorite-status="changeProductFavorieStatus" @change-hidden-status="changeProductHiddenStatus"
+                @edit-elemet="editProduct" />
         </div>
         <div id="groupsSlide" v-show="currentSlide == 1" class="slide ps-2 pe-2">
             <ListWithControls :data="props.categoryGroups" :is-data-found="props.isCategoryGroupsFound"
@@ -315,13 +335,13 @@ function scrollList(event) {
         <div id="categoriesSlide" v-show="currentSlide == 2" class="slide ps-2 pe-2">
             <ListWithControls :data="props.categories" :is-data-found="props.isCategoriesFound"
                 @select-element="selectCategory" @change-favorite-status="changeCategoryFavorieStatus"
-                @change-hidden-status="changeCategoryHiddenStatus" />
+                @change-hidden-status="changeCategoryHiddenStatus" @edit-elemet="editCategory" />
         </div>
         <div id="productsSlide" @scroll="scrollList($event)" v-show="currentSlide == 3" class="slide ps-2 pe-2">
             <ListWithControls :data="!props.showFilteredProducts ? props.products : []"
                 :is-data-found="props.isProductsFound" @select-element="selectProduct"
-                @change-favorite-status="changeProductFavorieStatus"
-                @change-hidden-status="changeProductHiddenStatus" />
+                @change-favorite-status="changeProductFavorieStatus" @change-hidden-status="changeProductHiddenStatus"
+                @edit-elemet="editProduct" />
         </div>
 
         <!-- </div> -->

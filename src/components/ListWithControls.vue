@@ -47,6 +47,12 @@ const emit = defineEmits({
     }
     return false
   },
+  editElemet: (id, index) => {
+    if (id && index) {
+      return true
+    }
+    return false
+  },
 })
 
 function changeFavoriteStatus(id, status, index) {
@@ -54,6 +60,9 @@ function changeFavoriteStatus(id, status, index) {
 }
 function changeHiddenStatus(id, status, index) {
   emit('changeHiddenStatus', id, status, index);
+}
+function editElemet(id, index) {
+  emit('editElemet', id, index);
 }
 
 function selectElement(id) {
@@ -88,8 +97,9 @@ function selectElement(id) {
 
     <ListItem v-for="(item, index) in props.data" :key="item.id" :index="index" :id="item.id" :name="item.name"
       :description="item.description" :is-abstract="item.is_abstract" :is-personal="item.is_personal"
-      :is-favorite="item.is_favorite" @select-element="selectElement" @change-favorite-status="changeFavoriteStatus"
-      @change-hidden-status="changeHiddenStatus" />
+      :is-favorite="item.is_favorite" :is-hidden="item.is_hidden" @select-element="selectElement"
+      @change-favorite-status="changeFavoriteStatus" @change-hidden-status="changeHiddenStatus"
+      @edit-element="editElemet" />
 
   </div>
   <!-- </div> -->

@@ -91,7 +91,8 @@ const isCategoriesFound = computed(() => {
 
 const products = computed(() => {
     if (productsStore.products) {
-        return productsStore.products
+        return productsStore.productsList;
+        // return productsStore.products
     }
     return []
 });
@@ -210,6 +211,14 @@ function changeProductHiddenStatus(id, status, index) {
     }, index);
 }
 
+function editCategory(id, index) {
+    console.log('ProductView - editCategory: ' + id)
+}
+
+function editProduct(id, index) {
+    console.log('ProductView - editProduct: ' + id)
+}
+
 
 
 async function saveNewProduct(product, category) {
@@ -276,7 +285,8 @@ async function saveNewProduct(product, category) {
             @change-category-favorite-status="changeCategoryFavoriteStatus"
             @change-category-hidden-status="changeCategoryHiddenStatus"
             @change-product-favorite-status="changeProductFavoriteStatus"
-            @change-product-hidden-status="changeProductHiddenStatus">
+            @change-product-hidden-status="changeProductHiddenStatus" @edit-category="editCategory"
+            @edit-product="editProduct">
         </CategoryAndProductList>
 
         <!-- <ProductsList @on-click-add-new-product="showNewProductWindow" @show-product-info="showProductInfoWindow"

@@ -1,4 +1,4 @@
-import { ref } from 'vue'
+import { computed, ref } from 'vue'
 import { defineStore } from 'pinia'
 import axios_instance from '@/resource/js/axiosInstance'
 
@@ -38,6 +38,8 @@ export const useProductsStore = defineStore('products', () => {
     category_id: null,
     is_personal: null,
     is_abstract: null,
+    is_favorite: null,
+    is_hidden: null,
     manufacturer: null,
     country_of_manufacture: null,
     quantity: null,
@@ -117,6 +119,10 @@ export const useProductsStore = defineStore('products', () => {
       fats: null,
     }
   }
+
+  const productsList = computed(() => {
+    return products.value
+  })
 
   async function getCategoryGroups() {
     isCategoriesGroupFound.value = true
@@ -298,7 +304,42 @@ export const useProductsStore = defineStore('products', () => {
 
   async function changeProduct(id, data, index) {
     try {
-      axios_instance.patch(URL_API_PRODUCTS + id, {})
+      const response = await axios_instance.patch(URL_API_PRODUCTS + id, {
+        // user_id: '',
+        category_id: data.category_id,
+        type_id: data.type_id,
+        is_personal: data.is_personal,
+        is_enabled: data.is_enabled,
+        is_abstract: data.is_abstract,
+        name: data.name,
+        thumbnail_image_name: data.thumbnail_image_name,
+        manufacturer: data.manufacturer,
+        country_of_manufacture: data.country_of_manufacture,
+        trademark_id: data.trademark_id,
+        description: data.description,
+        units: data.units,
+        condition: data.condition,
+        state: data.state,
+        quantity_to_calculate: data.quantity_to_calculate,
+        quantity: data.quantity,
+        composition: data.composition,
+        kcalory: data.kcalory,
+        proteins: data.proteins,
+        carbohydrates: data.carbohydrates,
+        fats: data.fats,
+        kcalory_per_unit: data.kcalory_per_unit,
+        proteins_per_unit: data.proteins_per_unit,
+        carbohydrates_per_unit: data.carbohydrates_per_unit,
+        fats_per_unit: data.fats_per_unit,
+        nutrients_and_vitamins: data.nutrients_and_vitamins,
+        data_source: data.data_source,
+        is_favorite: data.is_favorite,
+        is_hidden: data.is_hidden,
+      })
+
+      if (response) {
+        products.value[index] = response.data.data
+      }
     } catch (error) {
       console.log('changeProduct fail')
       console.log(error)
@@ -306,6 +347,7 @@ export const useProductsStore = defineStore('products', () => {
   }
 
   return {
+    productsList,
     categories,
     products,
     product,

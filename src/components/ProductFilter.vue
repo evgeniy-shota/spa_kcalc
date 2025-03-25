@@ -1,7 +1,13 @@
 <script setup>
-import { watch, ref } from 'vue';
+import { watch, ref, computed } from 'vue';
 import { filterNumberInput } from '@/resource/js/inputFilters';
 import { validateFloatNumber } from '@/resource/js/dataValidation';
+
+import IconSquare from './icons/IconSquare.vue';
+import IconDashSquare from './icons/IconDashSquare.vue';
+import IconDashSquareFill from './icons/IconDashSquareFill.vue';
+import IconCheckSquareSm from './icons/IconCheckSquareSm.vue';
+import IconCheckSquareFillSm from './icons/IconCheckSquareFillSm.vue';
 
 const props = defineProps({
     categories: {
@@ -94,13 +100,15 @@ watch(() => props.isClearFilter, () => {
     }
 });
 
+const CUSTOM_CHECKBOX_VALUES = [null, true, false];
+
 const selectedCategories = ref([]);
 const selectedDataSource = ref([]);
 const selectedCountries = ref([]);
-const isFavoriteChecked = ref(false);
-const isPersonalChecked = ref(false);
-const isHiddenChecked = ref(false);
-const isAbstractChecked = ref(false);
+const isFavoriteChecked = ref(null);
+const isPersonalChecked = ref(null);
+const isHiddenChecked = ref(null);
+const isAbstractChecked = ref(null);
 const caloryLimitFrom = ref(null);
 const caloryLimitTo = ref(null);
 const proteinsLimitFrom = ref(null);
@@ -119,7 +127,7 @@ function applyFilter() {
         // manufacturer
         is_favorite: isFavoriteChecked.value,
         is_personal: isPersonalChecked.value,
-        // is_hidden: isHiddenChecked.value,
+        is_hidden: isHiddenChecked.value,
         is_abstract: isAbstractChecked.value,
         kcalory: [caloryLimitFrom.value ? Number(caloryLimitFrom.value) : 0, caloryLimitTo.value ? Number(caloryLimitTo.value) : props.caloryLimit[1]],
         proteins: [proteinsLimitFrom.value ? Number(proteinsLimitFrom.value) : 0, proteinsLimitTo.value ? Number(proteinsLimitTo.value) : props.proteinsLimit[1]],
@@ -134,10 +142,10 @@ function clearFilter() {
     selectedCategories.value = [];
     selectedDataSource.value = [];
     selectedCountries.value = [];
-    isFavoriteChecked.value = false;
-    isPersonalChecked.value = false;
-    isHiddenChecked.value = false;
-    isAbstractChecked.value = false;
+    isFavoriteChecked.value = null;
+    isPersonalChecked.value = null;
+    isHiddenChecked.value = null;
+    isAbstractChecked.value = null;
     caloryLimitFrom.value = props.caloryLimit[0];
     caloryLimitTo.value = props.caloryLimit[1];
     proteinsLimitFrom.value = props.proteinsLimit[0];
@@ -160,6 +168,36 @@ function inputCharFilter(event) {
 
     event.preventDefault();
 }
+
+function changeCustomCheckboxValue(refValue) {
+    console.log(refValue);
+    let currentValueIndex = CUSTOM_CHECKBOX_VALUES.indexOf(refValue);
+
+    if (currentValueIndex < CUSTOM_CHECKBOX_VALUES.length - 1) {
+        return CUSTOM_CHECKBOX_VALUES[currentValueIndex + 1];
+    }
+
+    if (currentValueIndex === CUSTOM_CHECKBOX_VALUES.length - 1) {
+        return CUSTOM_CHECKBOX_VALUES[0];
+    }
+
+    return CUSTOM_CHECKBOX_VALUES[0]
+
+}
+
+function CheckboxClasses(value) {
+    let classes = 'border-bottom ';
+
+    if (value === null) {
+        classes += 'border-light-subtle ';
+    } else if (value === true) {
+        classes += 'border-primary ';
+    } else {
+        classes += 'border-danger-subtle ';
+    }
+
+    return classes
+};
 
 </script>
 
@@ -211,31 +249,65 @@ function inputCharFilter(event) {
         <div class="status-filter-container mb-1">
             <div class="border-bottom border-light-subtle">Статус</div>
             <div class="form-check">
-                <input class="form-check-input" v-model="isFavoriteChecked" type="checkbox" value=""
-                    id="favoriteProductsFilter">
-                <label class="form-check-label" for="favoriteProductsFilter">
-                    Избранные продукты
+                <!-- <input class="form-check-input" v-model="isFavoriteChecked" type="checkbox" value=""
+                    id="favoriteProductsFilter"> -->
+                <label class="form-check-label mb-1 d-flex gap-1 align-items-center"
+                    @click="() => isFavoriteChecked = changeCustomCheckboxValue(isFavoriteChecked)"
+                    for="favoriteProductsFilter">
+
+                    <IconSquare v-show="isFavoriteChecked === null" />
+                    <IconDashSquareFill class="text-danger" v-show="isFavoriteChecked === false" />
+                    <IconCheckSquareFillSm class="text-primary" v-show="isFavoriteChecked === true" />
+
+                    <div :class="CheckboxClasses(isFavoriteChecked)">Избранные продукты</div>
                 </label>
             </div>
             <div class="form-check">
-                <input class="form-check-input" v-model="isPersonalChecked" type="checkbox" value=""
-                    id="personalProductsFilter">
-                <label class="form-check-label" for="personalProductsFilter">
-                    Персональные продукты
+                <!-- <input class="form-check-input" v-model="isPersonalChecked" type="checkbox" value=""
+                    id="personalProductsFilter"> -->
+                <label class="form-label d-flex gap-1 align-items-center"
+                    @click="() => isPersonalChecked = changeCustomCheckboxValue(isPersonalChecked)"
+                    for="personalProductsFilter">
+
+                    <IconSquare v-show="isPersonalChecked === null" />
+                    <IconDashSquareFill class="text-danger" v-show="isPersonalChecked === false" />
+                    <IconCheckSquareFillSm class="text-primary" v-show="isPersonalChecked === true" />
+
+                    <div :class="CheckboxClasses(isPersonalChecked)">
+                        Персональные продукты
+                    </div>
                 </label>
             </div>
             <div class="form-check">
-                <input class="form-check-input" v-model="isAbstractChecked" type="checkbox" value=""
-                    id="abstractProductsFilter">
-                <label class="form-check-label" for="abstractProductsFilter">
-                    Абстрактные продукты
+                <!-- <input class="form-check-input" v-model="isAbstractChecked" type="checkbox" value=""
+                    id="abstractProductsFilter"> -->
+                <label class="form-label d-flex gap-1 align-items-center"
+                    @click="() => isAbstractChecked = changeCustomCheckboxValue(isAbstractChecked)"
+                    for="abstractProductsFilter">
+
+                    <IconSquare v-show="isAbstractChecked === null" />
+                    <IconDashSquareFill class="text-danger" v-show="isAbstractChecked === false" />
+                    <IconCheckSquareFillSm class="text-primary" v-show="isAbstractChecked === true" />
+
+                    <div :class="CheckboxClasses(isAbstractChecked)">
+                        Абстрактные продукты
+                    </div>
                 </label>
             </div>
             <div class="form-check">
-                <input class="form-check-input" v-model="isHiddenChecked" type="checkbox" value=""
-                    id="hiddenProductsFilter">
-                <label class="form-check-label" for="hiddenProductsFilter">
-                    Скрытые продукты
+                <!-- <input class="form-check-input" v-model="isHiddenChecked" type="checkbox" value=""
+                    id="hiddenProductsFilter"> -->
+                <label class="form-label d-flex gap-1 align-items-center"
+                    @click="() => isHiddenChecked = changeCustomCheckboxValue(isHiddenChecked)"
+                    for="hiddenProductsFilter">
+
+                    <IconSquare v-show="isHiddenChecked === null" />
+                    <IconDashSquareFill class="text-danger" v-show="isHiddenChecked === false" />
+                    <IconCheckSquareFillSm class="text-primary" v-show="isHiddenChecked === true" />
+
+                    <div :class="CheckboxClasses(isHiddenChecked)">
+                        Скрытые продукты
+                    </div>
                 </label>
             </div>
         </div>
@@ -361,5 +433,9 @@ function inputCharFilter(event) {
     max-height: 20vh;
     overflow-y: scroll;
     background-color: #faffffe0;
+}
+
+.checkboxUnckecked::before {
+    content: \F842;
 }
 </style>

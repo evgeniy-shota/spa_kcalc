@@ -5,6 +5,7 @@ import IconStarFill from './icons/IconStarFill.vue'
 import IconBookmarkStarFill from './icons/IconBookmarkStarFill.vue'
 import IconBookmarkStar from './icons/IconBookmarkStar.vue'
 import IconAbstractEgg from './icons/IconAbstract-egg.vue'
+import IconEyeSlash from './icons/IconEyeSlash.vue'
 
 const props = defineProps({
     id: {
@@ -53,18 +54,23 @@ const emit = defineEmits({
         return false
     },
     changeFavoriteStatus: (id, status, index) => {
-        if (id && status && index) {
+        if (id && status !== null && index) {
             return true
         }
         return false
     },
     changeHiddenStatus: (id, status, index) => {
-        if (id && status && index) {
+        if (id && status !== null && index) {
             return true
         }
         return false
     },
-
+    editElement: (id, index) => {
+        if (id && index) {
+            return true
+        }
+        return false
+    },
 });
 
 function selectElement(event, id) {
@@ -88,6 +94,10 @@ function changeElementFavoriteStatus(id, status, index) {
     emit('changeFavoriteStatus', id, status, index);
 }
 
+function editElement(id, index) {
+    console.log('eidt element - ' + id)
+    emit('editElement', id, index);
+}
 
 </script>
 
@@ -109,6 +119,9 @@ function changeElementFavoriteStatus(id, status, index) {
                     </div>
                     <div v-if="props.isAbstract" class="abstract-product-icon">
                         <IconAbstractEgg :size="20" />
+                    </div>
+                    <div v-if="props.isHidden">
+                        <IconEyeSlash :size="20" />
                     </div>
                 </div>
                 <div class="description">
@@ -135,7 +148,11 @@ function changeElementFavoriteStatus(id, status, index) {
                             {{ props.isHidden ? 'Удалить из скрытого' : 'Скрыть' }}
                         </a>
                     </li>
-                    <!-- <li><a class="dropdown-item" href="#">Something else here</a></li> -->
+                    <li v-if="props.isPersonal">
+                        <a @click="editElement(props.id, props.index)" class="dropdown-item" href="#">
+                            Редактировать
+                        </a>
+                    </li>
                 </ul>
             </div>
         </div>
