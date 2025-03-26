@@ -6,6 +6,7 @@ import IconBookmarkStarFill from './icons/IconBookmarkStarFill.vue'
 import IconBookmarkStar from './icons/IconBookmarkStar.vue'
 import IconAbstractEgg from './icons/IconAbstract-egg.vue'
 import IconEyeSlash from './icons/IconEyeSlash.vue'
+import { computed } from 'vue'
 
 const props = defineProps({
     id: {
@@ -19,6 +20,10 @@ const props = defineProps({
     name: {
         type: String,
         default: null
+    },
+    elementData: {
+        type: Object,
+        default: null,
     },
     description: {
         type: String,
@@ -43,6 +48,10 @@ const props = defineProps({
     showControls: {
         type: Boolean,
         default: true
+    },
+    userIsAuthorized: {
+        type: Boolean,
+        default: false,
     }
 });
 
@@ -72,6 +81,22 @@ const emit = defineEmits({
         return false
     },
 });
+
+function colorIndicationOfElemetnType(elementType, isAbstract, isPersonal) {
+    console.log(isAbstract);
+    const abstractIndication = 'border-dark-subtle';
+    const personalIndication = 'border-primary-subtle';
+
+    if (isPersonal) { return personalIndication }
+
+    if (elementType == 'categoryGroup' || elementType == 'category') {
+        return abstractIndication;
+    }
+
+    if (isAbstract) { return abstractIndication }
+
+    return 'border-success-subtle'
+}
 
 function selectElement(event, id) {
     let targetAttributeControll = event.target.getAttribute('data-btn-controll')
@@ -106,9 +131,13 @@ function editElement(id, index) {
         class="list-item d-flex align-items-center border-bottom mb-1">
 
         <div class="item-info me-auto ps-1 pb-1">
-            <div class="item-name" data-btn-controll="item">{{ props.name }}</div>
+            <div class="item-name mb-1" data-btn-controll="item">{{ props.name }}</div>
+            <slot v-if="$slots.elementData" name="elementData" v-bind="props.elementData">
+
+            </slot>
+
             <div class="item-additional-info d-flex gap-2">
-                <div class="d-flex gap-1 item-marks">
+                <div class="d-flex gap-2 item-marks">
                     <div v-if="props.isPersonal">
                         <IconBookmarkStarFill :size="20" style="color: orange" v-if="props.isFavorite" />
                         <IconBookmarkStar :size="20" class="text-secondary" v-else />
@@ -117,9 +146,9 @@ function editElement(id, index) {
                         <IconStarFill :size="20" v-if="props.isFavorite" style="color: orange" />
                         <IconStar :size="20" class="text-secondary" v-else />
                     </div>
-                    <div v-if="props.isAbstract" class="abstract-product-icon">
+                    <!-- <div v-if="props.isAbstract" class="abstract-product-icon">
                         <IconAbstractEgg :size="20" />
-                    </div>
+                    </div> -->
                     <div v-if="props.isHidden">
                         <IconEyeSlash :size="20" />
                     </div>
@@ -132,26 +161,34 @@ function editElement(id, index) {
 
         <div v-if="props.showControls" class="item-control" data-btn-controll="controll-menu">
             <div class="dropdown">
-                <button class="btn" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                <button class="btn p-2"
+                    :class="colorIndicationOfElemetnType(props.elementData.type, props.isAbstract, props.isPersonal)"
+                    type="button" data-bs-toggle="dropdown" aria-expanded="false">
                     <IconThreeDotsVertical :size="24" />
                 </button>
                 <ul class="dropdown-menu">
                     <li>
-                        <a @click="changeElementFavoriteStatus(props.id, !props.isFavorite, props.index)"
-                            class="dropdown-item" href="#">
+                        <button @click="changeElementFavoriteStatus(props.id, !props.isFavorite, props.index)"
+                            class="dropdown-item" :disabled="!props.userIsAuthorized">
                             {{ props.isFavorite ? 'Удалить из избранного' : 'Добавить в избранное' }}
-                        </a>
+                        </button>
                     </li>
                     <li>
-                        <a @click="changeElementHiddenStatus(props.id, !props.isHidden, props.index)"
-                            class="dropdown-item" href="#">
+                        <button @click="changeElementHiddenStatus(props.id, !props.isHidden, props.index)"
+                            class="dropdown-item" :disabled="!props.userIsAuthorized">
                             {{ props.isHidden ? 'Удалить из скрытого' : 'Скрыть' }}
-                        </a>
+                        </button>
                     </li>
-                    <li v-if="props.isPersonal">
-                        <a @click="editElement(props.id, props.index)" class="dropdown-item" href="#">
+                    <li>
+                        <button @click="editElement(props.id, props.index)" :disabled="!props.isPersonal"
+                            class="dropdown-item" href="#">
                             Редактировать
-                        </a>
+                        </button>
+                    </li>
+                    <li>
+                        <button @click="" class="dropdown-item" href="#">
+                            Сообщить об ошибке
+                        </button>
                     </li>
                 </ul>
             </div>

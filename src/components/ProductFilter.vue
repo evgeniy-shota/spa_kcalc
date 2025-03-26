@@ -46,6 +46,14 @@ const props = defineProps({
         type: Array,
         default: () => [0, 999]
     },
+    productsFilterDefaultVal: {
+        type: Object,
+        default: null,
+    },
+    currentCategoryId: {
+        type: Number,
+        default: null,
+    },
 });
 
 const emit = defineEmits({
@@ -105,10 +113,10 @@ const CUSTOM_CHECKBOX_VALUES = [null, true, false];
 const selectedCategories = ref([]);
 const selectedDataSource = ref([]);
 const selectedCountries = ref([]);
-const isFavoriteChecked = ref(null);
-const isPersonalChecked = ref(null);
-const isHiddenChecked = ref(null);
-const isAbstractChecked = ref(null);
+const isFavoriteChecked = ref(props.productsFilterDefaultVal?.is_favorite !== undefined ? props.productsFilterDefaultVal.is_favorite : null);
+const isPersonalChecked = ref(props.productsFilterDefaultVal?.is_personal !== undefined ? props.productsFilterDefaultVal.is_personal : null);
+const isHiddenChecked = ref(props.productsFilterDefaultVal?.is_hidden !== undefined ? props.productsFilterDefaultVal.is_hidden : null);
+const isAbstractChecked = ref(props.productsFilterDefaultVal?.is_abstract !== undefined ? props.productsFilterDefaultVal.is_abstract : null);
 const caloryLimitFrom = ref(null);
 const caloryLimitTo = ref(null);
 const proteinsLimitFrom = ref(null);
@@ -117,6 +125,13 @@ const carbohydratesLimitFrom = ref(null);
 const carbohydratesLimitTo = ref(null);
 const fatsLimitFrom = ref(null);
 const fatsLimitTo = ref(null);
+
+watch(() => props.currentCategoryId, () => {
+    if (props.currentCategoryId !== null) {
+        selectedCategories.value.length = 0
+        selectedCategories.value.push(props.currentCategoryId);
+    }
+});
 
 function applyFilter() {
     let filter = {
@@ -139,13 +154,13 @@ function applyFilter() {
 }
 
 function clearFilter() {
-    selectedCategories.value = [];
+    selectedCategories.value = [props.currentCategoryId];
     selectedDataSource.value = [];
     selectedCountries.value = [];
-    isFavoriteChecked.value = null;
-    isPersonalChecked.value = null;
-    isHiddenChecked.value = null;
-    isAbstractChecked.value = null;
+    isFavoriteChecked.value = props.productsFilterDefaultVal?.is_favorite !== undefined ? props.productsFilterDefaultVal.is_favorite : null;
+    isPersonalChecked.value = props.productsFilterDefaultVal?.is_personal !== undefined ? props.productsFilterDefaultVal.is_personal : null;
+    isHiddenChecked.value = props.productsFilterDefaultVal?.is_hidden !== undefined ? props.productsFilterDefaultVal.is_hidden : null;
+    isAbstractChecked.value = props.productsFilterDefaultVal?.is_abstract !== undefined ? props.productsFilterDefaultVal.is_abstract : null;
     caloryLimitFrom.value = props.caloryLimit[0];
     caloryLimitTo.value = props.caloryLimit[1];
     proteinsLimitFrom.value = props.proteinsLimit[0];
@@ -159,13 +174,11 @@ function clearFilter() {
 }
 
 function inputCharFilter(event) {
-
     // console.log(event)
     if (filterNumberInput(event.keyCode)) {
         // event.data = event.data.replace(/\D/, '')
         return
     }
-
     event.preventDefault();
 }
 
@@ -182,10 +195,17 @@ function changeCustomCheckboxValue(refValue) {
     }
 
     return CUSTOM_CHECKBOX_VALUES[0]
-
 }
 
-function CheckboxClasses(value) {
+function changeAllCustomCheckboxValue(newValue) {
+    isFavoriteChecked.value = newValue;
+    isPersonalChecked.value = newValue;
+    isHiddenChecked.value = newValue;
+    isAbstractChecked.value = newValue;
+}
+
+
+function checkboxClasses(value) {
     let classes = 'border-bottom ';
 
     if (value === null) {
@@ -203,11 +223,11 @@ function CheckboxClasses(value) {
 
 <template>
     <div class="filter-container">
-        <div class=" row">
+        <div class="row pe-4">
             <div class="col-12 col-md-6">
                 <div class="border-bottom border-light-subtle">Категории</div>
                 <div class="categories-filter-container mb-1 rounded border-light me-2">
-                    <ul class="list-group list-group-flush  px-2">
+                    <ul class="list-group list-group-flush px-2">
                         <li v-show="props.categories.length == 0">
                             <div class="form-text">Нет данных</div>
                         </li>
@@ -245,10 +265,22 @@ function CheckboxClasses(value) {
             </div>
         </div>
 
-
         <div class="status-filter-container mb-1">
-            <div class="border-bottom border-light-subtle">Статус</div>
-            <div class="form-check">
+            <div class="border-bottom border-light-subtle">
+                Статус
+            </div>
+            <div class="d-flex gap-1 mb-1 align-items-center ps-1">
+                <div class="btn btn-light py-0 px-1" @click="changeAllCustomCheckboxValue(true)">
+                    <IconCheckSquareFillSm class="text-primary" /> - вкл.
+                </div>
+                <div class="btn btn-light py-0 px-1" @click="changeAllCustomCheckboxValue(false)">
+                    <IconDashSquareFill class="text-danger" /> - искл.
+                </div>
+                <div class="btn btn-light py-0 px-1" @click="changeAllCustomCheckboxValue(null)">
+                    <IconSquare /> - любое значение
+                </div>
+            </div>
+            <div class="ps-3">
                 <!-- <input class="form-check-input" v-model="isFavoriteChecked" type="checkbox" value=""
                     id="favoriteProductsFilter"> -->
                 <label class="form-check-label mb-1 d-flex gap-1 align-items-center"
@@ -259,13 +291,13 @@ function CheckboxClasses(value) {
                     <IconDashSquareFill class="text-danger" v-show="isFavoriteChecked === false" />
                     <IconCheckSquareFillSm class="text-primary" v-show="isFavoriteChecked === true" />
 
-                    <div :class="CheckboxClasses(isFavoriteChecked)">Избранные продукты</div>
+                    <div :class="checkboxClasses(isFavoriteChecked)">Избранные продукты</div>
                 </label>
             </div>
-            <div class="form-check">
+            <div class="ps-3">
                 <!-- <input class="form-check-input" v-model="isPersonalChecked" type="checkbox" value=""
                     id="personalProductsFilter"> -->
-                <label class="form-label d-flex gap-1 align-items-center"
+                <label class="form-label d-flex mb-1 gap-1 align-items-center"
                     @click="() => isPersonalChecked = changeCustomCheckboxValue(isPersonalChecked)"
                     for="personalProductsFilter">
 
@@ -273,15 +305,15 @@ function CheckboxClasses(value) {
                     <IconDashSquareFill class="text-danger" v-show="isPersonalChecked === false" />
                     <IconCheckSquareFillSm class="text-primary" v-show="isPersonalChecked === true" />
 
-                    <div :class="CheckboxClasses(isPersonalChecked)">
+                    <div :class="checkboxClasses(isPersonalChecked)">
                         Персональные продукты
                     </div>
                 </label>
             </div>
-            <div class="form-check">
+            <div class="ps-3">
                 <!-- <input class="form-check-input" v-model="isAbstractChecked" type="checkbox" value=""
                     id="abstractProductsFilter"> -->
-                <label class="form-label d-flex gap-1 align-items-center"
+                <label class="form-label d-flex mb-1 gap-1 align-items-center"
                     @click="() => isAbstractChecked = changeCustomCheckboxValue(isAbstractChecked)"
                     for="abstractProductsFilter">
 
@@ -289,12 +321,12 @@ function CheckboxClasses(value) {
                     <IconDashSquareFill class="text-danger" v-show="isAbstractChecked === false" />
                     <IconCheckSquareFillSm class="text-primary" v-show="isAbstractChecked === true" />
 
-                    <div :class="CheckboxClasses(isAbstractChecked)">
+                    <div :class="checkboxClasses(isAbstractChecked)">
                         Абстрактные продукты
                     </div>
                 </label>
             </div>
-            <div class="form-check">
+            <div class="ps-3">
                 <!-- <input class="form-check-input" v-model="isHiddenChecked" type="checkbox" value=""
                     id="hiddenProductsFilter"> -->
                 <label class="form-label d-flex gap-1 align-items-center"
@@ -305,7 +337,7 @@ function CheckboxClasses(value) {
                     <IconDashSquareFill class="text-danger" v-show="isHiddenChecked === false" />
                     <IconCheckSquareFillSm class="text-primary" v-show="isHiddenChecked === true" />
 
-                    <div :class="CheckboxClasses(isHiddenChecked)">
+                    <div :class="checkboxClasses(isHiddenChecked)">
                         Скрытые продукты
                     </div>
                 </label>
@@ -314,47 +346,17 @@ function CheckboxClasses(value) {
 
         <div class="limits-filter-container">
             <div class="mb-1 border-bottom border-light-subtle">Ограничения </div>
-            <!-- <div class="d-flex">
-                <div class="d-flex flex-column mb-1 me-1">
-                    <label for="" class="form-label">Калории от:</label>
-                    <label for="" class="form-label">Белки от:</label>
-                    <label for="" class="form-label">Жиры от:</label>
-                    <label for="" class="form-label">Углеводы от:</label>
-                </div>
-
-                <div class="d-flex flex-column mb-1 me-1">
-                    <input type="text" class="form-control form-control-sm mb-1">
-                    <input type="text" class="form-control form-control-sm mb-1">
-                    <input type="text" class="form-control form-control-sm mb-1">
-                    <input type="text" class="form-control form-control-sm mb-1">
-                </div>
-
-                <div class="d-flex flex-column mb-1 me-1">
-                    <label for="" class="form-label">до:</label>
-                    <label for="" class="form-label">до:</label>
-                    <label for="" class="form-label">до:</label>
-                    <label for="" class="form-label">до:</label>
-                </div>
-
-                <div class="d-flex flex-column mb-1 me-1">
-                    <input type="text" class="form-control form-control-sm">
-                    <input type="text" class="form-control form-control-sm">
-                    <input type="text" class="form-control form-control-sm">
-                    <input type="text" class="form-control form-control-sm">
-                </div>
-            </div> -->
-
             <div class="row mb-2">
                 <div class="col">
                     <div>Калории (ккал)</div>
                     <div class="row">
                         <div class="col">
                             <div class="d-flex gap-2 align-items-center">
-                                <label for="caloryFilterFrom" class="form-label">от:</label>
+                                <label for="caloryFilterFrom" class="form-label my-0">от:</label>
                                 <input id="caloryFilterFrom" v-model="caloryLimitFrom"
                                     @keydown="inputCharFilter($event)" type="number"
                                     class="form-control form-control-sm" placeholder="ккал.">
-                                <label for="caloryFilterTo" class="form-label">до:</label>
+                                <label for="caloryFilterTo" class="form-label my-0">до:</label>
                                 <input id="caloryFilterTo" v-model="caloryLimitTo" @keydown="inputCharFilter($event)"
                                     type="number" class="form-control form-control-sm" placeholder="ккал.">
                             </div>
@@ -367,11 +369,11 @@ function CheckboxClasses(value) {
                     <div class="row">
                         <div class="col">
                             <div class="d-flex gap-2 align-items-center">
-                                <label for="carbohydratesFilterFrom" class="form-label">от:</label>
+                                <label for="carbohydratesFilterFrom" class="form-label my-0">от:</label>
                                 <input id="carbohydratesFilterFrom" v-model="carbohydratesLimitFrom"
                                     @keydown="inputCharFilter($event)" type="number"
                                     class="form-control form-control-sm" placeholder="гр.">
-                                <label for="carbohydratesFilterTo" class="form-label">до:</label>
+                                <label for="carbohydratesFilterTo" class="form-label my-0">до:</label>
                                 <input id="carbohydratesFilterTo" v-model="carbohydratesLimitTo"
                                     @keydown="inputCharFilter($event)" type="number"
                                     class="form-control form-control-sm" placeholder="гр.">
@@ -387,11 +389,11 @@ function CheckboxClasses(value) {
                     <div class="row">
                         <div class="col">
                             <div class="d-flex gap-2 align-items-center">
-                                <label for="proteinsFilterFrom" class="form-label">от:</label>
+                                <label for="proteinsFilterFrom" class="form-label my-0">от:</label>
                                 <input id="proteinsFilterFrom" v-model="proteinsLimitFrom"
                                     @keydown="inputCharFilter($event)" type="number"
                                     class="form-control form-control-sm" placeholder="гр.">
-                                <label for="proteinsFilterTo" class="form-label">до:</label>
+                                <label for="proteinsFilterTo" class="form-label my-0">до:</label>
                                 <input id="proteinsFilterTo" v-model="proteinsLimitTo"
                                     @keydown="inputCharFilter($event)" type="number"
                                     class="form-control form-control-sm" placeholder="гр.">
@@ -405,10 +407,10 @@ function CheckboxClasses(value) {
                     <div class="row">
                         <div class="col">
                             <div class="d-flex gap-2 align-items-center">
-                                <label for="fatsFilterFrom" class="form-label">от:</label>
+                                <label for="fatsFilterFrom" class="form-label my-0">от:</label>
                                 <input id="fatsFilterFrom" v-model="fatsLimitFrom" @keydown="inputCharFilter($event)"
                                     type="number" class="form-control form-control-sm" placeholder="гр.">
-                                <label for="fatsFilterTo" class="form-label">до:</label>
+                                <label for="fatsFilterTo" class="form-label my-0">до:</label>
                                 <input id="fatsFilterTo" v-model="fatsLimitTo" @keydown="inputCharFilter($event)"
                                     type="number" class="form-control form-control-sm" placeholder="гр.">
                             </div>
@@ -431,8 +433,10 @@ function CheckboxClasses(value) {
 .country-filter-container {
     // min-height: 10vh;
     max-height: 20vh;
+    width: 100%;
     overflow-y: scroll;
     background-color: #faffffe0;
+    // background-color: green;
 }
 
 .checkboxUnckecked::before {

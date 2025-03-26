@@ -33,13 +33,14 @@ export const useProductsStore = defineStore('products', () => {
   const productsNextCursor = ref('')
   const isProductsFound = ref(true)
   const allCategories = ref([])
+  const sortParams = ref()
   const productsFilter = ref({
     name: null,
     category_id: null,
     is_personal: null,
     is_abstract: null,
     is_favorite: null,
-    is_hidden: null,
+    is_hidden: false,
     manufacturer: null,
     country_of_manufacture: null,
     quantity: null,
@@ -94,6 +95,8 @@ export const useProductsStore = defineStore('products', () => {
       category_id: null,
       is_personal: null,
       is_abstract: null,
+      is_favorite: null,
+      is_hidden: false,
       manufacturer: null,
       country_of_manufacture: null,
       quantity: null,
@@ -110,6 +113,8 @@ export const useProductsStore = defineStore('products', () => {
       category_id: null,
       is_personal: null,
       is_abstract: null,
+      is_favorite: null,
+      is_hidden: false,
       manufacturer: null,
       country_of_manufacture: null,
       quantity: null,
@@ -132,6 +137,18 @@ export const useProductsStore = defineStore('products', () => {
       if (response) {
         isCategoriesGroupFound.value = response.data.count > 0 ? true : false
         categoriesGroup.value = response.data.data
+
+        currentCategoryGroup.value = {
+          id: null,
+          name: null,
+          categoriesCount: null,
+        }
+
+        currentCategory.value = {
+          id: null,
+          name: null,
+          productsCount: null,
+        }
       }
     } catch (error) {
       console.log('Get category groups fail')
@@ -151,6 +168,11 @@ export const useProductsStore = defineStore('products', () => {
           id: response.data.data.id,
           name: response.data.data.name,
           categoriesCount: response.data.data.categories.count,
+        }
+        currentCategory.value = {
+          id: null,
+          name: null,
+          productsCount: null,
         }
         isCategoriesFound.value = response.data.data.categories.count > 0 ? true : false
         categories.value = response.data.data.categories.data
@@ -177,10 +199,8 @@ export const useProductsStore = defineStore('products', () => {
     isProductsFound.value = true
     // let requestParam = cursor ? category_id + '?cursor=' + cursor : category_id
     let requestParam = category_id ? category_id : ''
-
     requestParam += cursor ? '?cursor=' + cursor : ''
 
-    console.log('request params - ' + requestParam)
     try {
       const response = await axios_instance.post(
         URL_API_PRODUCTS + requestParam,
@@ -189,6 +209,12 @@ export const useProductsStore = defineStore('products', () => {
 
       if (response) {
         isProductsFound.value = response.data.count > 0 ? true : false
+
+        currentCategory.value = {
+          id: category_id,
+          name: null,
+          productsCount: null,
+        }
 
         if (cursor) {
           let tempArray = [].concat(products.value, response.data.data)
@@ -347,6 +373,7 @@ export const useProductsStore = defineStore('products', () => {
   }
 
   return {
+    sortParams,
     productsList,
     categories,
     products,

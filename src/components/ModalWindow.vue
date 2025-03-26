@@ -52,11 +52,9 @@ watch(() => props.showWindow, () => {
 
 const emit = defineEmits({
     closeWindow: () => { return true },
-
 });
 
 function closeWindow(event,) {
-
     if (event.target.hasAttribute('closeModalWindow')) {
         emit('closeWindow');
     }
@@ -65,18 +63,19 @@ function closeWindow(event,) {
 const modalWindowSize = computed(() => {
     const appWigth = document.getElementById('app').clientWidth;
     let adaptiveWidth = appWigth < 550 ? 100 : props.widthVh;
+    let adaptiveHeight = appWigth < 550 ? 90 : props.heightVh;
     let adaptiveLeftOffset = appWigth < 550 ? 0 : (100 - props.widthVh) / 2;
 
     return {
-        height: props.heightVh + 'vh',
+        height: adaptiveHeight + 'vh',
         width: adaptiveWidth + 'vw',
-        top: (100 - props.heightVh) / 2 + 'vh',
+        top: (100 - adaptiveHeight) / 2 + 'vh',
         left: adaptiveLeftOffset + 'vw',
     }
 });
 
 function mainSlotSize(slotHeader, slotFooter) {
-    let height = 90;
+    let height = 95;
     // console.log('main slot size');
     // console.log(slotHeader);
     // console.log(slotFooter);
@@ -110,8 +109,7 @@ function mainSlotSize(slotHeader, slotFooter) {
                 </div>
             </div>
 
-            <div class="card-body modal-window-body pt-1 pb-1">
-
+            <div class="card-body modal-window-body pt-1 pb-1 px-1">
                 <div v-if="$slots.header" class="modal-header" :style="{ 'height': props.headerHeightProcent + '%' }">
                     <slot name="header" v-bind="props.propsForSlots"></slot>
                 </div>
@@ -126,7 +124,6 @@ function mainSlotSize(slotHeader, slotFooter) {
                     :style="{ 'height': props.footerHeightProcent + '%' }">
                     <slot name="footer" v-bind="props.propsForSlots"></slot>
                 </div>
-
             </div>
         </div>
     </div>
@@ -170,7 +167,7 @@ function mainSlotSize(slotHeader, slotFooter) {
 }
 
 .modal-main {
-    height: 74%;
+    height: 83%;
     overflow-y: auto;
     overflow-x: hidden;
     background-color: #fffffa;

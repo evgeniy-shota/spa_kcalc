@@ -3,6 +3,9 @@ import { computed, onBeforeMount, ref, watch } from 'vue';
 import { throttle } from '@/resource/js/throttle';
 import ListWithControls from './ListWithControls.vue';
 import IconArrowLeftShort from './icons/IconArrowLeftShort.vue';
+import IconFunnel from './icons/IconFunnel.vue';
+import IconSortDown from './icons/IconSortDown.vue';
+import { CategoryGroupParams, CategoryParams, ProductParams } from '@/resource/js/sortParams';
 
 onBeforeMount(() => {
     emit('getCategoryGropus');
@@ -40,7 +43,11 @@ const props = defineProps({
     nextPageCursor: {
         type: String,
         default: null
-    }
+    },
+    userIsAuthorized: {
+        type: Boolean,
+        default: false,
+    },
 });
 
 const emit = defineEmits({
@@ -66,37 +73,37 @@ const emit = defineEmits({
         return false;
     },
     changeCategoryGroupFavoriteStatus: (id, status) => {
-        if (id && status) {
+        if (id && status !== null) {
             return true;
         }
         return false;
     },
     changeCategoryGroupHiddenStatus: (id, status) => {
-        if (id && status) {
+        if (id && status !== null) {
             return true;
         }
         return false;
     },
     changeCategoryFavoriteStatus: (id, status) => {
-        if (id && status) {
+        if (id && status !== null) {
             return true;
         }
         return false;
     },
     changeCategoryHiddenStatus: (id, status) => {
-        if (id && status) {
+        if (id && status !== null) {
             return true;
         }
         return false;
     },
     changeProductFavoriteStatus: (id, status) => {
-        if (id && status) {
+        if (id && status !== null) {
             return true;
         }
         return false;
     },
     changeProductHiddenStatus: (id, status) => {
-        if (id && status) {
+        if (id && status !== null) {
             return true;
         }
         return false;
@@ -141,6 +148,24 @@ const currentTimer = ref(null);
 const currentSelectedCategoryGroup = ref()
 const currentSelectedCategory = ref()
 const currentSelectedProduct = ref()
+
+const categoryGroupSortTypeValue = ref(CategoryGroupParams.default.key)
+const categorySortTypeValue = ref(CategoryParams.default.key)
+const productSortTypeValue = ref(ProductParams.default.key)
+
+function setCategoryGroupSortType(val) {
+    console.log('sort value: ' + val);
+    categoryGroupSortTypeValue.value = val
+}
+
+function setCategorySortType(val) {
+    categorySortTypeValue.value = val
+}
+
+function setProductSortType(val) {
+    productSortTypeValue.value = val
+}
+
 
 function slideTo(slideNum) {
 
@@ -311,34 +336,58 @@ function scrollList(event) {
             </div>
         </div>
 
-        <!-- filter -->
+        <div class="list-controllers d-flex ">
+            <!-- filter -->
+            <div class="filter-container px-2 pb-1 mb-1">
+                <div @click="showFilter($event)" class="btn btn-sm btn-outline-dark">
+                    <IconFunnel />
+                    Фильтр
+                </div>
+            </div>
 
-        <div class="filter-container px-2 pb-1 mb-1">
-            <div @click="showFilter($event)" class="btn btn-sm btn-info">Фильтр</div>
+            <!-- sort -->
+            <div class="sort-container px-2 pb-1 mb-1">
+                <div class="btn btn-sm btn-outline-dark" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                    <IconSortDown />
+                    Сортировка
+                </div>
+                <ul class="dropdown-menu">
+                    <li v-for="(item) in CategoryGroupParams" :key="item.key">
+                        <button @click="setCategoryGroupSortType(item.key)" class="dropdown-item" type="button">
+                            {{ item.title }}
+                        </button>
+                    </li>
+                </ul>
+            </div>
         </div>
+
 
         <!-- @scroll="scrollList" -->
         <!-- <div id="productsCarosel" class="carusel"> -->
         <!-- <div class="slides"> -->
 
         <div id="filterResultSlide" @scroll="scrollList($event)" v-show="currentSlide == 0" class="slide ps-2 pe-2">
-            <ListWithControls :data="props.showFilteredProducts ? props.products : []"
+            <ListWithControls :user-is-authorized="props.userIsAuthorized"
+                :data="props.showFilteredProducts ? props.products : []" data-type="product"
                 :is-data-found="props.isProductsFound" @select-element="selectProduct"
                 @change-favorite-status="changeProductFavorieStatus" @change-hidden-status="changeProductHiddenStatus"
                 @edit-elemet="editProduct" />
         </div>
         <div id="groupsSlide" v-show="currentSlide == 1" class="slide ps-2 pe-2">
-            <ListWithControls :data="props.categoryGroups" :is-data-found="props.isCategoryGroupsFound"
-                @select-element="selectGroup" @change-favorite-status="changeCategoryGroupFavorieStatus"
+            <ListWithControls :user-is-authorized="props.userIsAuthorized" :data="props.categoryGroups"
+                data-type="categoryGroup" :is-data-found="props.isCategoryGroupsFound" @select-element="selectGroup"
+                @change-favorite-status="changeCategoryGroupFavorieStatus"
                 @change-hidden-status="changeCategoryGroupHiddenStatus" />
         </div>
         <div id="categoriesSlide" v-show="currentSlide == 2" class="slide ps-2 pe-2">
-            <ListWithControls :data="props.categories" :is-data-found="props.isCategoriesFound"
-                @select-element="selectCategory" @change-favorite-status="changeCategoryFavorieStatus"
-                @change-hidden-status="changeCategoryHiddenStatus" @edit-elemet="editCategory" />
+            <ListWithControls :user-is-authorized="props.userIsAuthorized" :data="props.categories" data-type="category"
+                :is-data-found="props.isCategoriesFound" @select-element="selectCategory"
+                @change-favorite-status="changeCategoryFavorieStatus" @change-hidden-status="changeCategoryHiddenStatus"
+                @edit-elemet="editCategory" />
         </div>
         <div id="productsSlide" @scroll="scrollList($event)" v-show="currentSlide == 3" class="slide ps-2 pe-2">
-            <ListWithControls :data="!props.showFilteredProducts ? props.products : []"
+            <ListWithControls :user-is-authorized="props.userIsAuthorized"
+                :data="!props.showFilteredProducts ? props.products : []" data-type="product"
                 :is-data-found="props.isProductsFound" @select-element="selectProduct"
                 @change-favorite-status="changeProductFavorieStatus" @change-hidden-status="changeProductHiddenStatus"
                 @edit-elemet="editProduct" />

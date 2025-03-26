@@ -12,6 +12,7 @@ import CategoryAndProductList from '@/components/CategoryAndProductList.vue';
 import { useAdditionalProductData } from '@/stores/additionProductData';
 import App from '@/App.vue';
 
+const userStore = useUsersStore();
 const productsStore = useProductsStore();
 const additionalProductDataStore = useAdditionalProductData();
 // const userStore = useUsersStore();
@@ -42,6 +43,8 @@ const propsForModalFilter = computed(() => {
         fatsLimits: additionalProductDataStore.fatsLimits,
         isApplyFilter: isApplyFilter.value,
         isClearFilter: isClearFilter.value,
+        productsFilterDefaultVal: productsStore.productsFilter,
+        currentCategoryId: productsStore.currentCategory.id,
         applyFilter: applyFilter,
         clearFilter: clearFilter,
         clickApplyFilter: clickApplyFilter,
@@ -121,6 +124,7 @@ function hideProductInfoWindow() {
 function showProductFilter() {
     isShowProductFilter.value = true;
 }
+
 function hideProductFilter() {
     isShowProductFilter.value = false;
 }
@@ -134,6 +138,7 @@ function getProducts(id, cursor = null) {
     if (!cursor) {
         productsStore.products.length = 0
     }
+    // productsStore.
     productsStore.getProducts(id, cursor);
 }
 
@@ -151,11 +156,14 @@ function clickClearFilter() {
 async function applyFilter(filter) {
     isApplyFilter.value = false
     isShowProductFilter.value = false
-    // console.log(filter);
     productsStore.productsFilter = filter;
     // productsStore.getProducts();
     productsStore.getProducts();
-    isShowFilteredProducts.value = true
+
+    if (filter.category_id === null || (filter.category_id.length !== 1 || filter.category_id[0] !== productsStore.currentCategory.id)) {
+        isShowFilteredProducts.value = true
+    }
+    // isShowFilteredProducts.value = true
 }
 
 async function clearFilter() {
@@ -256,11 +264,12 @@ async function saveNewProduct(product, category) {
         :props-for-slots="propsForModalFilter">
 
         <template
-            #main="{ categories, dataSource, countries, isApplyFilter, isClearFilter, applyFilter, clearFilter, caloryLimits, proteinsLimits, carbohydratesLimits, fatsLimits }">
-            <ProductFilter :categories="categories" :data-source="dataSource" :countries="countries"
-                @apply-filter="applyFilter" @clear-filter="clearFilter" :is-apply-filter="isApplyFilter"
-                :is-clear-filter="isClearFilter" :calory-limit="caloryLimits" :proteins-limit="proteinsLimits"
-                :carbohydrates-limit="carbohydratesLimits" :fats-limit="fatsLimits" />
+            #main="{ categories, dataSource, countries, isApplyFilter, isClearFilter, applyFilter, clearFilter, caloryLimits, proteinsLimits, carbohydratesLimits, fatsLimits, productsFilterDefaultVal, currentCategoryId }">
+            <ProductFilter :products-filter-default-val="productsFilterDefaultVal"
+                :currentCategoryId="currentCategoryId" :categories="categories" :data-source="dataSource"
+                :countries="countries" @apply-filter="applyFilter" @clear-filter="clearFilter"
+                :is-apply-filter="isApplyFilter" :is-clear-filter="isClearFilter" :calory-limit="caloryLimits"
+                :proteins-limit="proteinsLimits" :carbohydrates-limit="carbohydratesLimits" :fats-limit="fatsLimits" />
         </template>
 
         <template #footer="{ clickClearFilter, clickApplyFilter }">
@@ -274,13 +283,13 @@ async function saveNewProduct(product, category) {
 
     <div class="col" style="max-height: 100%;">
 
-        <CategoryAndProductList :category-groups="categoriesGroup" :categories="categories" :products="products"
-            :is-category-groups-found="isCategoryGroupsFound" :is-categories-found="isCategoriesFound"
-            :is-products-found="isProductsFound" :show-filtered-products="isShowFilteredProducts"
-            :next-page-cursor="productsStore.productsNextCursor" @hide-filtered-product="hideFilteredProducts"
-            @get-category-gropus="productsStore.getCategoryGroups();" @get-categories="getCategories"
-            @get-products="getProducts" @get-product="getProduct" @show-filter="showProductFilter"
-            @change-category-group-favorite-status="changeCategoryGroupFavoriteStatus"
+        <CategoryAndProductList :user-is-authorized="userStore.userIsAuthorized" :category-groups="categoriesGroup"
+            :categories="categories" :products="products" :is-category-groups-found="isCategoryGroupsFound"
+            :is-categories-found="isCategoriesFound" :is-products-found="isProductsFound"
+            :show-filtered-products="isShowFilteredProducts" :next-page-cursor="productsStore.productsNextCursor"
+            @hide-filtered-product="hideFilteredProducts" @get-category-gropus="productsStore.getCategoryGroups();"
+            @get-categories="getCategories" @get-products="getProducts" @get-product="getProduct"
+            @show-filter="showProductFilter" @change-category-group-favorite-status="changeCategoryGroupFavoriteStatus"
             @change-category-group-hidden-status="changeCategoryGroupHiddenStatus"
             @change-category-favorite-status="changeCategoryFavoriteStatus"
             @change-category-hidden-status="changeCategoryHiddenStatus"
