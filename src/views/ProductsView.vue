@@ -43,12 +43,16 @@ const propsForModalFilter = computed(() => {
         fatsLimits: additionalProductDataStore.fatsLimits,
         isApplyFilter: isApplyFilter.value,
         isClearFilter: isClearFilter.value,
-        productsFilterDefaultVal: productsStore.productsFilter,
+        productsFilterDefaultVal: productsStore.getProductFilter,
         currentCategoryId: productsStore.currentCategory.id,
+        userIsAuthorized: userStore.userIsAuthorized,
         applyFilter: applyFilter,
         clearFilter: clearFilter,
         clickApplyFilter: clickApplyFilter,
         clickClearFilter: clickClearFilter,
+        applyCategoriesGroupSort: applyCategoriesGroupSort,
+        applyCategoriesSort: applyCategoriesSort,
+        applyProductsSort: applyProductsSort,
     }
 });
 
@@ -72,7 +76,8 @@ const propsForModalWindowSlots = computed(() => {
 
 const categoriesGroup = computed(() => {
     if (productsStore.categoriesGroup) {
-        return productsStore.categoriesGroup
+        // return productsStore.categoriesGroup
+        return productsStore.categoriesGroupList
     }
     return [];
 });
@@ -83,7 +88,8 @@ const isCategoryGroupsFound = computed(() => {
 
 const categories = computed(() => {
     if (productsStore.categories) {
-        return productsStore.categories
+        return productsStore.categoriesList
+        // return productsStore.categories
     }
     return []
 });
@@ -171,6 +177,20 @@ async function clearFilter() {
     productsStore.clearProductFilter();
     isClearFilter.value = false
 }
+
+function applyCategoriesGroupSort(sortParams) {
+    console.log('sort params: ' + sortParams)
+    productsStore.categoriesGroupSortParams = sortParams;
+}
+
+function applyCategoriesSort(sortParams) {
+    productsStore.categoriesSortParams = sortParams
+}
+
+function applyProductsSort(sortParams) {
+    productsStore.productsSortParams = sortParams
+}
+
 
 function hideFilteredProducts() {
     productsStore.clearProductFilter();
@@ -263,11 +283,12 @@ async function saveNewProduct(product, category) {
     <ModalWindow :show-window="isShowProductFilter" title="Расширенный фильтр" @close-window="hideProductFilter"
         :props-for-slots="propsForModalFilter">
 
-        <template
-            #main="{ categories, dataSource, countries, isApplyFilter, isClearFilter, applyFilter, clearFilter, caloryLimits, proteinsLimits, carbohydratesLimits, fatsLimits, productsFilterDefaultVal, currentCategoryId }">
+        <template #main="{ categories, dataSource, countries, isApplyFilter, isClearFilter, applyFilter, clearFilter,
+            caloryLimits, proteinsLimits, carbohydratesLimits, fatsLimits, productsFilterDefaultVal,
+            currentCategoryId, userIsAuthorized }">
             <ProductFilter :products-filter-default-val="productsFilterDefaultVal"
-                :currentCategoryId="currentCategoryId" :categories="categories" :data-source="dataSource"
-                :countries="countries" @apply-filter="applyFilter" @clear-filter="clearFilter"
+                :user-is-authorized="userIsAuthorized" :currentCategoryId="currentCategoryId" :categories="categories"
+                :data-source="dataSource" :countries="countries" @apply-filter="applyFilter" @clear-filter="clearFilter"
                 :is-apply-filter="isApplyFilter" :is-clear-filter="isClearFilter" :calory-limit="caloryLimits"
                 :proteins-limit="proteinsLimits" :carbohydrates-limit="carbohydratesLimits" :fats-limit="fatsLimits" />
         </template>
@@ -295,7 +316,8 @@ async function saveNewProduct(product, category) {
             @change-category-hidden-status="changeCategoryHiddenStatus"
             @change-product-favorite-status="changeProductFavoriteStatus"
             @change-product-hidden-status="changeProductHiddenStatus" @edit-category="editCategory"
-            @edit-product="editProduct">
+            @edit-product="editProduct" @apply-categories-group-sort="applyCategoriesGroupSort"
+            @apply-categories-sort="applyCategoriesSort" @apply-products-sort="applyProductsSort">
         </CategoryAndProductList>
 
         <!-- <ProductsList @on-click-add-new-product="showNewProductWindow" @show-product-info="showProductInfoWindow"

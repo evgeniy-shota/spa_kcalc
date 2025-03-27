@@ -54,6 +54,10 @@ const props = defineProps({
         type: Number,
         default: null,
     },
+    userIsAuthorized: {
+        type: Boolean,
+        default: false,
+    },
 });
 
 const emit = defineEmits({
@@ -198,15 +202,22 @@ function changeCustomCheckboxValue(refValue) {
 }
 
 function changeAllCustomCheckboxValue(newValue) {
-    isFavoriteChecked.value = newValue;
-    isPersonalChecked.value = newValue;
-    isHiddenChecked.value = newValue;
     isAbstractChecked.value = newValue;
+
+    if (props.userIsAuthorized) {
+        isFavoriteChecked.value = newValue;
+        isPersonalChecked.value = newValue;
+        isHiddenChecked.value = newValue;
+    }
 }
 
 
-function checkboxClasses(value) {
+function checkboxClasses(value, disableForUnauthorized = true) {
     let classes = 'border-bottom ';
+
+    if (disableForUnauthorized && !props.userIsAuthorized) {
+        return classes + 'text-secondary '
+    }
 
     if (value === null) {
         classes += 'border-light-subtle ';
@@ -265,7 +276,7 @@ function checkboxClasses(value) {
             </div>
         </div>
 
-        <div class="status-filter-container mb-1">
+        <div class="status-filter-container mb-1 ">
             <div class="border-bottom border-light-subtle">
                 Статус
             </div>
@@ -281,10 +292,26 @@ function checkboxClasses(value) {
                 </div>
             </div>
             <div class="ps-3">
+                <!-- <input class="form-check-input" v-model="isAbstractChecked" type="checkbox" value=""
+                    id="abstractProductsFilter"> -->
+                <label class="form-label d-flex mb-1 gap-1 align-items-center"
+                    @click="() => isAbstractChecked = changeCustomCheckboxValue(isAbstractChecked)"
+                    for="abstractProductsFilter">
+
+                    <IconSquare v-show="isAbstractChecked === null" />
+                    <IconDashSquareFill class="text-danger" v-show="isAbstractChecked === false" />
+                    <IconCheckSquareFillSm class="text-primary" v-show="isAbstractChecked === true" />
+
+                    <div :class="checkboxClasses(isAbstractChecked, false)">
+                        Абстрактные продукты
+                    </div>
+                </label>
+            </div>
+            <div class="ps-3">
                 <!-- <input class="form-check-input" v-model="isFavoriteChecked" type="checkbox" value=""
                     id="favoriteProductsFilter"> -->
-                <label class="form-check-label mb-1 d-flex gap-1 align-items-center"
-                    @click="() => isFavoriteChecked = changeCustomCheckboxValue(isFavoriteChecked)"
+                <label class="form-label d-flex mb-1 gap-1 align-items-center"
+                    @click="() => props.userIsAuthorized ? isFavoriteChecked = changeCustomCheckboxValue(isFavoriteChecked) : 0"
                     for="favoriteProductsFilter">
 
                     <IconSquare v-show="isFavoriteChecked === null" />
@@ -298,7 +325,7 @@ function checkboxClasses(value) {
                 <!-- <input class="form-check-input" v-model="isPersonalChecked" type="checkbox" value=""
                     id="personalProductsFilter"> -->
                 <label class="form-label d-flex mb-1 gap-1 align-items-center"
-                    @click="() => isPersonalChecked = changeCustomCheckboxValue(isPersonalChecked)"
+                    @click="() => props.userIsAuthorized ? isPersonalChecked = changeCustomCheckboxValue(isPersonalChecked) : 0"
                     for="personalProductsFilter">
 
                     <IconSquare v-show="isPersonalChecked === null" />
@@ -311,26 +338,10 @@ function checkboxClasses(value) {
                 </label>
             </div>
             <div class="ps-3">
-                <!-- <input class="form-check-input" v-model="isAbstractChecked" type="checkbox" value=""
-                    id="abstractProductsFilter"> -->
-                <label class="form-label d-flex mb-1 gap-1 align-items-center"
-                    @click="() => isAbstractChecked = changeCustomCheckboxValue(isAbstractChecked)"
-                    for="abstractProductsFilter">
-
-                    <IconSquare v-show="isAbstractChecked === null" />
-                    <IconDashSquareFill class="text-danger" v-show="isAbstractChecked === false" />
-                    <IconCheckSquareFillSm class="text-primary" v-show="isAbstractChecked === true" />
-
-                    <div :class="checkboxClasses(isAbstractChecked)">
-                        Абстрактные продукты
-                    </div>
-                </label>
-            </div>
-            <div class="ps-3">
                 <!-- <input class="form-check-input" v-model="isHiddenChecked" type="checkbox" value=""
                     id="hiddenProductsFilter"> -->
                 <label class="form-label d-flex gap-1 align-items-center"
-                    @click="() => isHiddenChecked = changeCustomCheckboxValue(isHiddenChecked)"
+                    @click="() => props.userIsAuthorized ? isHiddenChecked = changeCustomCheckboxValue(isHiddenChecked) : 0"
                     for="hiddenProductsFilter">
 
                     <IconSquare v-show="isHiddenChecked === null" />

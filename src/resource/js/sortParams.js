@@ -19,14 +19,14 @@ const CategoryGroupParams = {
     key: 'favoriteDesc',
     title: 'Сначала не избранные',
   },
-  personalAsc: {
-    key: 'personalAsc',
-    title: 'Сначала персональные',
-  },
-  personalDesc: {
-    key: 'personalDesc',
-    title: 'Сначала не персональные',
-  },
+  // personalAsc: {
+  //   key: 'personalAsc',
+  //   title: 'Сначала персональные',
+  // },
+  // personalDesc: {
+  //   key: 'personalDesc',
+  //   title: 'Сначала не персональные',
+  // },
 }
 
 const CategoryParams = {
@@ -99,35 +99,35 @@ const ProductParams = {
   },
   kcaloryAsc: {
     key: 'kcaloryAsc',
-    title: 'Сначала больше калорий',
+    title: 'Сначала меньше калорий',
   },
   kcaloryDesc: {
     key: 'kcaloryDesc',
-    title: 'Сначала меньше калорий',
+    title: 'Сначала больше калорий',
   },
   proteinsAsc: {
     key: 'proteinsAsc',
-    title: 'Сначала больше белков',
+    title: 'Сначала меньше белков',
   },
   proteinsDesc: {
     key: 'proteinsDesc',
-    title: 'Сначала меньше белков',
+    title: 'Сначала больше белков',
   },
   carbohydratesAsc: {
     key: 'carbohydratesAsc',
-    title: 'Сначала больше углеводов',
+    title: 'Сначала меньше углеводов',
   },
   carbohydratesDesc: {
     key: 'carbohydratesDesc',
-    title: 'Сначала меньше углеводов',
+    title: 'Сначала больше углеводов',
   },
   fatsAsc: {
     key: 'fatsAsc',
-    title: 'Сначала больше жиров',
+    title: 'Сначала меньше жиров',
   },
   fatsDesc: {
     key: 'fatsDesc',
-    title: 'Сначала меньше жиров',
+    title: 'Сначала больше жиров',
   },
 }
 

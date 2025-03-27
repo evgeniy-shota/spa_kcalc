@@ -126,6 +126,24 @@ const emit = defineEmits({
     hideFilteredProduct: () => {
         return true;
     },
+    applyCategoriesGroupSort: (sortParams) => {
+        if (sortParams) {
+            return true
+        }
+        return false
+    },
+    applyCategoriesSort: (sortParams) => {
+        if (sortParams) {
+            return true
+        }
+        return false
+    },
+    applyProductsSort: (sortParams) => {
+        if (sortParams) {
+            return true
+        }
+        return false
+    },
 });
 
 // watch(() => props.nextPageCursor, () => {
@@ -156,14 +174,17 @@ const productSortTypeValue = ref(ProductParams.default.key)
 function setCategoryGroupSortType(val) {
     console.log('sort value: ' + val);
     categoryGroupSortTypeValue.value = val
+    emit('applyCategoriesGroupSort', val);
 }
 
 function setCategorySortType(val) {
     categorySortTypeValue.value = val
+    emit('applyCategoriesSort', val);
 }
 
 function setProductSortType(val) {
     productSortTypeValue.value = val
+    emit('applyProductsSort', val);
 }
 
 
@@ -352,8 +373,19 @@ function scrollList(event) {
                     Сортировка
                 </div>
                 <ul class="dropdown-menu">
-                    <li v-for="(item) in CategoryGroupParams" :key="item.key">
+                    <li v-show="currentSlide === 1" v-for="(item) in CategoryGroupParams" :key="item.key">
                         <button @click="setCategoryGroupSortType(item.key)" class="dropdown-item" type="button">
+                            {{ item.title }}
+                        </button>
+                    </li>
+                    <li v-show="currentSlide === 2" v-for="(item) in CategoryParams" :key="item.key">
+                        <button @click="setCategorySortType(item.key)" class="dropdown-item" type="button">
+                            {{ item.title }}
+                        </button>
+                    </li>
+                    <li v-show="currentSlide === 3 || currentSlide === 0" v-for="(item) in ProductParams"
+                        :key="item.key">
+                        <button @click="setProductSortType(item.key)" class="dropdown-item" type="button">
                             {{ item.title }}
                         </button>
                     </li>

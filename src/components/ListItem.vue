@@ -83,7 +83,7 @@ const emit = defineEmits({
 });
 
 function colorIndicationOfElemetnType(elementType, isAbstract, isPersonal) {
-    console.log(isAbstract);
+
     const abstractIndication = 'border-dark-subtle';
     const personalIndication = 'border-primary-subtle';
 

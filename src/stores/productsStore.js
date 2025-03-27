@@ -1,6 +1,8 @@
-import { computed, ref } from 'vue'
+import { computed, ref, watch } from 'vue'
 import { defineStore } from 'pinia'
 import axios_instance from '@/resource/js/axiosInstance'
+import { useUsersStore } from './usersStore'
+import { CategoryGroupParams, CategoryParams, ProductParams } from '@/resource/js/sortParams'
 
 // const FAKE_API = 'https://jsonplaceholder.typicode.com/todos'
 const URL_API_CATEGORY_GROUPS = 'api/category-groups/'
@@ -33,14 +35,16 @@ export const useProductsStore = defineStore('products', () => {
   const productsNextCursor = ref('')
   const isProductsFound = ref(true)
   const allCategories = ref([])
-  const sortParams = ref()
+  const categoriesGroupSortParams = ref(CategoryGroupParams.default.key)
+  const categoriesSortParams = ref(CategoryParams.default.key)
+  const productsSortParams = ref(ProductParams.default.key)
   const productsFilter = ref({
     name: null,
     category_id: null,
     is_personal: null,
     is_abstract: null,
     is_favorite: null,
-    is_hidden: false,
+    is_hidden: null,
     manufacturer: null,
     country_of_manufacture: null,
     quantity: null,
@@ -90,13 +94,16 @@ export const useProductsStore = defineStore('products', () => {
     isCategoriesFound.value = true
     isProductsFound.value = true
     isProductFound.value = true
+    categoriesGroupSortParams.value = {}
+    categoriesSortParams.value = {}
+    productsSortParams.value = {}
     productsFilter.value = {
       name: null,
       category_id: null,
       is_personal: null,
       is_abstract: null,
       is_favorite: null,
-      is_hidden: false,
+      is_hidden: null,
       manufacturer: null,
       country_of_manufacture: null,
       quantity: null,
@@ -114,7 +121,7 @@ export const useProductsStore = defineStore('products', () => {
       is_personal: null,
       is_abstract: null,
       is_favorite: null,
-      is_hidden: false,
+      is_hidden: null,
       manufacturer: null,
       country_of_manufacture: null,
       quantity: null,
@@ -125,8 +132,80 @@ export const useProductsStore = defineStore('products', () => {
     }
   }
 
+  const getProductFilter = computed(() => {
+    const userStore = useUsersStore()
+    console.log(userStore.userIsAuthorized)
+    if (!userStore.userIsAuthorized) {
+      productsFilter.value.is_hidden = null
+    } else {
+      productsFilter.value.is_hidden = false
+    }
+
+    return productsFilter.value
+  })
+
+  const categoriesGroupList = computed(() => {
+    if (categoriesGroupSortParams.value == CategoryGroupParams.nameAsc.key) {
+      return categoriesGroup.value.sort((a, b) => a.name.localeCompare(b.name))
+    }
+
+    if (categoriesGroupSortParams.value == CategoryGroupParams.nameDesc.key) {
+      return categoriesGroup.value.sort((a, b) => b.name.localeCompare(a.name))
+    }
+
+    if (categoriesGroupSortParams.value == CategoryGroupParams.default.key) {
+      return categoriesGroup.value.sort((a, b) => a.id - b.id)
+    }
+
+    if (categoriesGroupSortParams.value == CategoryGroupParams.favoriteAsc.key) {
+      return categoriesGroup.value.sort((a, b) => b.is_favorite - a.is_favorite)
+    }
+
+    if (categoriesGroupSortParams.value == CategoryGroupParams.favoriteDesc.key) {
+      return categoriesGroup.value.sort((a, b) => a.is_favorite - b.is_favorite)
+    }
+
+    return categoriesGroup.value
+  })
+
+  const categoriesList = computed(() => {
+    if (categoriesSortParams.value == CategoryParams.nameAsc.key) {
+      return categories.value.sort((a, b) => a.name.localeCompare(b.name))
+    }
+
+    if (categoriesSortParams.value == CategoryParams.nameDesc.key) {
+      return categories.value.sort((a, b) => b.name.localeCompare(a.name))
+    }
+
+    if (categoriesSortParams.value == CategoryParams.default.key) {
+      return categories.value.sort((a, b) => a.id - b.id)
+    }
+
+    if (categoriesSortParams.value == CategoryParams.favoriteAsc.key) {
+      return categories.value.sort((a, b) => b.is_favorite - a.is_favorite)
+    }
+
+    if (categoriesSortParams.value == CategoryParams.favoriteDesc.key) {
+      return categories.value.sort((a, b) => a.is_favorite - b.is_favorite)
+    }
+
+    if (categoriesSortParams.value == CategoryParams.personalAsc.key) {
+      return categories.value.sort((a, b) => b.is_personal - a.is_personal)
+    }
+
+    if (categoriesSortParams.value == CategoryParams.personalDesc.key) {
+      return categories.value.sort((a, b) => a.is_personal - b.is_personal)
+    }
+
+    return categories.value
+  })
+
   const productsList = computed(() => {
     return products.value
+  })
+
+  watch(productsSortParams, () => {
+    getProducts(currentCategory.value.id)
   })
 
   async function getCategoryGroups() {
@@ -199,7 +278,8 @@ export const useProductsStore = defineStore('products', () => {
     isProductsFound.value = true
     // let requestParam = cursor ? category_id + '?cursor=' + cursor : category_id
     let requestParam = category_id ? category_id : ''
-    requestParam += cursor ? '?cursor=' + cursor : ''
+    requestParam += '?sort=' + productsSortParams.value
+    requestParam += cursor ? '&cursor=' + cursor : ''
 
     try {
       const response = await axios_instance.post(
@@ -373,7 +453,11 @@ export const useProductsStore = defineStore('products', () => {
   }
 
   return {
-    sortParams,
+    categoriesGroupSortParams,
+    categoriesSortParams,
+    productsSortParams,
+    categoriesGroupList,
+    categoriesList,
     productsList,
     categories,
     products,
@@ -384,6 +468,7 @@ export const useProductsStore = defineStore('products', () => {
     isCategoriesGroupFound,
     isCategoriesFound,
     isProductsFound,
+    getProductFilter,
     productsFilter,
     productsPrevCursor,
     productsNextCursor,
