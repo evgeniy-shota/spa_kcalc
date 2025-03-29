@@ -1,8 +1,46 @@
 <script setup>
-import { computed, onMounted, readonly, ref, watch } from 'vue';
+import { computed, onMounted, ref, watch } from 'vue';
+
+const props = defineProps(
+    {
+        product: {
+            type: Object,
+            default: null
+        },
+        productCategory: {
+            type: Number,
+            default: null,
+        },
+        categories: {
+            type: Array,
+            default: [],
+        },
+        productSavedSuccessful: {
+            type: Boolean,
+            default: false,
+        },
+        isReadonly: {
+            type: Boolean,
+            default: true,
+        }
+    }
+);
+
+const emit = defineEmits(
+    {
+        submitForm: (product, categrory) => {
+            if (product !== null && categrory !== null) {
+                return true
+            }
+            return false;
+        },
+        cancelForm: () => {
+            return true;
+        }
+    }
+);
 
 const optionForNewCategory = ref('new')
-
 const productName = ref('');
 const productDescription = ref('');
 const productComposition = ref('');
@@ -52,39 +90,6 @@ const nutrientAndVitamins = computed(() => {
     }
     return Object.entries(props.product.nutrientAndVitamines);
 });
-
-const props = defineProps(
-    {
-        product: {
-            type: Object,
-            default: null
-        },
-        productCategory: {
-            type: Number,
-            default: null,
-        },
-        categories: {
-            type: Array,
-            default: [],
-        },
-        productSavedSuccessful: {
-            type: Boolean,
-            default: false,
-        },
-        isReadonly: {
-            type: Boolean,
-            default: true,
-        }
-    }
-);
-
-const emit = defineEmits(
-    {
-        submitForm: () => {
-            return true;
-        },
-    }
-);
 
 watch(() => props.product, () => {
     console.log('watch product');
@@ -197,9 +202,30 @@ function submitForm() {
         name: newCategoryName.value,
         description: ''
     }
-
     emit('submitForm', product, category);
 }
+
+function clearForm() {
+    console.log('Clear product form');
+    productName.value = '';
+    productDescription.value = '';
+    productComposition.value = '';
+    productQuantity.value = 100;
+    productQuantityType.value = 'weight';
+    productKcalory.value = 0;
+    productCarbohydrates.value = 0;
+    productProteins.value = 0;
+    productFats.value = 0;
+    productNutrientVitamine.value = {};
+    productManufacturer.value = '';
+    productCountryOfManufacture.value = '';
+}
+
+function cancelForm() {
+    console.log('Cancel product from')
+    emit('cancelForm');
+}
+
 </script>
 
 <template>
@@ -207,6 +233,18 @@ function submitForm() {
     <div class="container px-0">
 
         <form action="" method="">
+
+            <div v-if="!props.isReadonly" class="d-flex justify-content-between gap-2 mb-1">
+                <div>
+                    <button @click="submitForm" class="btn btn-primary px-4 me-2" type="button">Сохранить</button>
+                    <button @click="clearForm" class="btn btn-outline-secondary me-2" type="button">Очистить</button>
+                    <button @click="cancelForm" class="btn btn-outline-warning text-secondary me-2"
+                        type="button">Отменить</button>
+                </div>
+                <div>
+                    <button class="btn btn-light" type="button">help</button>
+                </div>
+            </div>
 
             <div class="mb-2">
                 <label for="productName" class="form-label mb-1"
@@ -228,7 +266,7 @@ function submitForm() {
                         :class="{ 'validation-error': validationError.productKcalory.length > 0 }" class="form-control"
                         id="productKcalory" placeholder="ккал." aria-describedby="productKcaloryHelpBlock">
                     <div class="form-text text-danger my-0">{{ validationError.productKcalory }}</div>
-                    <div v-if="!props.isReadonly" id="productKcaloryHelpBlock" class="form-text my-0">Число от 0 до 1000
+                    <div v-if="!props.isReadonly" id="productKcaloryHelpBlock" class="form-text my-0">От 0 до 1000
                     </div>
                 </div>
 
@@ -240,7 +278,7 @@ function submitForm() {
                         class="form-control" id="productCarbohydrates" placeholder="гр."
                         aria-describedby="productCarbohydratesHelpBlock">
                     <div class="form-text text-danger my-0">{{ validationError.productCarbohydrates }}</div>
-                    <div v-if="!props.isReadonly" id="productCarbohydratesHelpBlock" class="form-text my-0">Число от 0
+                    <div v-if="!props.isReadonly" id="productCarbohydratesHelpBlock" class="form-text my-0">От 0
                         до 100</div>
                 </div>
 
@@ -251,7 +289,7 @@ function submitForm() {
                         :class="{ 'validation-error': validationError.productProteins.length > 0 }" class="form-control"
                         id="productProteins" placeholder="гр." aria-describedby="productProteinsHelpBlock">
                     <div class="form-text text-danger my-0">{{ validationError.productProteins }}</div>
-                    <div v-if="!props.isReadonly" id="productProteinsHelpBlock" class="form-text my-0">Число от 0 до 100
+                    <div v-if="!props.isReadonly" id="productProteinsHelpBlock" class="form-text my-0">От 0 до 100
                     </div>
                 </div>
 
@@ -262,7 +300,7 @@ function submitForm() {
                         :class="{ 'validation-error': validationError.productFats.length > 0 }" class="form-control"
                         id="productFats" placeholder="гр." aria-describedby="productFatsHelpBlock">
                     <div class="form-text text-danger my-0">{{ validationError.productFats }}</div>
-                    <div v-if="!props.isReadonly" id="productFatsHelpBlock" class="form-text my-0">Число от 0 до 100
+                    <div v-if="!props.isReadonly" id="productFatsHelpBlock" class="form-text my-0">От 0 до 100
                     </div>
                 </div>
 
@@ -276,6 +314,14 @@ function submitForm() {
             <!-- category selsect -->
             <div v-else>
                 <div class="mb-2">
+                    <label class="form-label required-input mb-1" for="">Группа продукта</label>
+                    <select class="form-select" name="categoryGroup" id="categoryGroup">
+                        <option value="-1">Выберите группу</option>
+                        <option value="">группа 1</option>
+                    </select>
+                </div>
+
+                <div class="mb-2">
                     <label class="form-label required-input mb-1" for="categoriesSelect">Катеория продукта</label>
 
                     <select v-model="selectedCategory" :disabled="props.isReadonly"
@@ -287,13 +333,13 @@ function submitForm() {
                     </select>
 
                     <div class="form-text text-danger my-0">{{ validationError.categoriesSelect }}</div>
-                    <div id="categorySelectHelpBlock" class="form-text my-0">Для создания категории
-                        выберите "Создать свою
-                        категорию"</div>
+                    <div id="categorySelectHelpBlock" class="form-text my-0">
+                        Для создания категории выберите "Создать свою категорию"</div>
                 </div>
 
                 <!-- new category input -->
                 <div v-show="selectedCategory == optionForNewCategory" class="mb-2">
+
                     <label class="form-label required-input mb-1" for="newCategoryName">Название новой катеории</label>
                     <input v-model="newCategoryName" :readonly="props.isReadonly" type="text" class="form-control"
                         id="newCategoryName" placeholder="Название" aria-describedby="newCategoryNameHelpBlock">
@@ -363,11 +409,6 @@ function submitForm() {
                         </tbody>
                     </table>
                 </div>
-            </div>
-
-            <div class="d-grid gap-2 mb-1">
-                <button v-show="!props.isReadonly" @click="submitForm" class="btn btn-primary"
-                    type="button">Сохранить</button>
             </div>
 
         </form>

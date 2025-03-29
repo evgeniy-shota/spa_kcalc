@@ -54,7 +54,7 @@ export const useProductsStore = defineStore('products', () => {
     fats: null,
   })
   const product = ref({
-    id: 0,
+    id: null,
     category_id: 0,
     name: '',
     composition: '',
@@ -74,29 +74,45 @@ export const useProductsStore = defineStore('products', () => {
   const isProductFound = ref(true)
 
   function $reset() {
-    categoriesGroup.value = []
+    categoriesGroup.value.length = 0
     currentCategoryGroup.value = {
       id: null,
       name: null,
       categoriesCount: null,
     }
-    categories.value = []
+    categories.value.length = 0
     currentCategory.value = {
       id: null,
       name: null,
       productsCount: null,
     }
-    products.value = []
-    product.value = {}
+    products.value.length = 0
+    product.value = {
+      id: null,
+      category_id: 0,
+      name: '',
+      composition: '',
+      description: '',
+      quantity: 0,
+      quantityType: 'weight',
+      manufacturer: '',
+      countryOfManufacture: '',
+      kcalory: 0,
+      proteins: 0,
+      carbohydrates: 0,
+      fats: 0,
+      nutrientAndVitamines: {},
+      is_visible: true,
+    }
     productsPrevCursor.value = ''
     productsNextCursor.value = ''
     isCategoriesGroupFound.value = true
     isCategoriesFound.value = true
     isProductsFound.value = true
     isProductFound.value = true
-    categoriesGroupSortParams.value = {}
-    categoriesSortParams.value = {}
-    productsSortParams.value = {}
+    categoriesGroupSortParams.value = CategoryGroupParams.default.key
+    categoriesSortParams.value = CategoryParams.default.key
+    productsSortParams.value = ProductParams.default.key
     productsFilter.value = {
       name: null,
       category_id: null,

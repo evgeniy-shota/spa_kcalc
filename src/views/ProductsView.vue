@@ -1,5 +1,5 @@
 <script setup>
-import { computed, onBeforeMount, onMounted, ref } from 'vue';
+import { computed, onBeforeMount, onBeforeUnmount, onDeactivated, onMounted, ref } from 'vue';
 import ProductsList from '@/components/ProductsList.vue';
 import ProductInfo from '@/components/ProductInfo.vue';
 import ProductFilter from '@/components/ProductFilter.vue';
@@ -10,7 +10,10 @@ import { useUsersStore } from '@/stores/usersStore';
 import Offcanv from '@/components/Offcanv.vue';
 import CategoryAndProductList from '@/components/CategoryAndProductList.vue';
 import { useAdditionalProductData } from '@/stores/additionProductData';
-import App from '@/App.vue';
+
+onBeforeUnmount(() => {
+    productsStore.$reset();
+});
 
 const userStore = useUsersStore();
 const productsStore = useProductsStore();
@@ -308,9 +311,12 @@ async function saveNewProduct(product, category) {
             :categories="categories" :products="products" :is-category-groups-found="isCategoryGroupsFound"
             :is-categories-found="isCategoriesFound" :is-products-found="isProductsFound"
             :show-filtered-products="isShowFilteredProducts" :next-page-cursor="productsStore.productsNextCursor"
-            @hide-filtered-product="hideFilteredProducts" @get-category-gropus="productsStore.getCategoryGroups();"
-            @get-categories="getCategories" @get-products="getProducts" @get-product="getProduct"
-            @show-filter="showProductFilter" @change-category-group-favorite-status="changeCategoryGroupFavoriteStatus"
+            :categories-group-sort-param="productsStore.categoriesGroupSortParams"
+            :categories-sort-param="productsStore.categoriesSortParams"
+            :products-sort-param="productsStore.productsSortParams" @hide-filtered-product="hideFilteredProducts"
+            @get-category-gropus="productsStore.getCategoryGroups();" @get-categories="getCategories"
+            @get-products="getProducts" @get-product="getProduct" @show-filter="showProductFilter"
+            @change-category-group-favorite-status="changeCategoryGroupFavoriteStatus"
             @change-category-group-hidden-status="changeCategoryGroupHiddenStatus"
             @change-category-favorite-status="changeCategoryFavoriteStatus"
             @change-category-hidden-status="changeCategoryHiddenStatus"
@@ -341,7 +347,7 @@ async function saveNewProduct(product, category) {
     <!-- small col -->
 
     <div v-if="showTwoCol" style="max-height: 100%;" class="col">
-        <ProductInfo />
+        <ProductInfo :user-is-authorized="userStore.userIsAuthorized" @submit-product-form="saveNewProduct" />
     </div>
 
 </template>

@@ -48,6 +48,19 @@ const props = defineProps({
         type: Boolean,
         default: false,
     },
+    categoriesGroupSortParam: {
+        type: String,
+        default: CategoryGroupParams.default.key,
+    },
+    categoriesSortParam: {
+        type: String,
+        default: CategoryParams.default.key,
+    },
+    productsSortParam: {
+        type: String,
+        default: ProductParams.default.key,
+    },
+
 });
 
 const emit = defineEmits({
@@ -167,9 +180,9 @@ const currentSelectedCategoryGroup = ref()
 const currentSelectedCategory = ref()
 const currentSelectedProduct = ref()
 
-const categoryGroupSortTypeValue = ref(CategoryGroupParams.default.key)
-const categorySortTypeValue = ref(CategoryParams.default.key)
-const productSortTypeValue = ref(ProductParams.default.key)
+const categoryGroupSortTypeValue = ref(props.categoriesGroupSortParam)
+const categorySortTypeValue = ref(props.categoriesSortParam)
+const productSortTypeValue = ref(props.productsSortParam)
 
 function setCategoryGroupSortType(val) {
     console.log('sort value: ' + val);
@@ -282,8 +295,7 @@ function editProduct(id, index) {
 
 function resetTimer() {
     console.log('timer reset');
-
-    currentTimer.value = null
+    currentTimer.value = null;
 }
 
 function getNextDataPage() {
@@ -374,18 +386,23 @@ function scrollList(event) {
                 </div>
                 <ul class="dropdown-menu">
                     <li v-show="currentSlide === 1" v-for="(item) in CategoryGroupParams" :key="item.key">
-                        <button @click="setCategoryGroupSortType(item.key)" class="dropdown-item" type="button">
+                        <button @click="setCategoryGroupSortType(item.key)"
+                            :class="{ 'active': item.key == categoryGroupSortTypeValue }" class="dropdown-item"
+                            type="button">
                             {{ item.title }}
                         </button>
                     </li>
                     <li v-show="currentSlide === 2" v-for="(item) in CategoryParams" :key="item.key">
-                        <button @click="setCategorySortType(item.key)" class="dropdown-item" type="button">
+                        <button @click="setCategorySortType(item.key)"
+                            :class="{ 'active': item.key == categorySortTypeValue }" class="dropdown-item"
+                            type="button">
                             {{ item.title }}
                         </button>
                     </li>
                     <li v-show="currentSlide === 3 || currentSlide === 0" v-for="(item) in ProductParams"
                         :key="item.key">
-                        <button @click="setProductSortType(item.key)" class="dropdown-item" type="button">
+                        <button @click="setProductSortType(item.key)"
+                            :class="{ 'active': item.key == productSortTypeValue }" class="dropdown-item" type="button">
                             {{ item.title }}
                         </button>
                     </li>
