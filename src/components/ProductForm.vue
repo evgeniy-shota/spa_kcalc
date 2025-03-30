@@ -22,7 +22,11 @@ const props = defineProps(
         isReadonly: {
             type: Boolean,
             default: true,
-        }
+        },
+        countriesOfManufacture: {
+            type: Array,
+            default: () => [],
+        },
     }
 );
 
@@ -360,9 +364,15 @@ function cancelForm() {
             <!-- product country Of Manufacture -->
             <div class="mb-2">
                 <label class="form-label mb-1" for="productCountryOfManufacture">Страна производства</label>
-                <input type="text" v-model="productCountryOfManufacture" :readonly="props.isReadonly"
+                <select v-model="productCountryOfManufacture" name="countriesOfManufacture" id="countriesOfManufacture"
+                    class="form-select"
+                    :class="{ 'validation-error': validationError.productCountryOfManufacture.length > 0 }">
+                    <option v-for="item in props.countriesOfManufacture" :value="item.name_ru">{{ item.name_ru }}
+                    </option>
+                </select>
+                <!-- <input type="text" v-model="productCountryOfManufacture" :readonly="props.isReadonly"
                     :class="{ 'validation-error': validationError.productCountryOfManufacture.length > 0 }"
-                    class="form-control" id="productCountryOfManufacture" placeholder="Страна производства">
+                    class="form-control" id="productCountryOfManufacture" placeholder="Страна производства"> -->
             </div>
 
             <!-- product composition -->

@@ -6,8 +6,10 @@ import { useProductsStore } from '@/stores/productsStore';
 import IconArrowLeftShort from './icons/IconArrowLeftShort.vue';
 import IconPlusLg from './icons/IconPlusLg.vue';
 import IconPlusSquare from './icons/IconPlusSquare.vue';
+import { useAdditionalProductData } from '@/stores/additionProductData';
 
 const productsStore = useProductsStore();
+const additionalProductData = useAdditionalProductData()
 
 const props = defineProps({
     userIsAuthorized: {
@@ -86,7 +88,8 @@ const productFormIsEditable = ref(false)
         <!-- форма продукта -->
         <div class="container px-1">
             <ProductForm :product="productsStore.product" :product-category="productsStore.product.category_id"
-                :categories="productsStore.categories" :is-readonly="!productFormIsEditable" @submit-form=""
+                :categories="productsStore.categories" :is-readonly="!productFormIsEditable"
+                :countries-of-manufacture="additionalProductData.countriesOfManufacture" @submit-form=""
                 @cancel-form="() => productFormIsEditable = false" />
         </div>
     </div>
