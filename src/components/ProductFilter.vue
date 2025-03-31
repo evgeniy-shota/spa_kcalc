@@ -10,6 +10,10 @@ import IconCheckSquareSm from './icons/IconCheckSquareSm.vue';
 import IconCheckSquareFillSm from './icons/IconCheckSquareFillSm.vue';
 
 const props = defineProps({
+    categoriesGroup: {
+        type: Array,
+        default: () => [],
+    },
     categories: {
         type: Array,
         default: () => [],
@@ -242,7 +246,23 @@ function checkboxClasses(value, disableForUnauthorized = true) {
                         <li v-show="props.categories.length == 0">
                             <div class="form-text">Нет данных</div>
                         </li>
-                        <li v-for="item in props.categories" :key="item.id">
+                        <li v-for="itemGroup in props.categoriesGroup">
+                            <div class="mb-1">
+                                {{ itemGroup.name }}
+                            </div>
+                            <ul class="list-group list-group-flush px-2">
+                                <li v-for="item in itemGroup.categories.data" :key="item.id">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" :value="item.id"
+                                            v-model="selectedCategories" :id="'categoryFilter1' + item.id">
+                                        <label class="form-check-label" :for="'categoryFilter1' + item.id">
+                                            {{ item.name }}
+                                        </label>
+                                    </div>
+                                </li>
+                            </ul>
+                        </li>
+                        <!-- <li v-for="item in props.categories" :key="item.id">
                             <div class="form-check">
                                 <input class="form-check-input" type="checkbox" :value="item.id"
                                     v-model="selectedCategories" :id="'categoryFilter1' + item.id">
@@ -250,7 +270,7 @@ function checkboxClasses(value, disableForUnauthorized = true) {
                                     {{ item.name }}
                                 </label>
                             </div>
-                        </li>
+                        </li> -->
                     </ul>
                 </div>
             </div>

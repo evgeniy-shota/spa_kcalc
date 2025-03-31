@@ -11,9 +11,13 @@ const props = defineProps(
             type: Number,
             default: null,
         },
+        categoriesGroup: {
+            type: Array,
+            default: () => [],
+        },
         categories: {
             type: Array,
-            default: [],
+            default: () => [],
         },
         productSavedSuccessful: {
             type: Boolean,
@@ -24,6 +28,10 @@ const props = defineProps(
             default: true,
         },
         countriesOfManufacture: {
+            type: Array,
+            default: () => [],
+        },
+        manufacturer: {
             type: Array,
             default: () => [],
         },
@@ -44,22 +52,29 @@ const emit = defineEmits(
     }
 );
 
-const optionForNewCategory = ref('new')
+const optionForNewCategory = ref(-1)
+const optionForNewCategoriesGroup = ref(-1)
+const optionForNewManufacturer = ref(-1)
+
 const productName = ref('');
 const productDescription = ref('');
 const productComposition = ref('');
 const productQuantity = ref(100);
-const productQuantityType = ref('weight');
+const productQuantityType = ref('gr');
 const productKcalory = ref(0);
 const productCarbohydrates = ref(0);
 const productProteins = ref(0);
 const productFats = ref(0);
 const productNutrientVitamine = ref({});
-const productManufacturer = ref('');
-const productCountryOfManufacture = ref('');
+const productManufacturer = ref(null);
+const productCountryOfManufacture = ref(null);
 
-const selectedCategory = ref(-1);
+const selectedCategory = ref(null);
+const selectedCategoriesGroup = ref(null);
+const selectedManufacturer = ref(null);
 const newCategoryName = ref('');
+const newCategoriesGroupName = ref('');
+const newManufacturerName = ref('');
 
 const validationError = ref({
 
@@ -124,8 +139,8 @@ watch(() => props.productSavedSuccessful, () => {
         productProteins.value = 0;
         productFats.value = 0;
         productNutrientVitamine.val = {};
-        productManufacturer.value = '';
-        productCountryOfManufacture.value = '';
+        productManufacturer.value = null;
+        productCountryOfManufacture.value = null;
 
         selectedCategory.value = -1;
         newCategoryName.value = '';
@@ -206,6 +221,9 @@ function submitForm() {
         name: newCategoryName.value,
         description: ''
     }
+    console.log('submitForm: ')
+    console.log(product)
+    console.log(category)
     emit('submitForm', product, category);
 }
 
@@ -221,8 +239,8 @@ function clearForm() {
     productProteins.value = 0;
     productFats.value = 0;
     productNutrientVitamine.value = {};
-    productManufacturer.value = '';
-    productCountryOfManufacture.value = '';
+    productManufacturer.value = null;
+    productCountryOfManufacture.value = null;
 }
 
 function cancelForm() {
@@ -250,6 +268,7 @@ function cancelForm() {
                 </div>
             </div>
 
+            <!-- Product Name -->
             <div class="mb-2">
                 <label for="productName" class="form-label mb-1"
                     :class="{ 'required-input': !props.isReadonly }">Название
@@ -258,10 +277,37 @@ function cancelForm() {
                     :class="{ 'validation-error': validationError.productName.length > 0 }" class="form-control"
                     id="productName" placeholder="Название продукта" aria-describedby="productNameHelpBlock">
                 <div class="form-text text-danger my-0">{{ validationError.productName }}</div>
-                <div v-if="!props.isReadonly" id="productNameHelpBlock" class="form-text my-0">Название длиной не более
-                    200 символов</div>
+                <div v-if="!props.isReadonly" id="productNameHelpBlock" class="form-text my-0">
+                    Название длиной не более 200 символов
+                </div>
             </div>
 
+            <!-- Product quantity and units -->
+            <div class="row mb-2">
+                <div class="col-6 col-sm">
+                    <label for="" class="form-label mb-1">Вес (гр) или Объём (мл)</label>
+                    <input type="text" v-model="productQuantity" :readonly="props.isReadonly" name="productQuantity"
+                        id="productQuantity" class="form-control">
+                    <div v-if="!props.isReadonly" id="productQuantityHelpBlock" class="form-text my-0">
+                        От 0 до 10000
+                    </div>
+                </div>
+                <div class="col-6 col-sm">
+                    <label for="" class="form-label mb-1">Единицы измерения</label>
+                    <select name="productUnits" v-model="productQuantityType" id="productUnits" class="form-select">
+                        <option selected value="gr">грамм</option>
+                        <option value="ml">миллилитр</option>
+                    </select>
+                    <div v-if="!props.isReadonly" id="productUnitsHelpBlock" class="form-text my-0">
+
+                    </div>
+                    <!-- <input type="text" name="unitsOfProduct" id="unitsOfProduct" class="form-control"> -->
+                </div>
+            </div>
+
+            <div class="mb-1">
+                Пищевая ценность, на 100 грамм или миллилитров:
+            </div>
             <div class="row mb-2">
                 <div class="col-6 col-sm">
                     <label for="productKcalory" class="form-label mb-1"
@@ -318,31 +364,50 @@ function cancelForm() {
             <!-- category selsect -->
             <div v-else>
                 <div class="mb-2">
-                    <label class="form-label required-input mb-1" for="">Группа продукта</label>
-                    <select class="form-select" name="categoryGroup" id="categoryGroup">
-                        <option value="-1">Выберите группу</option>
-                        <option value="">группа 1</option>
-                    </select>
-                </div>
-
-                <div class="mb-2">
                     <label class="form-label required-input mb-1" for="categoriesSelect">Катеория продукта</label>
-
                     <select v-model="selectedCategory" :disabled="props.isReadonly"
                         :class="{ 'validation-error': validationError.categoriesSelect }" class="form-select"
                         id="categoriesSelect" aria-label="categorySelect" aria-describedby="categorySelectHelpBlock">
-                        <option value="-1">Выберирте категорию</option>
-                        <option :value="optionForNewCategory">Создать свою категорию</option>
-                        <option v-for="element in props.categories" :value="element.id">{{ element.name }}</option>
+                        <option value="">Выберирте категорию</option>
+                        <option :value="optionForNewCategory">+ Создать свою категорию</option>
+                        <optgroup v-for="itemGroup in props.categoriesGroup" :key="itemGroup.id"
+                            :label="itemGroup.name">
+                            <option v-for="item in itemGroup.categories.data" :value="item.id">{{ item.name }}</option>
+                        </optgroup>
                     </select>
 
                     <div class="form-text text-danger my-0">{{ validationError.categoriesSelect }}</div>
                     <div id="categorySelectHelpBlock" class="form-text my-0">
-                        Для создания категории выберите "Создать свою категорию"</div>
+                        Для создания новой категории выберите "Создать свою категорию"
+                    </div>
                 </div>
 
                 <!-- new category input -->
-                <div v-show="selectedCategory == optionForNewCategory" class="mb-2">
+                <div v-show="selectedCategory == optionForNewCategory"
+                    class="mb-2 p-2 px-3 mx-3 border rounded border-secondary-subtle">
+                    <div class="mb-2">
+                        <label class="form-label required-input mb-1" for="">Группа категории</label>
+                        <select v-model="selectedCategoriesGroup" class="form-select" name="categoryGroup"
+                            id="categoryGroup">
+                            <option value="">Выберите группу </option>
+                            <option :value="optionForNewCategoriesGroup">+ Создать новую группу </option>
+                            <option v-for="item in props.categoriesGroup" :value="item.id">{{ item.name }}</option>
+                        </select>
+                        <div id="categoryGroupHelpBlock" class="form-text my-0">
+                            Выберите группу для новой категории
+                        </div>
+                    </div>
+
+                    <div v-if="selectedCategoriesGroup === optionForNewCategoriesGroup" class="mb-2 px-2">
+                        <label for="" class="form-label required-input mb-1">
+                            Название новой группы
+                        </label>
+                        <input v-model="newCategoriesGroupName" type="text" name="newCategoriesGroupName"
+                            id="newCategoriesGroupName" class="form-control">
+                        <div id="newCategoriesGroupNameHelpBlock" class="form-text my-0">
+                            Выберите название новой группы
+                        </div>
+                    </div>
 
                     <label class="form-label required-input mb-1" for="newCategoryName">Название новой катеории</label>
                     <input v-model="newCategoryName" :readonly="props.isReadonly" type="text" class="form-control"
@@ -356,18 +421,39 @@ function cancelForm() {
             <!-- product manufacturer -->
             <div class="mb-2">
                 <label class="form-label mb-1" for="productManufacturer">Производитель</label>
-                <input type="text" v-model="productManufacturer" :readonly="props.isReadonly"
+                <select class="form-select" :readonly="props.isReadonly" v-model="productManufacturer"
+                    :class="{ 'validation-error': validationError.productManufacturer.length > 0 }"
+                    name="productManufacturer" id="productManufacturer">
+                    <option selected value="">Выберите производителя</option>
+                    <option :value="optionForNewManufacturer">+ Добавить производителя</option>
+                    <option v-for="item in props.manufacturer" :value="item.id">{{ item.name }}</option>
+                </select>
+                <div id="productManufacturerHelpBlock" class="form-text my-0">
+                    Для добавления нового производителя выберите "Добавить произодителя"
+                </div>
+
+                <div v-if="productManufacturer === optionForNewManufacturer" class="mb-1 border rounded p-2 px-3 m-2">
+                    <label for="newProductManufacturer" class="form-label mb-1">Название нового производителя</label>
+                    <input v-model="newManufacturerName" type="text" name="newProductManufacturer"
+                        id="newProductManufacturer" class="form-control">
+                    <div id="productManufacturerHelpBlock" class="form-text my-0">
+                        Введите название произодителя
+                    </div>
+                </div>
+                <!-- <input type="text" v-model="productManufacturer" :readonly="props.isReadonly"
                     :class="{ 'validation-error': validationError.productManufacturer.length > 0 }" class="form-control"
-                    id="productManufacturer" placeholder="Производитель">
+                    id="productManufacturer" placeholder="Производитель"> -->
             </div>
 
             <!-- product country Of Manufacture -->
             <div class="mb-2">
                 <label class="form-label mb-1" for="productCountryOfManufacture">Страна производства</label>
-                <select v-model="productCountryOfManufacture" name="countriesOfManufacture" id="countriesOfManufacture"
-                    class="form-select"
+                <select v-model="productCountryOfManufacture" placeholder="Выберите страну"
+                    name="countriesOfManufacture" id="countriesOfManufacture" class="form-select"
                     :class="{ 'validation-error': validationError.productCountryOfManufacture.length > 0 }">
-                    <option v-for="item in props.countriesOfManufacture" :value="item.name_ru">{{ item.name_ru }}
+                    <option value="null">Выберите страну</option>
+                    <option v-for="item in props.countriesOfManufacture" :value="item.id">{{
+                        item.name_ru }}
                     </option>
                 </select>
                 <!-- <input type="text" v-model="productCountryOfManufacture" :readonly="props.isReadonly"

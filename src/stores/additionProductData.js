@@ -1,10 +1,11 @@
 import axios_instance from '@/resource/js/axiosInstance'
 import { defineStore } from 'pinia'
-import { ref } from 'vue'
+import { computed, ref } from 'vue'
 
 const URL_ADDITIONAL_DATA = '/api/additional-products-data'
 
 export const useAdditionalProductData = defineStore('additionalProductData', () => {
+  const allCategoriesGroup = ref([])
   const allCategories = ref([])
   const countriesOfManufacture = ref([])
   const dataSource = ref([])
@@ -14,13 +15,22 @@ export const useAdditionalProductData = defineStore('additionalProductData', () 
   const carbohydratesLimits = ref([])
   const fatsLimits = ref([])
 
+  function categoriesList(catGroup) {
+    let categories = []
+    for (let i = 0; i < catGroup.length; i++) {
+      categories = categories.concat(catGroup[i].categories.data)
+    }
+    return categories
+  }
+
   async function getData() {
     try {
       const response = await axios_instance.get(URL_ADDITIONAL_DATA)
 
       if (response) {
         console.log(response.data)
-        allCategories.value = response.data.categories.data
+        allCategoriesGroup.value = response.data.categoriesGroup.data
+        allCategories.value = categoriesList(allCategoriesGroup.value)
         countriesOfManufacture.value = response.data.country_of_manufactory.data
         dataSource.value = response.data.data_source.data
 
@@ -56,6 +66,7 @@ export const useAdditionalProductData = defineStore('additionalProductData', () 
   }
 
   return {
+    allCategoriesGroup,
     allCategories,
     countriesOfManufacture,
     dataSource,

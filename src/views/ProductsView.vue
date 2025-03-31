@@ -37,6 +37,7 @@ const saveNewProductResult = ref(false);
 
 const propsForModalFilter = computed(() => {
     return {
+        categoriesGroup: additionalProductDataStore.allCategoriesGroup,
         categories: additionalProductDataStore.allCategories,
         dataSource: additionalProductDataStore.dataSource,
         countries: additionalProductDataStore.countriesOfManufacture,
@@ -288,8 +289,8 @@ async function saveNewProduct(product, category) {
 
         <template #main="{ categories, dataSource, countries, isApplyFilter, isClearFilter, applyFilter, clearFilter,
             caloryLimits, proteinsLimits, carbohydratesLimits, fatsLimits, productsFilterDefaultVal,
-            currentCategoryId, userIsAuthorized }">
-            <ProductFilter :products-filter-default-val="productsFilterDefaultVal"
+            currentCategoryId, userIsAuthorized, categoriesGroup }">
+            <ProductFilter :products-filter-default-val="productsFilterDefaultVal" :categories-group="categoriesGroup"
                 :user-is-authorized="userIsAuthorized" :currentCategoryId="currentCategoryId" :categories="categories"
                 :data-source="dataSource" :countries="countries" @apply-filter="applyFilter" @clear-filter="clearFilter"
                 :is-apply-filter="isApplyFilter" :is-clear-filter="isClearFilter" :calory-limit="caloryLimits"

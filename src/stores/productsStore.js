@@ -9,6 +9,7 @@ const URL_API_CATEGORY_GROUPS = 'api/category-groups/'
 const URL_API_CATEGORIES = 'api/categories/'
 const URL_API_PRODUCTS = 'api/products/'
 const URL_API_PRODUCT = 'api/products/'
+const URL_API_PRODUCT_CREATE = 'api/products/create/'
 
 const URL_CATEGORIES = 'api/categories/'
 const URL_PRODUCTS = 'api/products/'
@@ -361,7 +362,7 @@ export const useProductsStore = defineStore('products', () => {
 
   async function addNewProduct(product, category) {
     try {
-      const response = await axios_instance.post(URL_API_PRODUCT, {
+      const response = await axios_instance.post(URL_API_PRODUCT_CREATE, {
         product: product,
         category: category,
       })

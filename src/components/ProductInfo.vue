@@ -29,6 +29,10 @@ const emit = defineEmits({
 
 const productFormIsEditable = ref(false)
 
+function submitProductForm(product, category) {
+    emit('submitProductForm', product, category);
+}
+
 </script>
 
 <template>
@@ -87,10 +91,12 @@ const productFormIsEditable = ref(false)
 
         <!-- форма продукта -->
         <div class="container px-1">
+
             <ProductForm :product="productsStore.product" :product-category="productsStore.product.category_id"
-                :categories="productsStore.categories" :is-readonly="!productFormIsEditable"
-                :countries-of-manufacture="additionalProductData.countriesOfManufacture" @submit-form=""
-                @cancel-form="() => productFormIsEditable = false" />
+                :categories-group="productsStore.categoriesGroupList" :categories="productsStore.categories"
+                :is-readonly="!productFormIsEditable"
+                :countries-of-manufacture="additionalProductData.countriesOfManufacture"
+                @submit-form="submitProductForm" @cancel-form="() => productFormIsEditable = false" />
         </div>
     </div>
 
