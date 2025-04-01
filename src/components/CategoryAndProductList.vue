@@ -121,6 +121,12 @@ const emit = defineEmits({
         }
         return false;
     },
+    editCategoriesGroup: (id, index) => {
+        if (id, index) {
+            return true
+        }
+        return true
+    },
     editCategory: (id, index) => {
         if (id, index) {
             return true
@@ -283,6 +289,11 @@ function changeProductHiddenStatus(id, status, index) {
     emit('changeProductHiddenStatus', id, status, index);
 }
 
+function editCategoriesGroup(id, index) {
+    console.log('editCategory: ' + id);
+    emit('editCategoriesGroup', id, index);
+}
+
 function editCategory(id, index) {
     console.log('editCategory: ' + id);
     emit('editCategory', id, index);
@@ -432,7 +443,7 @@ function scrollList(event) {
             <ListWithControls :user-is-authorized="props.userIsAuthorized" :data="props.categories" data-type="category"
                 :is-data-found="props.isCategoriesFound" @select-element="selectCategory"
                 @change-favorite-status="changeCategoryFavorieStatus" @change-hidden-status="changeCategoryHiddenStatus"
-                @edit-elemet="editCategory" />
+                @edit-element="editCategory" />
         </div>
         <div id="productsSlide" @scroll="scrollList($event)" v-show="currentSlide == 3" class="slide ps-2 pe-2">
             <ListWithControls :user-is-authorized="props.userIsAuthorized"

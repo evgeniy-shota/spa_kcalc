@@ -75,7 +75,7 @@ const emit = defineEmits({
         return false
     },
     editElement: (id, index) => {
-        if (id && index) {
+        if (id !== null && index !== null) {
             return true
         }
         return false
@@ -120,7 +120,7 @@ function changeElementFavoriteStatus(id, status, index) {
 }
 
 function editElement(id, index) {
-    console.log('eidt element - ' + id)
+    // console.log('eidt element - ' + id + ' - ' + index)
     emit('editElement', id, index);
 }
 

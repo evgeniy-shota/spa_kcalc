@@ -1,10 +1,6 @@
 <script setup>
 import { onUnmounted, onUpdated, ref } from 'vue'
-import IconThreeDotsVertical from './icons/IconThreeDotsVertical.vue'
-import IconStar from './icons/IconStar.vue'
-import IconStarFill from './icons/IconStarFill.vue'
-import IconBookmarkStarFill from './icons/IconBookmarkStarFill.vue'
-import IconBookmarkStar from './icons/IconBookmarkStar.vue'
+
 
 import ListItem from './ListItem.vue'
 
@@ -55,8 +51,8 @@ const emit = defineEmits({
     }
     return false
   },
-  editElemet: (id, index) => {
-    if (id && index) {
+  editElement: (id, index) => {
+    if (id !== null && index !== null) {
       return true
     }
     return false
@@ -66,11 +62,13 @@ const emit = defineEmits({
 function changeFavoriteStatus(id, status, index) {
   emit('changeFavoriteStatus', id, status, index);
 }
+
 function changeHiddenStatus(id, status, index) {
   emit('changeHiddenStatus', id, status, index);
 }
-function editElemet(id, index) {
-  emit('editElemet', id, index);
+
+function editElement(id, index) {
+  emit('editElement', id, index);
 }
 
 function selectElement(id) {
@@ -109,7 +107,7 @@ function selectElement(id) {
       :description="item.description" :is-abstract="item.is_abstract" :is-personal="item.is_personal"
       :is-favorite="item.is_favorite" :is-hidden="item.is_hidden" @select-element="selectElement"
       @change-favorite-status="changeFavoriteStatus" @change-hidden-status="changeHiddenStatus"
-      @edit-element="editElemet">
+      @edit-element="editElement">
 
       <template v-if="props.dataType === 'product'" #elementData="{ kcalory, proteins, carbohydrates, fats }">
         <div class="d-flex gap-2 mb-1">

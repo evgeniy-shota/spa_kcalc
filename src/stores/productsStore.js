@@ -35,6 +35,9 @@ export const useProductsStore = defineStore('products', () => {
   const productsPrevCursor = ref('')
   const productsNextCursor = ref('')
   const isProductsFound = ref(true)
+  const indexOfEditableProduct = ref(null)
+  const indexOfEditableCategory = ref(null)
+  const indexOfEditableCategoriesGroup = ref(null)
   const allCategories = ref([])
   const categoriesGroupSortParams = ref(CategoryGroupParams.default.key)
   const categoriesSortParams = ref(CategoryParams.default.key)
@@ -75,6 +78,9 @@ export const useProductsStore = defineStore('products', () => {
   const isProductFound = ref(true)
 
   function $reset() {
+    indexOfEditableProduct.value = null
+    indexOfEditableCategory.value = null
+    indexOfEditableCategoriesGroup.value = null
     categoriesGroup.value.length = 0
     currentCategoryGroup.value = {
       id: null,
@@ -306,7 +312,6 @@ export const useProductsStore = defineStore('products', () => {
 
       if (response) {
         isProductsFound.value = response.data.count > 0 ? true : false
-
         currentCategory.value = {
           id: category_id,
           name: null,
@@ -360,26 +365,6 @@ export const useProductsStore = defineStore('products', () => {
     }
   }
 
-  async function addNewProduct(product, category) {
-    try {
-      const response = await axios_instance.post(URL_API_PRODUCT_CREATE, {
-        product: product,
-        category: category,
-      })
-
-      if (response.status == 201) {
-        console.log('New product addeded')
-        console.log(response)
-        return true
-      }
-      return false
-    } catch (error) {
-      console.log('Add new product fail')
-      console.log(error)
-      return false
-    }
-  }
-
   async function changeCategoryGroup(id, data, categoriesGroupIndex) {
     try {
       const response = await axios_instance.patch(URL_API_CATEGORY_GROUPS + id, {
@@ -404,7 +389,6 @@ export const useProductsStore = defineStore('products', () => {
   async function changeCategory(id, data, index) {
     try {
       const response = await axios_instance.patch(URL_API_CATEGORIES + id, {
-        user_id: data.user_id,
         category_group_id: data.category_group_id,
         name: data.name,
         description: data.description,
@@ -422,6 +406,19 @@ export const useProductsStore = defineStore('products', () => {
     } catch (error) {
       console.log('changeCategory fail')
       console.log(error)
+    }
+  }
+
+  async function addCategory(data) {
+    let newData = data
+    try {
+      const response = await axios_instance.post(URL_API_CATEGORIES, newData)
+      if (response) {
+        categories.value = response.data.data.categories.data
+      }
+    } catch (error) {
+      console.warn('Add category fail...')
+      console.warn(error)
     }
   }
 
@@ -469,7 +466,30 @@ export const useProductsStore = defineStore('products', () => {
     }
   }
 
+  async function addNewProduct(product, category) {
+    try {
+      const response = await axios_instance.post(URL_API_PRODUCT_CREATE, {
+        product: product,
+        category: category,
+      })
+
+      if (response.status == 201) {
+        console.log('New product addeded')
+        console.log(response)
+        return true
+      }
+      return false
+    } catch (error) {
+      console.log('Add new product fail')
+      console.log(error)
+      return false
+    }
+  }
+
   return {
+    indexOfEditableProduct,
+    indexOfEditableCategory,
+    indexOfEditableCategoriesGroup,
     categoriesGroupSortParams,
     categoriesSortParams,
     productsSortParams,
@@ -497,6 +517,7 @@ export const useProductsStore = defineStore('products', () => {
     getProduct,
     getFilteredProducts,
     addNewProduct,
+    addCategory,
     changeCategoryGroup,
     changeCategory,
     changeProduct,

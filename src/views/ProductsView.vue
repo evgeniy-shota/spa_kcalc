@@ -5,6 +5,7 @@ import ProductInfo from '@/components/ProductInfo.vue';
 import ProductFilter from '@/components/ProductFilter.vue';
 import ModalWindow from '@/components/ModalWindow.vue';
 import ProductForm from '@/components/ProductForm.vue';
+import CategoryForm from '@/components/CategoryForm.vue';
 import { useProductsStore } from '@/stores/productsStore';
 import { useUsersStore } from '@/stores/usersStore';
 import Offcanv from '@/components/Offcanv.vue';
@@ -20,6 +21,8 @@ const productsStore = useProductsStore();
 const additionalProductDataStore = useAdditionalProductData();
 // const userStore = useUsersStore();
 
+// settings for desplaing two columm (1 -product list and 2 - product info) 
+// or 1 column (product list) with offset canvas (product info)
 const showTwoCol = ref(true);
 
 onMounted(() => {
@@ -31,9 +34,24 @@ const isShowProductFilter = ref(false)
 const isShowFilteredProducts = ref(false)
 const isApplyFilter = ref(false)
 const isClearFilter = ref(false)
+const isApplyCategoryForm = ref(false)
+const isClearCategoryForm = ref(false)
+const isApplyCategoriesGroupForm = ref(false)
+const isClearCategoriesGroupForm = ref(false)
 const isShowNewProductWindow = ref(false);
+const isShowCategoryFormWindow = ref(false);
 const isShowProductInfoWindow = ref(false);
 const saveNewProductResult = ref(false);
+
+const propsForModalCategoryForm = computed(() => {
+    return {
+        submitForm: saveCategory,
+        cancel: hideCategoryFormWindow,
+        applyCategoryForm: () => isApplyCategoryForm.value = true,
+        isApplyCategoryForm: isApplyCategoryForm.value,
+        isCancelCategoryForm: isClearCategoryForm.value,
+    }
+});
 
 const propsForModalFilter = computed(() => {
     return {
@@ -195,7 +213,6 @@ function applyProductsSort(sortParams) {
     productsStore.productsSortParams = sortParams
 }
 
-
 function hideFilteredProducts() {
     productsStore.clearProductFilter();
     isShowFilteredProducts.value = false
@@ -243,15 +260,19 @@ function changeProductHiddenStatus(id, status, index) {
     }, index);
 }
 
-function editCategory(id, index) {
+function editCategory(id = null, index = null) {
     console.log('ProductView - editCategory: ' + id)
+    if (index !== null) {
+        productsStore.editableCategory = index
+    } else {
+        productsStore.editableCategory = null
+    }
+    showCategoryFormWindow()
 }
 
 function editProduct(id, index) {
     console.log('ProductView - editProduct: ' + id)
 }
-
-
 
 async function saveNewProduct(product, category) {
     console.log('save new product');
@@ -262,26 +283,60 @@ async function saveNewProduct(product, category) {
         saveNewProductResult.value = true;
         hideNewProductWindow();
     }
-
 }
+
+function showCategoryFormWindow() {
+    console.log('show cat form');
+    isClearCategoryForm.value = false;
+    isShowCategoryFormWindow.value = true
+}
+
+function hideCategoryFormWindow() {
+    isClearCategoryForm.value = true;
+    isShowCategoryFormWindow.value = false
+    isApplyCategoryForm.value = false
+}
+
+async function saveCategory(category, index) {
+    // console.log('save category')
+    // console.log(category)
+    isApplyCategoryForm.value = false
+    if (index === -1) {
+        productsStore.addCategory(category)
+    } else {
+        productsStore.changeCategory(category.id, category, index);
+    }
+}
+
 </script>
 
 <template>
 
+    <ModalWindow :show-window="isShowCategoryFormWindow" title="Добавление новой категории"
+        @close-window="hideCategoryFormWindow" :props-for-slots="propsForModalCategoryForm">
+        <template #main="{ name, description, categoriesGroups, categoriesGroup, submitForm, isApplyCategoryForm }">
+            <CategoryForm :name="name" :description="description" :categories-group="categoriesGroup"
+                :categories-groups="categoriesGroups" @submit-form="submitForm"
+                :is-apply-category-changes="isApplyCategoryForm" />
+        </template>
+
+        <template #footer="{ applyCategoryForm, cancel }">
+            <button @click="applyCategoryForm" class="btn btn-primary me-2" type="button">Добавить</button>
+            <button @click="cancel" class="btn btn-secondary me-2">Отменить</button>
+        </template>
+    </ModalWindow>
+
     <ModalWindow :show-window="isShowNewProductWindow" title="Добавление нового продукта"
         @close-window="hideNewProductWindow" :props-for-slots="propsForModalWindowSlots">
-
         <!-- <template #main="{ propsForSlot }">
             <ProductForm @submit-form="propsForSlot.saveNewProduct" :product="propsForSlot.product"
                 :product-saved-successful="propsForSlot.saveNewProductResult" :categories="propsForSlot.categories"
                 :is-readonly="propsForSlot.isReadonly" />
         </template> -->
-
         <template #main="{ saveNewProduct, product, categories, saveNewProductResult, isReadonly }">
             <ProductForm @submit-form="saveNewProduct" :product="product"
                 :product-saved-successful="saveNewProductResult" :categories="categories" :is-readonly="isReadonly" />
         </template>
-
     </ModalWindow>
 
     <ModalWindow :show-window="isShowProductFilter" title="Расширенный фильтр" @close-window="hideProductFilter"
@@ -348,7 +403,8 @@ async function saveNewProduct(product, category) {
     <!-- small col -->
 
     <div v-if="showTwoCol" style="max-height: 100%;" class="col">
-        <ProductInfo :user-is-authorized="userStore.userIsAuthorized" @submit-product-form="saveNewProduct" />
+        <ProductInfo :user-is-authorized="userStore.userIsAuthorized" @submit-product-form="saveNewProduct"
+            @show-category-form-window="editCategory" />
     </div>
 
 </template>

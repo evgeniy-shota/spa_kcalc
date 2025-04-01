@@ -24,13 +24,20 @@ const emit = defineEmits({
             return true
         }
         return false
-    }
+    },
+    showCategoryFormWindow: () => {
+        return true
+    },
 });
 
 const productFormIsEditable = ref(false)
 
 function submitProductForm(product, category) {
     emit('submitProductForm', product, category);
+}
+
+function showCategoryFromWindow() {
+    emit('showCategoryFormWindow');
 }
 
 </script>
@@ -96,7 +103,8 @@ function submitProductForm(product, category) {
                 :categories-group="productsStore.categoriesGroupList" :categories="productsStore.categories"
                 :is-readonly="!productFormIsEditable"
                 :countries-of-manufacture="additionalProductData.countriesOfManufacture"
-                @submit-form="submitProductForm" @cancel-form="() => productFormIsEditable = false" />
+                @submit-form="submitProductForm" @cancel-form="() => productFormIsEditable = false"
+                @show-category-form-window="showCategoryFromWindow" />
         </div>
     </div>
 

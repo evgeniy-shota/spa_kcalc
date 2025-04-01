@@ -48,7 +48,16 @@ const emit = defineEmits(
         },
         cancelForm: () => {
             return true;
-        }
+        },
+        showCategoryFormWindow: () => {
+            return true
+        },
+        showCategoriesGroupFromWindow: () => {
+            return true
+        },
+        showManufacturerFormWindow: () => {
+            return true
+        },
     }
 );
 
@@ -66,7 +75,6 @@ const productCarbohydrates = ref(0);
 const productProteins = ref(0);
 const productFats = ref(0);
 const productNutrientVitamine = ref({});
-const productManufacturer = ref(null);
 const productCountryOfManufacture = ref(null);
 
 const selectedCategory = ref(null);
@@ -84,7 +92,6 @@ const validationError = ref({
     productProteins: '',
     productFats: '',
     categoriesSelect: '',
-    newCategoryName: '',
     productManufacturer: '',
     productCountryOfManufacture: '',
     productComposition: '',
@@ -110,12 +117,30 @@ const nutrientAndVitamins = computed(() => {
     return Object.entries(props.product.nutrientAndVitamines);
 });
 
+// watch(selectedCategory, () => {
+//     if (selectedCategory.value === optionForNewCategory.value) {
+//         emit('showNewCategoryWindow');
+//     }
+// });
+
+// watch(selectedCategoriesGroup, () => {
+//     if (selectedCategoriesGroup.value === optionForNewCategoriesGroup.value) {
+//         emit('showNewCategoriesGroupWindow');
+//     }
+// });
+
+// watch(selectedManufacturer, () => {
+//     if (selectedCategoriesGroup.value === optionForNewManufacturer.value) {
+//         emit('showNewManufacturerWindow');
+//     }
+// });
+
 watch(() => props.product, () => {
     console.log('watch product');
     productName.value = props.product.name;
     productDescription.value = props.product.description;
     productComposition.value = props.product.composition;
-    productManufacturer.value = props.product.manufacturer;
+    selectedManufacturer.value = props.product.manufacturer;
     productCountryOfManufacture.value = props.product.countryOfManufacture;
     productQuantity.value = props.product.quantity;
     productQuantityType.value = props.product.quantityType;
@@ -139,7 +164,7 @@ watch(() => props.productSavedSuccessful, () => {
         productProteins.value = 0;
         productFats.value = 0;
         productNutrientVitamine.val = {};
-        productManufacturer.value = null;
+        selectedManufacturer.value = null;
         productCountryOfManufacture.value = null;
 
         selectedCategory.value = -1;
@@ -202,18 +227,38 @@ function submitForm() {
         return 0;
     }
 
-    let product = {
+    let data = {
         name: productName.value,
         description: productDescription.value,
         quantity: productQuantity.value,
         composition: productComposition.value,
-        manufacturer: productManufacturer.value,
-        country_of_manufacture: productCountryOfManufacture.value,
         kcalory: productKcalory.value,
         proteins: productProteins.value,
         carbohydrates: productCarbohydrates.value,
         fats: productFats.value,
+        country_of_manufacture: productCountryOfManufacture.value,
         nutrients_and_vitamins: productNutrientVitamine.value,
+
+        category_id: selectedCategory.value,
+        new_category_name: newCategoryName.value,
+        categories_group_id: selectedCategoriesGroup.value,
+        new_categories_group_name: newCategoriesGroupName.value,
+        manufacturer_id: selectedManufacturer.value,
+        new_manufacturer_name: newManufacturerName.value,
+    }
+
+    let product = {
+        // name: productName.value,
+        // description: productDescription.value,
+        // quantity: productQuantity.value,
+        // composition: productComposition.value,
+        // manufacturer: selectedManufacturer.value,
+        // country_of_manufacture: productCountryOfManufacture.value,
+        // kcalory: productKcalory.value,
+        // proteins: productProteins.value,
+        // carbohydrates: productCarbohydrates.value,
+        // fats: productFats.value,
+        // nutrients_and_vitamins: productNutrientVitamine.value,
     }
 
     let category = {
@@ -221,6 +266,7 @@ function submitForm() {
         name: newCategoryName.value,
         description: ''
     }
+
     console.log('submitForm: ')
     console.log(product)
     console.log(category)
@@ -239,13 +285,17 @@ function clearForm() {
     productProteins.value = 0;
     productFats.value = 0;
     productNutrientVitamine.value = {};
-    productManufacturer.value = null;
+    selectedManufacturer.value = null;
     productCountryOfManufacture.value = null;
 }
 
 function cancelForm() {
     console.log('Cancel product from')
     emit('cancelForm');
+}
+
+function createCategory() {
+    emit('showCategoryFormWindow');
 }
 
 </script>
@@ -363,57 +413,38 @@ function cancelForm() {
             </div>
             <!-- category selsect -->
             <div v-else>
-                <div class="mb-2">
-                    <label class="form-label required-input mb-1" for="categoriesSelect">Катеория продукта</label>
-                    <select v-model="selectedCategory" :disabled="props.isReadonly"
-                        :class="{ 'validation-error': validationError.categoriesSelect }" class="form-select"
-                        id="categoriesSelect" aria-label="categorySelect" aria-describedby="categorySelectHelpBlock">
-                        <option value="">Выберирте категорию</option>
-                        <option :value="optionForNewCategory">+ Создать свою категорию</option>
-                        <optgroup v-for="itemGroup in props.categoriesGroup" :key="itemGroup.id"
-                            :label="itemGroup.name">
-                            <option v-for="item in itemGroup.categories.data" :value="item.id">{{ item.name }}</option>
-                        </optgroup>
-                    </select>
+                <div class="row mb-2">
+                    <div class="col col-sm-8">
+                        <label class="form-label required-input mb-1" for="categoriesSelect">Катеория продукта</label>
+                        <select v-model="selectedCategory" :disabled="props.isReadonly"
+                            :class="{ 'validation-error': validationError.categoriesSelect }" class="form-select"
+                            id="categoriesSelect" aria-label="categorySelect"
+                            aria-describedby="categorySelectHelpBlock">
+                            <option value="">Выберирте категорию</option>
+                            <!-- <option :value="optionForNewCategory">+ Создать свою категорию</option> -->
+                            <optgroup v-for="itemGroup in props.categoriesGroup" :key="itemGroup.id"
+                                :label="itemGroup.name">
+                                <option v-for="item in itemGroup.categories.data" :value="item.id">{{ item.name }}
+                                </option>
+                            </optgroup>
+                        </select>
+                        <!-- <div class="form-text text-danger my-0">{{ validationError.categoriesSelect }}</div>
+                        <div id="categorySelectHelpBlock" class="form-text my-0">
+                            Для создания новой категории выберите "Создать свою категорию"
+                        </div> -->
+                    </div>
 
+                    <div class="col col-sm-4">
+                        <div class="form-label mb-1">Новая категория</div>
+                        <div class="d-grid">
+                            <button @click="createCategory" type="button"
+                                class="btn btn-outline-primary">Создать</button>
+                        </div>
+                    </div>
                     <div class="form-text text-danger my-0">{{ validationError.categoriesSelect }}</div>
                     <div id="categorySelectHelpBlock" class="form-text my-0">
-                        Для создания новой категории выберите "Создать свою категорию"
+                        Выберите категорию из списка или создайте новую, нажав кнопку "Создать"
                     </div>
-                </div>
-
-                <!-- new category input -->
-                <div v-show="selectedCategory == optionForNewCategory"
-                    class="mb-2 p-2 px-3 mx-3 border rounded border-secondary-subtle">
-                    <div class="mb-2">
-                        <label class="form-label required-input mb-1" for="">Группа категории</label>
-                        <select v-model="selectedCategoriesGroup" class="form-select" name="categoryGroup"
-                            id="categoryGroup">
-                            <option value="">Выберите группу </option>
-                            <option :value="optionForNewCategoriesGroup">+ Создать новую группу </option>
-                            <option v-for="item in props.categoriesGroup" :value="item.id">{{ item.name }}</option>
-                        </select>
-                        <div id="categoryGroupHelpBlock" class="form-text my-0">
-                            Выберите группу для новой категории
-                        </div>
-                    </div>
-
-                    <div v-if="selectedCategoriesGroup === optionForNewCategoriesGroup" class="mb-2 px-2">
-                        <label for="" class="form-label required-input mb-1">
-                            Название новой группы
-                        </label>
-                        <input v-model="newCategoriesGroupName" type="text" name="newCategoriesGroupName"
-                            id="newCategoriesGroupName" class="form-control">
-                        <div id="newCategoriesGroupNameHelpBlock" class="form-text my-0">
-                            Выберите название новой группы
-                        </div>
-                    </div>
-
-                    <label class="form-label required-input mb-1" for="newCategoryName">Название новой катеории</label>
-                    <input v-model="newCategoryName" :readonly="props.isReadonly" type="text" class="form-control"
-                        id="newCategoryName" placeholder="Название" aria-describedby="newCategoryNameHelpBlock">
-                    <div class="form-text text-danger my-0">{{ validationError.newCategoryName }}</div>
-                    <div id="newCategoryNameHelpBlock" class="form-text my-0">Введите название новой категоии</div>
                 </div>
             </div>
 
@@ -421,7 +452,7 @@ function cancelForm() {
             <!-- product manufacturer -->
             <div class="mb-2">
                 <label class="form-label mb-1" for="productManufacturer">Производитель</label>
-                <select class="form-select" :readonly="props.isReadonly" v-model="productManufacturer"
+                <select class="form-select" :readonly="props.isReadonly" v-model="selectedManufacturer"
                     :class="{ 'validation-error': validationError.productManufacturer.length > 0 }"
                     name="productManufacturer" id="productManufacturer">
                     <option selected value="">Выберите производителя</option>
@@ -432,7 +463,7 @@ function cancelForm() {
                     Для добавления нового производителя выберите "Добавить произодителя"
                 </div>
 
-                <div v-if="productManufacturer === optionForNewManufacturer" class="mb-1 border rounded p-2 px-3 m-2">
+                <div v-if="selectedManufacturer === optionForNewManufacturer" class="mb-1 border rounded p-2 px-3 m-2">
                     <label for="newProductManufacturer" class="form-label mb-1">Название нового производителя</label>
                     <input v-model="newManufacturerName" type="text" name="newProductManufacturer"
                         id="newProductManufacturer" class="form-control">
