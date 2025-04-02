@@ -24,14 +24,14 @@ const props = defineProps({
         type: Number,
         default: 70
     },
-    headerHeightProcent: {
-        type: Number,
-        default: 8
-    },
-    footerHeightProcent: {
-        type: Number,
-        default: 8
-    },
+    // headerHeightProcent: {
+    //     type: Number,
+    //     default: 8
+    // },
+    // footerHeightProcent: {
+    //     type: Number,
+    //     default: 8
+    // },
     propsForSlots: {
         type: Object,
         default: {},
@@ -46,7 +46,7 @@ watch(() => props.showWindow, () => {
     }
     modalMainSlot.value.scrollTop = 0
     // let element = document.getElementById('modalMainSlot');
-    console.log(modalMainSlot.value)
+    // console.log(modalMainSlot.value)
     // element.scrollTop = 0
 });
 
@@ -75,16 +75,16 @@ const modalWindowSize = computed(() => {
 });
 
 function mainSlotSize(slotHeader, slotFooter) {
-    let height = 95;
+    let height = 98;
     // console.log('main slot size');
     // console.log(slotHeader);
     // console.log(slotFooter);
     if (slotHeader) {
-        height -= props.header;
+        height -= 8;
     }
 
     if (slotFooter) {
-        height -= props.footer;
+        height -= 8;
     }
 
     return {
@@ -96,12 +96,13 @@ function mainSlotSize(slotHeader, slotFooter) {
 </script>
 
 <template>
-    <div @click="closeWindow($event)" :hidden="!props.showWindow" closeModalWindow class="modal-window-container">
+    <div @click="closeWindow($event)" :hidden="!props.showWindow" closeModalWindow class="modal-window-container"
+        role="dialog">
         <div class="card modal-window" :style="modalWindowSize">
-            <div class="card-header">
+            <div class="card-header p-1">
                 <div class="hstack">
-                    <div class="me-auto">
-                        <h5>{{ props.title }}</h5>
+                    <div class="me-auto px-2">
+                        <h5 class="m-0">{{ props.title }}</h5>
                     </div>
                     <button closeModalWindow id="closeModalWindow" class="btn btn-light">
                         <IconCloseXlg :size="16" />
@@ -109,7 +110,7 @@ function mainSlotSize(slotHeader, slotFooter) {
                 </div>
             </div>
 
-            <div class="card-body modal-window-body pt-1 pb-1 px-1">
+            <div class="card-body modal-window-body py-1 px-1">
                 <div v-if="$slots.header" class="modal-header" :style="{ 'height': props.headerHeightProcent + '%' }">
                     <slot name="header" v-bind="props.propsForSlots"></slot>
                 </div>
@@ -120,7 +121,7 @@ function mainSlotSize(slotHeader, slotFooter) {
                     <slot name="main" v-bind=props.propsForSlots></slot>
                 </div>
 
-                <div v-if="$slots.footer" class="modal-footer border-top border-light-subtle py-2"
+                <div v-if="$slots.footer" class="position-absolute bottom-0 end-0 modal-footer border-top p-1"
                     :style="{ 'height': props.footerHeightProcent + '%' }">
                     <slot name="footer" v-bind="props.propsForSlots"></slot>
                 </div>
@@ -162,15 +163,15 @@ function mainSlotSize(slotHeader, slotFooter) {
 
 .modal-header,
 .modal-footer {
-    height: 8%;
+    min-height: 8%;
     width: 100%;
 }
 
 .modal-main {
-    height: 83%;
+    height: 90%;
     overflow-y: auto;
     overflow-x: hidden;
+    // background-color: #e4e484;
     background-color: #fffffa;
-
 }
 </style>

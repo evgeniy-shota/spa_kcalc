@@ -6,6 +6,7 @@ import ProductFilter from '@/components/ProductFilter.vue';
 import ModalWindow from '@/components/ModalWindow.vue';
 import ProductForm from '@/components/ProductForm.vue';
 import CategoryForm from '@/components/CategoryForm.vue';
+import FormControls from '@/components/FormControls.vue';
 import { useProductsStore } from '@/stores/productsStore';
 import { useUsersStore } from '@/stores/usersStore';
 import Offcanv from '@/components/Offcanv.vue';
@@ -36,6 +37,7 @@ const isApplyFilter = ref(false)
 const isClearFilter = ref(false)
 const isApplyCategoryForm = ref(false)
 const isClearCategoryForm = ref(false)
+const isDeleteCategoryForm = ref(false)
 const isApplyCategoriesGroupForm = ref(false)
 const isClearCategoriesGroupForm = ref(false)
 const isShowNewProductWindow = ref(false);
@@ -45,11 +47,15 @@ const saveNewProductResult = ref(false);
 
 const propsForModalCategoryForm = computed(() => {
     return {
-        submitForm: saveCategory,
+        submitForm: categoryFormSubmited,
+        deleteCategory: deleteCategory,
         cancel: hideCategoryFormWindow,
         applyCategoryForm: () => isApplyCategoryForm.value = true,
+        deleteCategoryForm: () => isDeleteCategoryForm.value = true,
+        deleteHideConditions: productsStore.indexOfEditableCategory === null,
         isApplyCategoryForm: isApplyCategoryForm.value,
         isCancelCategoryForm: isClearCategoryForm.value,
+        isDeleteCategoryForm: isDeleteCategoryForm.value,
     }
 });
 
@@ -263,9 +269,9 @@ function changeProductHiddenStatus(id, status, index) {
 function editCategory(id = null, index = null) {
     console.log('ProductView - editCategory: ' + id)
     if (index !== null) {
-        productsStore.editableCategory = index
+        productsStore.indexOfEditableCategory = index
     } else {
-        productsStore.editableCategory = null
+        productsStore.indexOfEditableCategory = null
     }
     showCategoryFormWindow()
 }
@@ -292,9 +298,12 @@ function showCategoryFormWindow() {
 }
 
 function hideCategoryFormWindow() {
+    console.log('hide');
+    productsStore.indexOfEditableCategory = null
     isClearCategoryForm.value = true;
     isShowCategoryFormWindow.value = false
     isApplyCategoryForm.value = false
+    isDeleteCategoryForm.value = false
 }
 
 async function saveCategory(category, index) {
@@ -308,21 +317,37 @@ async function saveCategory(category, index) {
     }
 }
 
+async function deleteCategory(id) {
+    console.log('delete category')
+}
+
+function categoryFormSubmited() {
+    isApplyCategoryForm.value = false
+    isDeleteCategoryForm.value = false
+}
+
 </script>
 
 <template>
 
-    <ModalWindow :show-window="isShowCategoryFormWindow" title="Добавление новой категории"
+    <!-- Category form -->
+    <ModalWindow :show-window="isShowCategoryFormWindow" title="Добавление новой категории" :height-vh="60"
         @close-window="hideCategoryFormWindow" :props-for-slots="propsForModalCategoryForm">
-        <template #main="{ name, description, categoriesGroups, categoriesGroup, submitForm, isApplyCategoryForm }">
+        <template
+            #main="{ name, description, categoriesGroups, categoriesGroup, submitForm, isApplyCategoryForm, isDeleteCategoryForm }">
             <CategoryForm :name="name" :description="description" :categories-group="categoriesGroup"
                 :categories-groups="categoriesGroups" @submit-form="submitForm"
-                :is-apply-category-changes="isApplyCategoryForm" />
+                :is-apply-category-changes="isApplyCategoryForm" :is-delete-category="isDeleteCategoryForm" />
         </template>
 
-        <template #footer="{ applyCategoryForm, cancel }">
-            <button @click="applyCategoryForm" class="btn btn-primary me-2" type="button">Добавить</button>
-            <button @click="cancel" class="btn btn-secondary me-2">Отменить</button>
+        <template #footer="{ applyCategoryForm, deleteCategoryForm, cancel, deleteHideConditions }">
+            <FormControls @apply-action="applyCategoryForm" @delete-action="deleteCategoryForm" @cancel-action="cancel"
+                :hide-delete="deleteHideConditions" />
+            <!-- <div class=""> -->
+            <!-- <button @click="applyCategoryForm" class="btn btn-primary me-2" type="button">Добавить</button>
+            <button class="btn btn-danger me-2">Удалить</button>
+            <button @click="cancel" class="btn btn-secondary me-2">Отменить</button> -->
+            <!-- </div> -->
         </template>
     </ModalWindow>
 

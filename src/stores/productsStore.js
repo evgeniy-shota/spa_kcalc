@@ -414,10 +414,40 @@ export const useProductsStore = defineStore('products', () => {
     try {
       const response = await axios_instance.post(URL_API_CATEGORIES, newData)
       if (response) {
-        categories.value = response.data.data.categories.data
+        let data = response.data
+
+        let indexCatGroup = categoriesGroup.value.findIndex(
+          (item) => item.id === data.category_group_id,
+        )
+
+        if (indexCatGroup !== -1) {
+          categoriesGroup.value[indexCatGroup].categories.data.push(data)
+
+          if (data.category_group_id === currentCategoryGroup.value.id) {
+            categories.value.push(data)
+          }
+        }
+
+        // if new cat cat_group_id===currentGr categries.push()
+        // else
       }
     } catch (error) {
       console.warn('Add category fail...')
+      console.warn(error)
+    }
+  }
+
+  async function deleteCategory(id, index) {
+    try {
+      const response = await axios_instance.delete(URL_API_CATEGORIES + id)
+
+      if (response) {
+        console.log('Category delete success')
+        categories.value.splice(index, 1)
+        return true
+      }
+    } catch (error) {
+      console.warn('Category delete fail')
       console.warn(error)
     }
   }
@@ -521,6 +551,7 @@ export const useProductsStore = defineStore('products', () => {
     changeCategoryGroup,
     changeCategory,
     changeProduct,
+    deleteCategory,
     $reset,
   }
 })
