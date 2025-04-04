@@ -35,9 +35,9 @@ export const useProductsStore = defineStore('products', () => {
   const productsPrevCursor = ref('')
   const productsNextCursor = ref('')
   const isProductsFound = ref(true)
-  const indexOfEditableProduct = ref(null)
-  const indexOfEditableCategory = ref(null)
-  const indexOfEditableCategoriesGroup = ref(null)
+  const editableProduct = ref({ index: null, id: null })
+  const editableCategory = ref({ index: null, id: null, groupId: null, groupIndex: null })
+  const editableCategoriesGroup = ref({ index: null, id: null })
   const allCategories = ref([])
   const categoriesGroupSortParams = ref(CategoryGroupParams.default.key)
   const categoriesSortParams = ref(CategoryParams.default.key)
@@ -78,9 +78,9 @@ export const useProductsStore = defineStore('products', () => {
   const isProductFound = ref(true)
 
   function $reset() {
-    indexOfEditableProduct.value = null
-    indexOfEditableCategory.value = null
-    indexOfEditableCategoriesGroup.value = null
+    editableProduct.value = { index: null, id: null }
+    editableCategory.value = { index: null, id: null, groupId: null, groupIndex: null }
+    editableCategoriesGroup.value = { index: null, id: null }
     categoriesGroup.value.length = 0
     currentCategoryGroup.value = {
       id: null,
@@ -387,6 +387,9 @@ export const useProductsStore = defineStore('products', () => {
   }
 
   async function changeCategory(id, data, index) {
+    console.log('id: ' + id + ', index: ' + index)
+    let prevCategoryData =
+      categoriesGroup.value[editableCategory.value.groupIndex].categories.data[index]
     try {
       const response = await axios_instance.patch(URL_API_CATEGORIES + id, {
         category_group_id: data.category_group_id,
@@ -401,11 +404,41 @@ export const useProductsStore = defineStore('products', () => {
       })
       if (response) {
         console.log(response.data)
-        categories.value[index] = response.data.data
+
+        if (response.data.data.category_group_id === prevCategoryData.category_group_id) {
+          categories.value[index] = response.data.data
+        } else {
+          console.log('splice cat')
+          categories.value.splice(index, 1)
+        }
+
+        let indexPrevCatGroup = categoriesGroup.value.findIndex(
+          (item) => item.id === prevCategoryData.category_group_id,
+        )
+
+        if (indexPrevCatGroup !== -1) {
+          categoriesGroup.value[indexPrevCatGroup].categories.data.splice(index, 1)
+        }
+
+        let indexCatGroup = categoriesGroup.value.findIndex(
+          (item) => item.id === response.data.data.category_group_id,
+        )
+        if (indexCatGroup !== -1) {
+          categoriesGroup.value[indexCatGroup].categories.data.push(response.data.data)
+        }
+
+        editableCategory.value = {
+          id: response.data.data.id,
+          index: categoriesGroup.value[indexCatGroup].categories.data.length - 1,
+          groupId: response.data.data.category_group_id,
+          groupIndex: indexCatGroup,
+        }
+        return true
       }
     } catch (error) {
       console.log('changeCategory fail')
       console.log(error)
+      return false
     }
   }
 
@@ -414,22 +447,24 @@ export const useProductsStore = defineStore('products', () => {
     try {
       const response = await axios_instance.post(URL_API_CATEGORIES, newData)
       if (response) {
-        let data = response.data
-
         let indexCatGroup = categoriesGroup.value.findIndex(
-          (item) => item.id === data.category_group_id,
+          (item) => item.id === response.data.category_group_id,
         )
 
         if (indexCatGroup !== -1) {
-          categoriesGroup.value[indexCatGroup].categories.data.push(data)
+          categoriesGroup.value[indexCatGroup].categories.data.push(response.data)
+          categoriesGroup.value[indexCatGroup].categories.count += 1
 
-          if (data.category_group_id === currentCategoryGroup.value.id) {
-            categories.value.push(data)
+          if (response.data.category_group_id === currentCategoryGroup.value.id) {
+            categories.value.push(response.data)
           }
         }
-
-        // if new cat cat_group_id===currentGr categries.push()
-        // else
+        editableCategory.value = {
+          index: categoriesGroup.value[indexCatGroup].categories.data.length - 1,
+          id: response.data.id,
+          groupId: indexCatGroup !== -1 ? categoriesGroup.value[indexCatGroup].id : null,
+          groupIndex: indexCatGroup !== -1 ? indexCatGroup : null,
+        }
       }
     } catch (error) {
       console.warn('Add category fail...')
@@ -442,13 +477,19 @@ export const useProductsStore = defineStore('products', () => {
       const response = await axios_instance.delete(URL_API_CATEGORIES + id)
 
       if (response) {
-        console.log('Category delete success')
+        if (currentCategoryGroup.value.id !== null) {
+          let indexCatGroup = categoriesGroup.value.findIndex(
+            (item) => item.id === currentCategoryGroup.value.id,
+          )
+          categoriesGroup.value[indexCatGroup].categories.data.splice(index, 1)
+        }
         categories.value.splice(index, 1)
         return true
       }
     } catch (error) {
       console.warn('Category delete fail')
       console.warn(error)
+      return false
     }
   }
 
@@ -517,9 +558,9 @@ export const useProductsStore = defineStore('products', () => {
   }
 
   return {
-    indexOfEditableProduct,
-    indexOfEditableCategory,
-    indexOfEditableCategoriesGroup,
+    editableProduct,
+    editableCategory,
+    editableCategoriesGroup,
     categoriesGroupSortParams,
     categoriesSortParams,
     productsSortParams,

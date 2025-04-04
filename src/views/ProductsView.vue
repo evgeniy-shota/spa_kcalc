@@ -47,12 +47,12 @@ const saveNewProductResult = ref(false);
 
 const propsForModalCategoryForm = computed(() => {
     return {
-        submitForm: categoryFormSubmited,
-        deleteCategory: deleteCategory,
+        submitedForm: categoryFormSubmited,
+        // deleteCategory: deleteCategory,
         cancel: hideCategoryFormWindow,
         applyCategoryForm: () => isApplyCategoryForm.value = true,
         deleteCategoryForm: () => isDeleteCategoryForm.value = true,
-        deleteHideConditions: productsStore.indexOfEditableCategory === null,
+        deleteHideConditions: productsStore.editableCategory.id === null,
         isApplyCategoryForm: isApplyCategoryForm.value,
         isCancelCategoryForm: isClearCategoryForm.value,
         isDeleteCategoryForm: isDeleteCategoryForm.value,
@@ -267,11 +267,19 @@ function changeProductHiddenStatus(id, status, index) {
 }
 
 function editCategory(id = null, index = null) {
-    console.log('ProductView - editCategory: ' + id)
+    console.log('ProductView - editCategory: ' + id + '-' + index)
     if (index !== null) {
-        productsStore.indexOfEditableCategory = index
+        productsStore.editableCategory = {
+            index: index,
+            id: id,
+            groupId: productsStore.currentCategoryGroup.id,
+            // change setting currentCategoryGroup - need setup index in categoriesGroup
+            groupIndex: productsStore.categoriesGroup.findIndex(
+                (item) => item.id === productsStore.currentCategoryGroup.id
+            )
+        }
     } else {
-        productsStore.indexOfEditableCategory = null
+        productsStore.editableCategory = { index: null, id: null, groupId: null, groupIndex: null }
     }
     showCategoryFormWindow()
 }
@@ -299,32 +307,35 @@ function showCategoryFormWindow() {
 
 function hideCategoryFormWindow() {
     console.log('hide');
-    productsStore.indexOfEditableCategory = null
+    productsStore.editableCategory = { index: null, id: null, groupId: null, groupIndex: null }
     isClearCategoryForm.value = true;
-    isShowCategoryFormWindow.value = false
     isApplyCategoryForm.value = false
     isDeleteCategoryForm.value = false
+    isShowCategoryFormWindow.value = false
 }
 
-async function saveCategory(category, index) {
-    // console.log('save category')
-    // console.log(category)
-    isApplyCategoryForm.value = false
-    if (index === -1) {
-        productsStore.addCategory(category)
-    } else {
-        productsStore.changeCategory(category.id, category, index);
-    }
-}
+// async function saveCategory(category, index) {
+//     // console.log('save category')
+//     // console.log(category)
+//     isApplyCategoryForm.value = false
+//     if (index === -1) {
+//         productsStore.addCategory(category)
+//     } else {
+//         productsStore.changeCategory(category.id, category, index);
+//     }
+// }
 
-async function deleteCategory(id) {
-    console.log('delete category')
-}
+// async function deleteCategory(id) {
+//     console.log('delete category')
+// }
 
 function categoryFormSubmited() {
     isApplyCategoryForm.value = false
     isDeleteCategoryForm.value = false
 }
+
+function showCategoriesGroupFormWindow() { }
+
 
 </script>
 
@@ -334,9 +345,9 @@ function categoryFormSubmited() {
     <ModalWindow :show-window="isShowCategoryFormWindow" title="Добавление новой категории" :height-vh="60"
         @close-window="hideCategoryFormWindow" :props-for-slots="propsForModalCategoryForm">
         <template
-            #main="{ name, description, categoriesGroups, categoriesGroup, submitForm, isApplyCategoryForm, isDeleteCategoryForm }">
+            #main="{ name, description, categoriesGroups, categoriesGroup, submitedForm, cancel, isApplyCategoryForm, isDeleteCategoryForm }">
             <CategoryForm :name="name" :description="description" :categories-group="categoriesGroup"
-                :categories-groups="categoriesGroups" @submit-form="submitForm"
+                :categories-groups="categoriesGroups" @submited-form="submitedForm" @cancel="cancel"
                 :is-apply-category-changes="isApplyCategoryForm" :is-delete-category="isDeleteCategoryForm" />
         </template>
 
@@ -395,7 +406,7 @@ function categoryFormSubmited() {
             :categories-group-sort-param="productsStore.categoriesGroupSortParams"
             :categories-sort-param="productsStore.categoriesSortParams"
             :products-sort-param="productsStore.productsSortParams" @hide-filtered-product="hideFilteredProducts"
-            @get-category-gropus="productsStore.getCategoryGroups();" @get-categories="getCategories"
+            @get-category-groups="productsStore.getCategoryGroups();" @get-categories="getCategories"
             @get-products="getProducts" @get-product="getProduct" @show-filter="showProductFilter"
             @change-category-group-favorite-status="changeCategoryGroupFavoriteStatus"
             @change-category-group-hidden-status="changeCategoryGroupHiddenStatus"
@@ -404,7 +415,8 @@ function categoryFormSubmited() {
             @change-product-favorite-status="changeProductFavoriteStatus"
             @change-product-hidden-status="changeProductHiddenStatus" @edit-category="editCategory"
             @edit-product="editProduct" @apply-categories-group-sort="applyCategoriesGroupSort"
-            @apply-categories-sort="applyCategoriesSort" @apply-products-sort="applyProductsSort">
+            @apply-categories-sort="applyCategoriesSort" @apply-products-sort="applyProductsSort"
+            @add-category-group="showCategoriesGroupFormWindow" @add-category="showCategoryFormWindow" @add-product="">
         </CategoryAndProductList>
 
         <!-- <ProductsList @on-click-add-new-product="showNewProductWindow" @show-product-info="showProductInfoWindow"

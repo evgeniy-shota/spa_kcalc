@@ -5,10 +5,11 @@ import ListWithControls from './ListWithControls.vue';
 import IconArrowLeftShort from './icons/IconArrowLeftShort.vue';
 import IconFunnel from './icons/IconFunnel.vue';
 import IconSortDown from './icons/IconSortDown.vue';
+import IconPlusLg from './icons/IconPlusLg.vue';
 import { CategoryGroupParams, CategoryParams, ProductParams } from '@/resource/js/sortParams';
 
 onBeforeMount(() => {
-    emit('getCategoryGropus');
+    emit('getCategoryGroups');
 });
 
 const props = defineProps({
@@ -64,7 +65,8 @@ const props = defineProps({
 });
 
 const emit = defineEmits({
-    getCategoryGropus: () => {
+
+    getCategoryGroups: () => {
         return true;
     },
     getCategories: (id) => {
@@ -163,6 +165,15 @@ const emit = defineEmits({
         }
         return false
     },
+    addCategoryGroup: () => {
+        return true;
+    },
+    addCategory: () => {
+        return true;
+    },
+    addProduct: () => {
+        return true;
+    },
 });
 
 // watch(() => props.nextPageCursor, () => {
@@ -206,7 +217,6 @@ function setProductSortType(val) {
     emit('applyProductsSort', val);
 }
 
-
 function slideTo(slideNum) {
 
     if (slideNum > slideLimit) {
@@ -230,6 +240,9 @@ function slideTo(slideNum) {
         return;
     }
 
+    if (slideNum === 1) {
+        emit('getCategoryGroups');
+    }
     previouslySlide.value = currentSlide.value
     currentSlide.value = slideNum;
 }
@@ -332,6 +345,22 @@ function scrollList(event) {
     }
 }
 
+function addCategoryGroup() {
+    console.log('add CategoryGroup')
+    emit('addCategoryGroup')
+}
+
+function addCategory() {
+    console.log('add Category')
+    emit('addCategory')
+}
+
+function addProduct() {
+    console.log('add Product')
+    emit('addProduct')
+}
+
+
 </script>
 
 <template>
@@ -380,9 +409,9 @@ function scrollList(event) {
             </div>
         </div>
 
-        <div class="list-controllers d-flex ">
+        <div class="list-controllers d-flex gap-2 ms-2">
             <!-- filter -->
-            <div class="filter-container px-2 pb-1 mb-1">
+            <div class="filter-container  pb-1 mb-1">
                 <div @click="showFilter($event)" class="btn btn-sm btn-outline-dark">
                     <IconFunnel />
                     Фильтр
@@ -390,7 +419,7 @@ function scrollList(event) {
             </div>
 
             <!-- sort -->
-            <div class="sort-container px-2 pb-1 mb-1">
+            <div class="sort-container pb-1 mb-1 me-auto">
                 <div class="btn btn-sm btn-outline-dark" type="button" data-bs-toggle="dropdown" aria-expanded="false">
                     <IconSortDown />
                     Сортировка
@@ -419,6 +448,21 @@ function scrollList(event) {
                     </li>
                 </ul>
             </div>
+
+
+            <div class="dropdown me-2">
+                <button class="btn btn-sm btn-outline-primary d-flex align-items-center" type="button"
+                    data-bs-toggle="dropdown">
+                    <IconPlusLg />
+                    Добавить
+                </button>
+                <ul class="dropdown-menu">
+                    <button @click="addCategoryGroup" class="btn dropdown-item">Добавить группу</button>
+                    <button @click="addCategory" class="btn dropdown-item">Добавить категорию</button>
+                    <button @click="addProduct" class="btn dropdown-item">Добавить продукт</button>
+                </ul>
+            </div>
+
         </div>
 
 

@@ -41,7 +41,7 @@ const props = defineProps({
 });
 
 const emit = defineEmits({
-    submitForm: () => {
+    submitedForm: () => {
         return true
     },
     cancel: () => {
@@ -61,29 +61,40 @@ watch(() => props.isDeleteCategory, (value) => {
     }
 });
 
-watch(() => productStore.indexOfEditableCategory, (value) => {
-    if (value === null) {
+watch(() => productStore.editableCategory, (value) => {
+    console.log(value)
+    formActionSuccessful.value = null
+    validationSuccessful.value = null
+
+    if (value.id === null) {
         categoryName.value = null
         categoryDescription.value = null
-        selectedCategoriesGroup.value = null
+        selectedCategoriesGroup.value = productStore.currentCategoryGroup.id !== null ? productStore.currentCategoryGroup.id : null
         return
     }
-    categoryName.value = productStore.categories[value].name;
-    categoryDescription.value = productStore.categories[value].description;
-    selectedCategoriesGroup.value = productStore.categories[value].category_group_id
+
+    if (value.groupId !== productStore.currentCategoryGroup.id) {
+        categoryName.value = productStore.categoriesGroup[value.groupIndex].categories.data[value.index].name;
+        categoryDescription.value = productStore.categoriesGroup[value.groupIndex].categories.data[value.index].description;
+        selectedCategoriesGroup.value = productStore.categoriesGroup[value.groupIndex].categories.data[value.index].category_group_id
+    } else {
+        categoryName.value = productStore.categories[value.index].name;
+        categoryDescription.value = productStore.categories[value.index].description;
+        selectedCategoriesGroup.value = productStore.categories[value.index].category_group_id
+    }
+
 });
 
 const formNotificationStyle = computed(() => {
     let classes = '';
 
     if (formActionSuccessful.value === false || validationSuccessful.value === false) {
-        classes += 'border-danger bg-danger-subtle '
+        classes += 'border-danger bg-danger-subtle text-danger-emphasis '
     } else if (formActionSuccessful.value === true) {
-        classes += 'border-success bg-success-subtle '
+        classes += 'border-success bg-success-subtle text-success-emphasis '
     } else {
-        classes += 'border-info bg-info-subtle '
+        classes += 'border-info bg-info-subtle text-info-emphasis'
     }
-
     return classes
 });
 
@@ -97,7 +108,6 @@ const formNotificationContent = computed(() => {
     } else {
         content += 'Поля помеченные * обязательны к заполнению';
     }
-
     return content
 });
 
@@ -107,41 +117,65 @@ const selectedCategoriesGroup = ref(null);
 
 const formActionSuccessful = ref(null);
 const validationSuccessful = ref(null);
+const formInputsHelps = ref({
+    categoriesGroupSelect: {
+        info: 'Группа в которую включена категория',
+        errors: [],
+    },
+    name: {
+        info: 'От 2 до 100 символов',
+        errors: [],
+    },
+    description: {
+        info: 'До 400 символов',
+        errors: [],
+    },
+})
 
 async function submitForm() {
+
+    validationSuccessful.value = validateForm()
+
+    if (validationSuccessful.value === false) {
+        emit('submitedForm');
+        return
+    }
+
     let data = {
-        id: productStore.indexOfEditableCategory !== null ? productStore.categories[productStore.indexOfEditableCategory].id : null,
+        id: productStore.editableCategory.id,
         name: categoryName.value,
         description: categoryDescription.value,
         category_group_id: selectedCategoriesGroup.value,
     }
-    let response;
-
-    if (productStore.indexOfEditableCategory !== null) {
-        response = await productStore.changeCategory(data.id, data, productStore.indexOfEditableCategory);
-    } else {
-        response = await productStore.addCategory(data);
-    }
-
-    emit('submitForm');
+    let response = await productStore.editableCategory.id !== null ?
+        productStore.changeCategory(data.id, data, productStore.editableCategory.index) :
+        productStore.addCategory(data);
 
     if (response) {
         console.log('category updated')
-        emit('cancel');
+        formActionSuccessful.value = true
+        // emit('cancel');
+    } else {
+        formActionSuccessful.value = false
     }
+    emit('submitedForm');
+    // clearForm()
     // emit('submitForm', data, productStore.editableCategory);
 }
 
 async function deleteCategory() {
     console.log('cat form delete')
-    let response = await productStore.deleteCategory(productStore.categories[productStore.indexOfEditableCategory].id, productStore.indexOfEditableCategory);
+    let response = await productStore.deleteCategory(productStore.editableCategory.id, productStore.editableCategory.index);
 
     if (response) {
-        productStore.indexOfEditableCategory = null
+        productStore.editableCategory = { index: null, id: null }
+        formActionSuccessful.value = true
         clearForm()
+    } else {
+        formActionSuccessful.value = false
     }
-
-    emit('submitForm');
+    cancel();
+    // emit('submitForm');
 }
 
 function cancel() {
@@ -150,9 +184,30 @@ function cancel() {
 }
 
 function clearForm() {
+    formActionSuccessful.value = null
+    validationSuccessful.value = null
     categoryName.value = null;
     categoryDescription.value = null;
     selectedCategoriesGroup.value = null;
+}
+
+function validateForm() {
+    let validationErrorsCount = 0;
+
+    formInputsHelps.value.categoriesGroupSelect.errors.length = 0
+    formInputsHelps.value.name.errors.length = 0
+
+    if (selectedCategoriesGroup.value === null) {
+        formInputsHelps.value.categoriesGroupSelect.errors.push('Выберите группу для категории');
+        validationErrorsCount += 1;
+    }
+
+    if (!categoryName.value || categoryName.value.length === 0) {
+        formInputsHelps.value.name.errors.push('Поле обязательно к заполнению!');
+        validationErrorsCount += 1;
+    }
+
+    return validationErrorsCount === 0
 }
 
 </script>
@@ -169,25 +224,29 @@ function clearForm() {
             <div class="mb-2">
                 <label for="categoriesGroup" class="form-label mb-1 required-input">Группа категории</label>
                 <select v-model="selectedCategoriesGroup" name="categoriesGroup" id="categoriesGroup"
-                    class="form-select">
+                    class="form-select"
+                    :class="{ 'border-danger': formInputsHelps.categoriesGroupSelect.errors.length > 0 }">
                     <option v-for="item in productStore.categoriesGroupList" :key="item.id" :value="item.id">{{
                         item.name }}
                     </option>
                 </select>
-                <div class="form-text">Группа в которую включена категория</div>
+                <div class="form-text text-danger">{{ formInputsHelps.categoriesGroupSelect.errors[0] }}</div>
+                <div class="form-text">{{ formInputsHelps.categoriesGroupSelect.info }}</div>
             </div>
 
             <div class="mb-2">
                 <label for="categroyName" class="form-label mb-1 required-input">Название</label>
-                <input v-model="categoryName" type="text" name="categroyName" id="categroyName" class="form-control">
-                <div class="form-text">От 2 до 100 символов</div>
+                <input v-model="categoryName" type="text" name="categroyName" id="categroyName" class="form-control"
+                    :class="{ 'border-danger': formInputsHelps.name.errors.length > 0 }">
+                <div class="form-text text-danger">{{ formInputsHelps.name.errors[0] }}</div>
+                <div class="form-text">{{ formInputsHelps.name.info }}</div>
             </div>
 
             <div class="mb-2">
                 <label for="categoryDescription" class="form-label mb-1">Описание</label>
                 <textarea v-model="categoryDescription" name="categoryDescription" id="categoryDescription"
                     class="form-control" rows="6" style="resize: none;" maxlength="400"></textarea>
-                <div class="form-text">От 2 до 400 символов</div>
+                <div class="form-text">{{ formInputsHelps.description.info }}</div>
             </div>
 
         </form>
