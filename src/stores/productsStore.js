@@ -367,7 +367,7 @@ export const useProductsStore = defineStore('products', () => {
 
   async function changeCategoryGroup(id, data, categoriesGroupIndex) {
     try {
-      const response = await axios_instance.patch(URL_API_CATEGORY_GROUPS + id, {
+      const response = await axios_instance.post(URL_API_CATEGORY_GROUPS + id, {
         id: 'id' in data ? data.id : null,
         name: 'name' in data ? data.name : null,
         description: 'description' in data ? data.description : null,
@@ -378,7 +378,7 @@ export const useProductsStore = defineStore('products', () => {
       if (response) {
         console.log('index: ' + categoriesGroupIndex)
         console.log(response.data)
-        categoriesGroup.value[categoriesGroupIndex] = response.data
+        categoriesGroup.value[categoriesGroupIndex] = response.data.data
       }
     } catch (error) {
       console.log('changeCategoryGroup fail')
