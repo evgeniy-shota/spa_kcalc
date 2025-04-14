@@ -163,9 +163,11 @@ function hideProductFilter() {
     isShowProductFilter.value = false;
 }
 
-async function getCategories(id) {
+async function getCategories(categoryGroupId) {
+    productsStore.categoriesFilter.categoryGroupId.length = 0;
+    productsStore.categoriesFilter.categoryGroupId.push(categoryGroupId);
     productsStore.categories.length = 0
-    productsStore.getCategories(id);
+    productsStore.getCategories(categoryGroupId);
 }
 
 function getProducts(id, cursor = null) {

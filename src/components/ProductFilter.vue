@@ -118,6 +118,7 @@ watch(() => props.isClearFilter, () => {
 
 const CUSTOM_CHECKBOX_VALUES = [null, true, false];
 
+const groupFiltergResults = ref(false);
 const selectedCategories = ref([]);
 const selectedDataSource = ref([]);
 const selectedCountries = ref([]);
@@ -143,6 +144,7 @@ watch(() => props.currentCategoryId, () => {
 
 function applyFilter() {
     let filter = {
+        groupFiltergResults: groupFiltergResults.value,
         // name
         category_id: selectedCategories.value.length > 0 ? selectedCategories.value : null,
         // data_source: selectedDataSource.value,
@@ -238,6 +240,16 @@ function checkboxClasses(value, disableForUnauthorized = true) {
 
 <template>
     <div class="filter-container">
+        <div class="row pe-4">
+            <div class="col px-3">
+                <div class="form-check">
+                    <input type="checkbox" name="groupFilterResults" id="groupFilterResults" class="form-check-input"
+                        v-model="groupFiltergResults">
+                    <label for="groupFilterResults" class="form-label">Объединять отфильтрованные данные по группам и
+                        категориям</label>
+                </div>
+            </div>
+        </div>
         <div class="row pe-4">
             <div class="col-12 col-md-6">
                 <div class="border-bottom border-light-subtle">Категории</div>

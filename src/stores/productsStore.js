@@ -9,7 +9,7 @@ const URL_API_CATEGORY_GROUPS = 'api/category-groups/'
 const URL_API_CATEGORIES = 'api/categories/'
 const URL_API_PRODUCTS = 'api/products/'
 const URL_API_PRODUCT = 'api/products/'
-const URL_API_PRODUCT_CREATE = 'api/products/create/'
+// const URL_API_PRODUCT_CREATE = 'api/products/create/'
 
 const URL_CATEGORIES = 'api/categories/'
 const URL_PRODUCTS = 'api/products/'
@@ -42,6 +42,19 @@ export const useProductsStore = defineStore('products', () => {
   const categoriesGroupSortParams = ref(CategoryGroupParams.default.key)
   const categoriesSortParams = ref(CategoryParams.default.key)
   const productsSortParams = ref(ProductParams.default.key)
+  const categoryGroupsFilter = ref({
+    categoryGroupsId: [],
+    isPersonal: null,
+    isFavorite: null,
+    isHidden: null,
+  })
+  const categoriesFilter = ref({
+    categoryGroupId: [],
+    categoryId: [],
+    isFavorite: null,
+    isHidden: null,
+    isPersonal: null,
+  })
   const productsFilter = ref({
     name: null,
     category_id: null,
@@ -137,6 +150,25 @@ export const useProductsStore = defineStore('products', () => {
     }
   }
 
+  function clearCategoryGroupFilter() {
+    categoryGroupsFilter.value = {
+      categoryGroupsId: null,
+      isPersonal: null,
+      isFavorite: null,
+      isHidden: null,
+    }
+  }
+
+  function clearCategoryFilter() {
+    categoriesFilter.value = {
+      categoryGroupId: null,
+      categoryId: null,
+      isFavorite: null,
+      isHidden: null,
+      isPersonal: null,
+    }
+  }
+
   function clearProductFilter() {
     productsFilter.value = {
       name: null,
@@ -158,6 +190,7 @@ export const useProductsStore = defineStore('products', () => {
   const getProductFilter = computed(() => {
     const userStore = useUsersStore()
     console.log(userStore.userIsAuthorized)
+
     if (!userStore.userIsAuthorized) {
       productsFilter.value.is_hidden = null
     } else {
@@ -260,39 +293,41 @@ export const useProductsStore = defineStore('products', () => {
 
   async function getCategories(id) {
     isCategoriesFound.value = true
-
+    console.log(categoriesFilter.value)
     try {
-      const response = await axios_instance.get(URL_API_CATEGORY_GROUPS + id)
+      const response = await axios_instance.get(URL_API_CATEGORIES, {
+        params: {
+          categoryGroupId: categoriesFilter.value.categoryGroupId.join(','),
+          categoryId: categoriesFilter.value.categoryId,
+          isPersonal: categoriesFilter.value.isPersonal,
+          isFavorite: categoriesFilter.value.isFavorite,
+          isHidden: categoriesFilter.value.isHidden,
+        },
+      })
 
       if (response) {
         // console.log(response.data.data.categories.data)
         currentCategoryGroup.value = {
-          id: response.data.data.id,
+          id:
+            categoriesFilter.value.categoryGroupId.length == 1
+              ? categoriesFilter.value.categoryGroupId[0]
+              : null,
           name: response.data.data.name,
-          categoriesCount: response.data.data.categories.count,
+          categoriesCount: response.data.count,
         }
+
         currentCategory.value = {
           id: null,
           name: null,
           productsCount: null,
         }
-        isCategoriesFound.value = response.data.data.categories.count > 0 ? true : false
-        categories.value = response.data.data.categories.data
+        isCategoriesFound.value = response.data.count > 0 ? true : false
+        categories.value = response.data.data
       }
     } catch (error) {
       console.log('Get categories if fail')
       console.log(error)
       isCategoriesFound.value = false
-    }
-  }
-
-  // get list of categories
-  async function getAllCategories(filters) {
-    try {
-      const response = axios_instance.get(URL_API_CATEGORIES)
-    } catch (error) {
-      console.log('Get all categories fail')
-      console.log(error)
     }
   }
 
@@ -577,13 +612,16 @@ export const useProductsStore = defineStore('products', () => {
     isCategoriesFound,
     isProductsFound,
     getProductFilter,
+    categoryGroupsFilter,
+    categoriesFilter,
     productsFilter,
     productsPrevCursor,
     productsNextCursor,
+    clearCategoryGroupFilter,
+    clearCategoryFilter,
     clearProductFilter,
     getCategoryGroups,
     getCategories,
-    getAllCategories,
     getProducts,
     getProduct,
     getFilteredProducts,
