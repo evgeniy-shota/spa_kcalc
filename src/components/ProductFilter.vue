@@ -50,9 +50,21 @@ const props = defineProps({
         type: Array,
         default: () => [0, 999]
     },
+    categoryGroupsFilterDefaultVal: {
+        type: Object,
+        default: null,
+    },
+    categoriesFilterDefaultVal: {
+        type: Object,
+        default: null,
+    },
     productsFilterDefaultVal: {
         type: Object,
         default: null,
+    },
+    groupFilterResult: {
+        type: Boolean,
+        default: true,
     },
     currentCategoryId: {
         type: Number,
@@ -118,14 +130,26 @@ watch(() => props.isClearFilter, () => {
 
 const CUSTOM_CHECKBOX_VALUES = [null, true, false];
 
-const groupFiltergResults = ref(false);
+const groupFilterResults = ref(props.groupFilterResult);
 const selectedCategories = ref([]);
 const selectedDataSource = ref([]);
 const selectedCountries = ref([]);
-const isFavoriteChecked = ref(props.productsFilterDefaultVal?.is_favorite !== undefined ? props.productsFilterDefaultVal.is_favorite : null);
-const isPersonalChecked = ref(props.productsFilterDefaultVal?.is_personal !== undefined ? props.productsFilterDefaultVal.is_personal : null);
-const isHiddenChecked = ref(props.productsFilterDefaultVal?.is_hidden !== undefined ? props.productsFilterDefaultVal.is_hidden : null);
-const isAbstractChecked = ref(props.productsFilterDefaultVal?.is_abstract !== undefined ? props.productsFilterDefaultVal.is_abstract : null);
+
+const isCategoryGroupFavoriteChecked = ref(props.categoryGroupsFilterDefaultVal?.isFavorite !== undefined ? props.categoryGroupsFilterDefaultVal.isFavorite : null);
+const isCategoryGroupPersonalChecked = ref(props.categoryGroupsFilterDefaultVal?.isPersonal !== undefined ? props.categoryGroupsFilterDefaultVal.isPersonal : null);
+const isCategoryGroupHiddenChecked = ref(props.categoryGroupsFilterDefaultVal?.isHidden !== undefined ? props.categoryGroupsFilterDefaultVal.isHidden : null);
+// const isCategoryGroupAbstractChecked = ref(props.categoryGroupsFilterDefaultVal?.isAbstract !== undefined ? props.categoryGroupsFilterDefaultVal.isAbstract : null);
+
+const isCategoryFavoriteChecked = ref(props.categoriesFilterDefaultVal?.isFavorite !== undefined ? props.categoriesFilterDefaultVal.isFavorite : null);
+const isCategoryPersonalChecked = ref(props.categoriesFilterDefaultVal?.isPersonal !== undefined ? props.categoriesFilterDefaultVal.isPersonal : null);
+const isCategoryHiddenChecked = ref(props.categoriesFilterDefaultVal?.isHidden !== undefined ? props.categoriesFilterDefaultVal.isHidden : null);
+// const isCategoryAbstractChecked = ref(props.categoriesFilterDefaultVal?.isAbstract !== undefined ? props.categoriesFilterDefaultVal.isAbstract : null);
+
+const isProductFavoriteChecked = ref(props.productsFilterDefaultVal?.isFavorite !== undefined ? props.productsFilterDefaultVal.isFavorite : null);
+const isProductPersonalChecked = ref(props.productsFilterDefaultVal?.isPersonal !== undefined ? props.productsFilterDefaultVal.isPersonal : null);
+const isProductHiddenChecked = ref(props.productsFilterDefaultVal?.isHidden !== undefined ? props.productsFilterDefaultVal.isHidden : null);
+const isProductAbstractChecked = ref(props.productsFilterDefaultVal?.isAbstract !== undefined ? props.productsFilterDefaultVal.isAbstract : null);
+
 const caloryLimitFrom = ref(null);
 const caloryLimitTo = ref(null);
 const proteinsLimitFrom = ref(null);
@@ -143,34 +167,57 @@ watch(() => props.currentCategoryId, () => {
 });
 
 function applyFilter() {
-    let filter = {
-        groupFiltergResults: groupFiltergResults.value,
+    let productsFilter = {
         // name
-        category_id: selectedCategories.value.length > 0 ? selectedCategories.value : null,
         // data_source: selectedDataSource.value,
         country_of_manufacture: selectedCountries.value.length > 0 ? selectedCountries.value : null,
         // manufacturer
-        is_favorite: isFavoriteChecked.value,
-        is_personal: isPersonalChecked.value,
-        is_hidden: isHiddenChecked.value,
-        is_abstract: isAbstractChecked.value,
+        is_favorite: isProductFavoriteChecked.value,
+        is_personal: isProductPersonalChecked.value,
+        is_hidden: isProductHiddenChecked.value,
+        is_abstract: isProductAbstractChecked.value,
         kcalory: [caloryLimitFrom.value ? Number(caloryLimitFrom.value) : 0, caloryLimitTo.value ? Number(caloryLimitTo.value) : props.caloryLimit[1]],
         proteins: [proteinsLimitFrom.value ? Number(proteinsLimitFrom.value) : 0, proteinsLimitTo.value ? Number(proteinsLimitTo.value) : props.proteinsLimit[1]],
         carbohydrates: [carbohydratesLimitFrom.value ? Number(carbohydratesLimitFrom.value) : 0, carbohydratesLimitTo.value ? Number(carbohydratesLimitTo.value) : props.carbohydratesLimit[1]],
         fats: [fatsLimitFrom.value ? Number(fatsLimitFrom.value) : 0, fatsLimitTo.value ? Number(fatsLimitTo.value) : props.fatsLimit[1]],
     };
 
-    emit('applyFilter', filter);
+    let categoryGroupsFilter = {
+        isFavorite: isCategoryGroupFavoriteChecked.value,
+        isPersonal: isCategoryGroupPersonalChecked.value,
+        isHidden: isCategoryGroupHiddenChecked.value,
+    }
+
+    let categoriesFilter = {
+        categoryId: selectedCategories.value.length > 0 ? selectedCategories.value : [],
+        isFavorite: isCategoryFavoriteChecked.value,
+        isPersonal: isCategoryPersonalChecked.value,
+        isHidden: isCategoryHiddenChecked.value,
+    }
+
+    emit('applyFilter', {
+        categoryGroupsFilter: categoryGroupsFilter,
+        categoriesFilter: categoriesFilter,
+        productsFilter: productsFilter,
+        groupFilterResults: groupFilterResults.value,
+    });
 }
 
 function clearFilter() {
     selectedCategories.value = [props.currentCategoryId];
     selectedDataSource.value = [];
     selectedCountries.value = [];
-    isFavoriteChecked.value = props.productsFilterDefaultVal?.is_favorite !== undefined ? props.productsFilterDefaultVal.is_favorite : null;
-    isPersonalChecked.value = props.productsFilterDefaultVal?.is_personal !== undefined ? props.productsFilterDefaultVal.is_personal : null;
-    isHiddenChecked.value = props.productsFilterDefaultVal?.is_hidden !== undefined ? props.productsFilterDefaultVal.is_hidden : null;
-    isAbstractChecked.value = props.productsFilterDefaultVal?.is_abstract !== undefined ? props.productsFilterDefaultVal.is_abstract : null;
+    groupFilterResults.value = props.groupFilterResult;
+    isCategoryGroupFavoriteChecked.value = props.categoryGroupsFilterDefaultVal?.isFavorite !== undefined ? props.categoryGroupsFilterDefaultVal.isFavorite : null;
+    isCategoryGroupPersonalChecked.value = props.categoryGroupsFilterDefaultVal?.isPersonal !== undefined ? props.categoryGroupsFilterDefaultVal.isPersonal : null;
+    isCategoryGroupHiddenChecked.value = props.categoryGroupsFilterDefaultVal?.isHidden !== undefined ? props.categoryGroupsFilterDefaultVal.isHidden : null;
+    isCategoryFavoriteChecked.value = props.categoriesFilterDefaultVal?.isFavorite !== undefined ? props.categoriesFilterDefaultVal.isFavorite : null;
+    isCategoryPersonalChecked.value = props.categoriesFilterDefaultVal?.isPersonal !== undefined ? props.categoriesFilterDefaultVal.isPersonal : null;
+    isCategoryHiddenChecked.value = props.categoriesFilterDefaultVal?.isHidden !== undefined ? props.categoriesFilterDefaultVal.isHidden : null;
+    isProductFavoriteChecked.value = props.productsFilterDefaultVal?.isFavorite !== undefined ? props.productsFilterDefaultVal.isFavorite : null;
+    isProductPersonalChecked.value = props.productsFilterDefaultVal?.isPersonal !== undefined ? props.productsFilterDefaultVal.isPersonal : null;
+    isProductHiddenChecked.value = props.productsFilterDefaultVal?.isHidden !== undefined ? props.productsFilterDefaultVal.isHidden : null;
+    isProductAbstractChecked.value = props.productsFilterDefaultVal?.isAbstract !== undefined ? props.productsFilterDefaultVal.isAbstract : null;
     caloryLimitFrom.value = props.caloryLimit[0];
     caloryLimitTo.value = props.caloryLimit[1];
     proteinsLimitFrom.value = props.proteinsLimit[0];
@@ -207,13 +254,29 @@ function changeCustomCheckboxValue(refValue) {
     return CUSTOM_CHECKBOX_VALUES[0]
 }
 
-function changeAllCustomCheckboxValue(newValue) {
-    isAbstractChecked.value = newValue;
+function changeAllCategoryGroupsCustomCheckboxValue(newValue) {
+    if (props.userIsAuthorized) {
+        isCategoryGroupFavoriteChecked.value = newValue;
+        isCategoryGroupPersonalChecked.value = newValue;
+        isCategoryGroupHiddenChecked.value = newValue;
+    }
+}
+
+function changeAllCategoriesCustomCheckboxValue(newValue) {
+    if (props.userIsAuthorized) {
+        isCategoryFavoriteChecked.value = newValue;
+        isCategoryPersonalChecked.value = newValue;
+        isCategoryHiddenChecked.value = newValue;
+    }
+}
+
+function changeAllProductsCustomCheckboxValue(newValue) {
+    isProductAbstractChecked.value = newValue;
 
     if (props.userIsAuthorized) {
-        isFavoriteChecked.value = newValue;
-        isPersonalChecked.value = newValue;
-        isHiddenChecked.value = newValue;
+        isProductFavoriteChecked.value = newValue;
+        isProductPersonalChecked.value = newValue;
+        isProductHiddenChecked.value = newValue;
     }
 }
 
@@ -244,8 +307,9 @@ function checkboxClasses(value, disableForUnauthorized = true) {
             <div class="col px-3">
                 <div class="form-check">
                     <input type="checkbox" name="groupFilterResults" id="groupFilterResults" class="form-check-input"
-                        v-model="groupFiltergResults">
-                    <label for="groupFilterResults" class="form-label">Объединять отфильтрованные данные по группам и
+                        v-model="groupFilterResults">
+                    <label for="groupFilterResults" class="form-label mb-1">Объединять отфильтрованные данные по группам
+                        и
                         категориям</label>
                 </div>
             </div>
@@ -308,18 +372,149 @@ function checkboxClasses(value, disableForUnauthorized = true) {
             </div>
         </div>
 
+        <!-- filter for categoryGroup status -->
         <div class="status-filter-container mb-1 ">
             <div class="border-bottom border-light-subtle">
-                Статус
+                Статус групп
             </div>
             <div class="d-flex gap-1 mb-1 align-items-center ps-1">
-                <div class="btn btn-light py-0 px-1" @click="changeAllCustomCheckboxValue(true)">
+                <div class="btn btn-light py-0 px-1" @click="changeAllCategoryGroupsCustomCheckboxValue(true)">
                     <IconCheckSquareFillSm class="text-primary" /> - вкл.
                 </div>
-                <div class="btn btn-light py-0 px-1" @click="changeAllCustomCheckboxValue(false)">
+                <div class="btn btn-light py-0 px-1" @click="changeAllCategoryGroupsCustomCheckboxValue(false)">
                     <IconDashSquareFill class="text-danger" /> - искл.
                 </div>
-                <div class="btn btn-light py-0 px-1" @click="changeAllCustomCheckboxValue(null)">
+                <div class="btn btn-light py-0 px-1" @click="changeAllCategoryGroupsCustomCheckboxValue(null)">
+                    <IconSquare /> - любое значение
+                </div>
+            </div>
+            <div class="ps-3">
+
+                <!-- <input class="form-check-input" v-model="isFavoriteChecked" type="checkbox" value=""
+                    id="favoriteProductsFilter"> -->
+                <label class="form-label d-flex mb-1 gap-1 align-items-center"
+                    @click="() => props.userIsAuthorized ? isCategoryGroupFavoriteChecked = changeCustomCheckboxValue(isCategoryGroupFavoriteChecked) : 0"
+                    for="favoriteProductsFilter">
+
+                    <IconSquare v-show="isCategoryGroupFavoriteChecked === null" />
+                    <IconDashSquareFill class="text-danger" v-show="isCategoryGroupFavoriteChecked === false" />
+                    <IconCheckSquareFillSm class="text-primary" v-show="isCategoryGroupFavoriteChecked === true" />
+
+                    <div :class="checkboxClasses(isCategoryGroupFavoriteChecked)">Избранные группы</div>
+                </label>
+            </div>
+            <div class="ps-3">
+                <!-- <input class="form-check-input" v-model="isPersonalChecked" type="checkbox" value=""
+                    id="personalProductsFilter"> -->
+                <label class="form-label d-flex mb-1 gap-1 align-items-center"
+                    @click="() => props.userIsAuthorized ? isCategoryGroupPersonalChecked = changeCustomCheckboxValue(isCategoryGroupPersonalChecked) : 0"
+                    for="personalProductsFilter">
+
+                    <IconSquare v-show="isCategoryGroupPersonalChecked === null" />
+                    <IconDashSquareFill class="text-danger" v-show="isCategoryGroupPersonalChecked === false" />
+                    <IconCheckSquareFillSm class="text-primary" v-show="isCategoryGroupPersonalChecked === true" />
+
+                    <div :class="checkboxClasses(isCategoryGroupPersonalChecked)">
+                        Персональные группы
+                    </div>
+                </label>
+            </div>
+            <div class="ps-3">
+                <!-- <input class="form-check-input" v-model="isHiddenChecked" type="checkbox" value=""
+                    id="hiddenProductsFilter"> -->
+                <label class="form-label d-flex gap-1 align-items-center"
+                    @click="() => props.userIsAuthorized ? isCategoryGroupHiddenChecked = changeCustomCheckboxValue(isCategoryGroupHiddenChecked) : 0"
+                    for="hiddenProductsFilter">
+
+                    <IconSquare v-show="isCategoryGroupHiddenChecked === null" />
+                    <IconDashSquareFill class="text-danger" v-show="isCategoryGroupHiddenChecked === false" />
+                    <IconCheckSquareFillSm class="text-primary" v-show="isCategoryGroupHiddenChecked === true" />
+
+                    <div :class="checkboxClasses(isCategoryGroupHiddenChecked)">
+                        Скрытые группы
+                    </div>
+                </label>
+            </div>
+        </div>
+
+        <!-- filter for category status -->
+        <div class="status-filter-container mb-1 ">
+            <div class="border-bottom border-light-subtle">
+                Статус категорий
+            </div>
+            <div class="d-flex gap-1 mb-1 align-items-center ps-1">
+                <div class="btn btn-light py-0 px-1" @click="changeAllCategoriesCustomCheckboxValue(true)">
+                    <IconCheckSquareFillSm class="text-primary" /> - вкл.
+                </div>
+                <div class="btn btn-light py-0 px-1" @click="changeAllCategoriesCustomCheckboxValue(false)">
+                    <IconDashSquareFill class="text-danger" /> - искл.
+                </div>
+                <div class="btn btn-light py-0 px-1" @click="changeAllCategoriesCustomCheckboxValue(null)">
+                    <IconSquare /> - любое значение
+                </div>
+            </div>
+            <div class="ps-3">
+
+                <!-- <input class="form-check-input" v-model="isFavoriteChecked" type="checkbox" value=""
+                    id="favoriteProductsFilter"> -->
+                <label class="form-label d-flex mb-1 gap-1 align-items-center"
+                    @click="() => props.userIsAuthorized ? isCategoryFavoriteChecked = changeCustomCheckboxValue(isCategoryFavoriteChecked) : 0"
+                    for="favoriteProductsFilter">
+
+                    <IconSquare v-show="isCategoryFavoriteChecked === null" />
+                    <IconDashSquareFill class="text-danger" v-show="isCategoryFavoriteChecked === false" />
+                    <IconCheckSquareFillSm class="text-primary" v-show="isCategoryFavoriteChecked === true" />
+
+                    <div :class="checkboxClasses(isCategoryFavoriteChecked)">Избранные категории</div>
+                </label>
+            </div>
+            <div class="ps-3">
+                <!-- <input class="form-check-input" v-model="isPersonalChecked" type="checkbox" value=""
+                    id="personalProductsFilter"> -->
+                <label class="form-label d-flex mb-1 gap-1 align-items-center"
+                    @click="() => props.userIsAuthorized ? isCategoryPersonalChecked = changeCustomCheckboxValue(isCategoryPersonalChecked) : 0"
+                    for="personalProductsFilter">
+
+                    <IconSquare v-show="isCategoryPersonalChecked === null" />
+                    <IconDashSquareFill class="text-danger" v-show="isCategoryPersonalChecked === false" />
+                    <IconCheckSquareFillSm class="text-primary" v-show="isCategoryPersonalChecked === true" />
+
+                    <div :class="checkboxClasses(isCategoryPersonalChecked)">
+                        Персональные категории
+                    </div>
+                </label>
+            </div>
+            <div class="ps-3">
+                <!-- <input class="form-check-input" v-model="isHiddenChecked" type="checkbox" value=""
+                    id="hiddenProductsFilter"> -->
+                <label class="form-label d-flex gap-1 align-items-center"
+                    @click="() => props.userIsAuthorized ? isCategoryHiddenChecked = changeCustomCheckboxValue(isCategoryHiddenChecked) : 0"
+                    for="hiddenProductsFilter">
+
+                    <IconSquare v-show="isCategoryHiddenChecked === null" />
+                    <IconDashSquareFill class="text-danger" v-show="isCategoryHiddenChecked === false" />
+                    <IconCheckSquareFillSm class="text-primary" v-show="isCategoryHiddenChecked === true" />
+
+                    <div :class="checkboxClasses(isCategoryHiddenChecked)">
+                        Скрытые категории
+                    </div>
+                </label>
+            </div>
+        </div>
+
+        <!-- filter for product status -->
+        <div class="status-filter-container mb-1 ">
+            <div class="border-bottom border-light-subtle">
+                Статус продуктов
+            </div>
+            <div class="d-flex gap-1 mb-1 align-items-center ps-1">
+                <div class="btn btn-light py-0 px-1" @click="changeAllProductsCustomCheckboxValue(true)">
+                    <IconCheckSquareFillSm class="text-primary" /> - вкл.
+                </div>
+                <div class="btn btn-light py-0 px-1" @click="changeAllProductsCustomCheckboxValue(false)">
+                    <IconDashSquareFill class="text-danger" /> - искл.
+                </div>
+                <div class="btn btn-light py-0 px-1" @click="changeAllProductsCustomCheckboxValue(null)">
                     <IconSquare /> - любое значение
                 </div>
             </div>
@@ -327,14 +522,14 @@ function checkboxClasses(value, disableForUnauthorized = true) {
                 <!-- <input class="form-check-input" v-model="isAbstractChecked" type="checkbox" value=""
                     id="abstractProductsFilter"> -->
                 <label class="form-label d-flex mb-1 gap-1 align-items-center"
-                    @click="() => isAbstractChecked = changeCustomCheckboxValue(isAbstractChecked)"
+                    @click="() => isProductAbstractChecked = changeCustomCheckboxValue(isProductAbstractChecked)"
                     for="abstractProductsFilter">
 
-                    <IconSquare v-show="isAbstractChecked === null" />
-                    <IconDashSquareFill class="text-danger" v-show="isAbstractChecked === false" />
-                    <IconCheckSquareFillSm class="text-primary" v-show="isAbstractChecked === true" />
+                    <IconSquare v-show="isProductAbstractChecked === null" />
+                    <IconDashSquareFill class="text-danger" v-show="isProductAbstractChecked === false" />
+                    <IconCheckSquareFillSm class="text-primary" v-show="isProductAbstractChecked === true" />
 
-                    <div :class="checkboxClasses(isAbstractChecked, false)">
+                    <div :class="checkboxClasses(isProductAbstractChecked, false)">
                         Абстрактные продукты
                     </div>
                 </label>
@@ -343,28 +538,28 @@ function checkboxClasses(value, disableForUnauthorized = true) {
                 <!-- <input class="form-check-input" v-model="isFavoriteChecked" type="checkbox" value=""
                     id="favoriteProductsFilter"> -->
                 <label class="form-label d-flex mb-1 gap-1 align-items-center"
-                    @click="() => props.userIsAuthorized ? isFavoriteChecked = changeCustomCheckboxValue(isFavoriteChecked) : 0"
+                    @click="() => props.userIsAuthorized ? isProductFavoriteChecked = changeCustomCheckboxValue(isProductFavoriteChecked) : 0"
                     for="favoriteProductsFilter">
 
-                    <IconSquare v-show="isFavoriteChecked === null" />
-                    <IconDashSquareFill class="text-danger" v-show="isFavoriteChecked === false" />
-                    <IconCheckSquareFillSm class="text-primary" v-show="isFavoriteChecked === true" />
+                    <IconSquare v-show="isProductFavoriteChecked === null" />
+                    <IconDashSquareFill class="text-danger" v-show="isProductFavoriteChecked === false" />
+                    <IconCheckSquareFillSm class="text-primary" v-show="isProductFavoriteChecked === true" />
 
-                    <div :class="checkboxClasses(isFavoriteChecked)">Избранные продукты</div>
+                    <div :class="checkboxClasses(isProductFavoriteChecked)">Избранные продукты</div>
                 </label>
             </div>
             <div class="ps-3">
                 <!-- <input class="form-check-input" v-model="isPersonalChecked" type="checkbox" value=""
                     id="personalProductsFilter"> -->
                 <label class="form-label d-flex mb-1 gap-1 align-items-center"
-                    @click="() => props.userIsAuthorized ? isPersonalChecked = changeCustomCheckboxValue(isPersonalChecked) : 0"
+                    @click="() => props.userIsAuthorized ? isProductPersonalChecked = changeCustomCheckboxValue(isProductPersonalChecked) : 0"
                     for="personalProductsFilter">
 
-                    <IconSquare v-show="isPersonalChecked === null" />
-                    <IconDashSquareFill class="text-danger" v-show="isPersonalChecked === false" />
-                    <IconCheckSquareFillSm class="text-primary" v-show="isPersonalChecked === true" />
+                    <IconSquare v-show="isProductPersonalChecked === null" />
+                    <IconDashSquareFill class="text-danger" v-show="isProductPersonalChecked === false" />
+                    <IconCheckSquareFillSm class="text-primary" v-show="isProductPersonalChecked === true" />
 
-                    <div :class="checkboxClasses(isPersonalChecked)">
+                    <div :class="checkboxClasses(isProductPersonalChecked)">
                         Персональные продукты
                     </div>
                 </label>
@@ -373,14 +568,14 @@ function checkboxClasses(value, disableForUnauthorized = true) {
                 <!-- <input class="form-check-input" v-model="isHiddenChecked" type="checkbox" value=""
                     id="hiddenProductsFilter"> -->
                 <label class="form-label d-flex gap-1 align-items-center"
-                    @click="() => props.userIsAuthorized ? isHiddenChecked = changeCustomCheckboxValue(isHiddenChecked) : 0"
+                    @click="() => props.userIsAuthorized ? isProductHiddenChecked = changeCustomCheckboxValue(isProductHiddenChecked) : 0"
                     for="hiddenProductsFilter">
 
-                    <IconSquare v-show="isHiddenChecked === null" />
-                    <IconDashSquareFill class="text-danger" v-show="isHiddenChecked === false" />
-                    <IconCheckSquareFillSm class="text-primary" v-show="isHiddenChecked === true" />
+                    <IconSquare v-show="isProductHiddenChecked === null" />
+                    <IconDashSquareFill class="text-danger" v-show="isProductHiddenChecked === false" />
+                    <IconCheckSquareFillSm class="text-primary" v-show="isProductHiddenChecked === true" />
 
-                    <div :class="checkboxClasses(isHiddenChecked)">
+                    <div :class="checkboxClasses(isProductHiddenChecked)">
                         Скрытые продукты
                     </div>
                 </label>

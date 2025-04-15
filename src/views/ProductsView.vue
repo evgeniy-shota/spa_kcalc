@@ -44,6 +44,7 @@ const isShowNewProductWindow = ref(false);
 const isShowCategoryFormWindow = ref(false);
 const isShowProductInfoWindow = ref(false);
 const saveNewProductResult = ref(false);
+const eventSourceToFilter = ref(null);
 
 const propsForModalCategoryForm = computed(() => {
     return {
@@ -60,6 +61,7 @@ const propsForModalCategoryForm = computed(() => {
 });
 
 const propsForModalFilter = computed(() => {
+    let filters = productsStore.getFilters;
     return {
         categoriesGroup: additionalProductDataStore.allCategoriesGroup,
         categories: additionalProductDataStore.allCategories,
@@ -71,7 +73,10 @@ const propsForModalFilter = computed(() => {
         fatsLimits: additionalProductDataStore.fatsLimits,
         isApplyFilter: isApplyFilter.value,
         isClearFilter: isClearFilter.value,
-        productsFilterDefaultVal: productsStore.getProductFilter,
+        groupFilterResults: filters.groupFilterResults,
+        categoryGroupsFilterDefaultVal: filters.categoryGroupsFilter,
+        categoriesFilterDefaultVal: filters.categoriesFilter,
+        productsFilterDefaultVal: filters.productsFilter,
         currentCategoryId: productsStore.currentCategory.id,
         userIsAuthorized: userStore.userIsAuthorized,
         applyFilter: applyFilter,
@@ -155,7 +160,8 @@ function hideProductInfoWindow() {
     isShowProductInfoWindow.value = false;
 }
 
-function showProductFilter() {
+function showProductFilter(eventSource) {
+    eventSourceToFilter.value = eventSource;
     isShowProductFilter.value = true;
 }
 
@@ -175,6 +181,8 @@ function getProducts(id, cursor = null) {
         productsStore.products.length = 0
     }
     // productsStore.
+    productsStore.categoriesFilter.categoryId.length = 0
+    productsStore.categoriesFilter.categoryId.push(id)
     productsStore.getProducts(id, cursor);
 }
 
@@ -189,14 +197,29 @@ function clickClearFilter() {
     isClearFilter.value = true
 }
 
-async function applyFilter(filter) {
+async function applyFilter(filters) {
+    console.log(filters);
     isApplyFilter.value = false
     isShowProductFilter.value = false
-    productsStore.productsFilter = filter;
+    productsStore.categoryGroupsFilter = { ...productsStore.categoryGroupsFilter, ...filters.categoryGroupsFilter };
+    productsStore.categoriesFilter = { ...productsStore.categoriesFilter, ...filters.categoriesFilter };
+    productsStore.productsFilter = { ...productsStore.productsFilter, ...filters.productsFilter };
+    productsStore.groupFilterResults = filters.groupFilterResults;
     // productsStore.getProducts();
-    productsStore.getProducts();
+    console.log(eventSourceToFilter.value);
 
-    if (filter.category_id === null || (filter.category_id.length !== 1 || filter.category_id[0] !== productsStore.currentCategory.id)) {
+    if (filters.groupFilterResults && eventSourceToFilter.value === 1) {
+        productsStore.getCategoryGroups();
+    } else if (filters.groupFilterResults && eventSourceToFilter.value === 2) {
+        productsStore.getCategories();
+    } else {
+        productsStore.getProducts();
+
+    }
+    if (!filters.groupFilterResults
+        && (filters.categoriesFilter.categoryId === null
+            || (filters.categoriesFilter.categoryId.length !== 1
+                || filters.categoriesFilter.categoryId[0] !== productsStore.currentCategory.id))) {
         isShowFilteredProducts.value = true
     }
     // isShowFilteredProducts.value = true
@@ -380,14 +403,17 @@ function showCategoriesGroupFormWindow() { }
     <ModalWindow :show-window="isShowProductFilter" title="Расширенный фильтр" @close-window="hideProductFilter"
         :props-for-slots="propsForModalFilter">
 
-        <template #main="{ categories, dataSource, countries, isApplyFilter, isClearFilter, applyFilter, clearFilter,
-            caloryLimits, proteinsLimits, carbohydratesLimits, fatsLimits, productsFilterDefaultVal,
-            currentCategoryId, userIsAuthorized, categoriesGroup }">
+        <template
+            #main="{ categories, dataSource, countries, isApplyFilter, isClearFilter, applyFilter, clearFilter,
+                caloryLimits, proteinsLimits, carbohydratesLimits, fatsLimits, groupFilterResults, productsFilterDefaultVal,
+                categoryGroupsFilterDefaultVal, categoriesFilterDefaultVal, currentCategoryId, userIsAuthorized, categoriesGroup }">
             <ProductFilter :products-filter-default-val="productsFilterDefaultVal" :categories-group="categoriesGroup"
                 :user-is-authorized="userIsAuthorized" :currentCategoryId="currentCategoryId" :categories="categories"
                 :data-source="dataSource" :countries="countries" @apply-filter="applyFilter" @clear-filter="clearFilter"
                 :is-apply-filter="isApplyFilter" :is-clear-filter="isClearFilter" :calory-limit="caloryLimits"
-                :proteins-limit="proteinsLimits" :carbohydrates-limit="carbohydratesLimits" :fats-limit="fatsLimits" />
+                :proteins-limit="proteinsLimits" :carbohydrates-limit="carbohydratesLimits" :fats-limit="fatsLimits"
+                :category-groups-filter-default-val="categoryGroupsFilterDefaultVal"
+                :categories-filter-default-val="categoriesFilterDefaultVal" :group-filter-result="groupFilterResults" />
         </template>
 
         <template #footer="{ clickClearFilter, clickApplyFilter }">

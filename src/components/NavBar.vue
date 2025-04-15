@@ -23,7 +23,7 @@ const props = defineProps({
                     <span class="navbar-toggler-icon"></span>
                 </button>
 
-                <RouterLink class="navbar-brand" to="/">Kcalc</RouterLink>
+                <RouterLink class="navbar-brand" to="/">KcalC</RouterLink>
 
                 <div class="collapse navbar-collapse" id="navbarTogglerDemo03">
                     <ul class="navbar-nav me-auto mb-2 mb-lg-0">

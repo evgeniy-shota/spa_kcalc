@@ -9,10 +9,6 @@ const URL_API_CATEGORY_GROUPS = 'api/category-groups/'
 const URL_API_CATEGORIES = 'api/categories/'
 const URL_API_PRODUCTS = 'api/products/'
 const URL_API_PRODUCT = 'api/products/'
-// const URL_API_PRODUCT_CREATE = 'api/products/create/'
-
-const URL_CATEGORIES = 'api/categories/'
-const URL_PRODUCTS = 'api/products/'
 
 export const useProductsStore = defineStore('products', () => {
   const categoriesGroup = ref([])
@@ -42,6 +38,7 @@ export const useProductsStore = defineStore('products', () => {
   const categoriesGroupSortParams = ref(CategoryGroupParams.default.key)
   const categoriesSortParams = ref(CategoryParams.default.key)
   const productsSortParams = ref(ProductParams.default.key)
+  const groupFilterResults = ref(true)
   const categoryGroupsFilter = ref({
     categoryGroupsId: [],
     isPersonal: null,
@@ -49,7 +46,7 @@ export const useProductsStore = defineStore('products', () => {
     isHidden: null,
   })
   const categoriesFilter = ref({
-    categoryGroupId: [],
+    categoryGroupId: categoryGroupsFilter.value.categoryGroupsId,
     categoryId: [],
     isFavorite: null,
     isHidden: null,
@@ -57,13 +54,13 @@ export const useProductsStore = defineStore('products', () => {
   })
   const productsFilter = ref({
     name: null,
-    category_id: null,
-    is_personal: null,
-    is_abstract: null,
-    is_favorite: null,
-    is_hidden: null,
-    manufacturer: null,
-    country_of_manufacture: null,
+    // categoriesId: categoriesFilter.value.categoryId,
+    isPersonal: null,
+    isAbstract: null,
+    isFavorite: null,
+    isHidden: null,
+    manufacturer: [],
+    countryOfManufacture: [],
     quantity: null,
     kcalory: null,
     proteins: null,
@@ -135,13 +132,13 @@ export const useProductsStore = defineStore('products', () => {
     productsSortParams.value = ProductParams.default.key
     productsFilter.value = {
       name: null,
-      category_id: null,
-      is_personal: null,
-      is_abstract: null,
-      is_favorite: null,
-      is_hidden: null,
-      manufacturer: null,
-      country_of_manufacture: null,
+      categoriesId: [],
+      isPersonal: null,
+      isAbstract: null,
+      isFavorite: null,
+      isHidden: null,
+      manufacturer: [],
+      countryOfManufacture: [],
       quantity: null,
       kcalory: null,
       proteins: null,
@@ -172,13 +169,13 @@ export const useProductsStore = defineStore('products', () => {
   function clearProductFilter() {
     productsFilter.value = {
       name: null,
-      category_id: null,
-      is_personal: null,
-      is_abstract: null,
-      is_favorite: null,
-      is_hidden: null,
-      manufacturer: null,
-      country_of_manufacture: null,
+      categoriesId: [],
+      isPersonal: null,
+      isAbstract: null,
+      isFavorite: null,
+      isHidden: null,
+      manufacturer: [],
+      countryOfManufacture: [],
       quantity: null,
       kcalory: null,
       proteins: null,
@@ -187,14 +184,35 @@ export const useProductsStore = defineStore('products', () => {
     }
   }
 
+  const getFilters = computed(() => {
+    const userStore = useUsersStore()
+    console.log('getFilters')
+    if (!userStore.userIsAuthorized) {
+      categoryGroupsFilter.value.isHidden = null
+      categoriesFilter.value.isHidden = null
+      productsFilter.value.isHidden = null
+    } else {
+      categoryGroupsFilter.value.isHidden = false
+      categoriesFilter.value.isHidden = false
+      productsFilter.value.isHidden = false
+    }
+
+    return {
+      categoryGroupsFilter: categoryGroupsFilter.value,
+      categoriesFilter: categoriesFilter.value,
+      productsFilter: productsFilter.value,
+      groupFilterResults: groupFilterResults.value,
+    }
+  })
+
   const getProductFilter = computed(() => {
     const userStore = useUsersStore()
     console.log(userStore.userIsAuthorized)
 
     if (!userStore.userIsAuthorized) {
-      productsFilter.value.is_hidden = null
+      productsFilter.value.isHidden = null
     } else {
-      productsFilter.value.is_hidden = false
+      productsFilter.value.isHidden = false
     }
 
     return productsFilter.value
@@ -267,7 +285,9 @@ export const useProductsStore = defineStore('products', () => {
   async function getCategoryGroups() {
     isCategoriesGroupFound.value = true
     try {
-      const response = await axios_instance.get(URL_API_CATEGORY_GROUPS)
+      const response = await axios_instance.get(URL_API_CATEGORY_GROUPS, {
+        params: categoryGroupsFilter.value,
+      })
 
       if (response) {
         isCategoriesGroupFound.value = response.data.count > 0 ? true : false
@@ -335,20 +355,43 @@ export const useProductsStore = defineStore('products', () => {
   async function getProducts(category_id, cursor = null) {
     isProductsFound.value = true
     // let requestParam = cursor ? category_id + '?cursor=' + cursor : category_id
-    let requestParam = category_id ? category_id : ''
-    requestParam += '?sort=' + productsSortParams.value
-    requestParam += cursor ? '&cursor=' + cursor : ''
+    // let requestParam = category_id ? category_id : ''
+    // requestParam += '?sort=' + productsSortParams.value
+    // requestParam += cursor ? '&cursor=' + cursor : ''
 
     try {
-      const response = await axios_instance.post(
-        URL_API_PRODUCTS + requestParam,
-        productsFilter.value,
-      )
+      // const response = await axios_instance.post(
+      //   URL_API_PRODUCTS + requestParam,
+      //   productsFilter.value,
+      // )
+      console.log(productsFilter.value)
+      const response = await axios_instance.get(URL_API_PRODUCTS, {
+        params: {
+          sort: productsSortParams.value,
+          categories: categoriesFilter.value.categoryId.join(','),
+          isPersonal: productsFilter.value.isPersonal,
+          isAbstract: productsFilter.value.isAbstract,
+          isFavorite: productsFilter.value.isFavorite,
+          isHidden: productsFilter.value.isHidden,
+          name: productsFilter.value.name,
+          manufacturer: productsFilter.value.manufacturer,
+          countryOfManufacture: productsFilter.value.countryOfManufacture,
+          quantity: productsFilter.value.quantity,
+          kcalory: productsFilter.value.kcalory,
+          proteins: productsFilter.value.proteins,
+          carbohydrates: productsFilter.value.carbohydrates,
+          fats: productsFilter.value.fats,
+          cursor: cursor ? cursor : '',
+        },
+      })
 
       if (response) {
         isProductsFound.value = response.data.count > 0 ? true : false
         currentCategory.value = {
-          id: category_id,
+          id:
+            categoriesFilter.value.categoryId.length == 1
+              ? categoriesFilter.value.categoryId[0]
+              : null,
           name: null,
           productsCount: null,
         }
@@ -402,7 +445,7 @@ export const useProductsStore = defineStore('products', () => {
 
   async function changeCategoryGroup(id, data, categoriesGroupIndex) {
     try {
-      const response = await axios_instance.post(URL_API_CATEGORY_GROUPS + id, {
+      const response = await axios_instance.put(URL_API_CATEGORY_GROUPS + id, {
         id: 'id' in data ? data.id : null,
         name: 'name' in data ? data.name : null,
         description: 'description' in data ? data.description : null,
@@ -612,6 +655,8 @@ export const useProductsStore = defineStore('products', () => {
     isCategoriesFound,
     isProductsFound,
     getProductFilter,
+    getFilters,
+    groupFilterResults,
     categoryGroupsFilter,
     categoriesFilter,
     productsFilter,

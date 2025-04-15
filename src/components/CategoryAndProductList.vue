@@ -141,8 +141,11 @@ const emit = defineEmits({
         }
         return true
     },
-    showFilter: () => {
-        return true;
+    showFilter: (eventSource) => {
+        if (eventSource) {
+            return true
+        }
+        return false;
     },
     hideFilteredProduct: () => {
         return true;
@@ -268,8 +271,8 @@ function selectProduct(id) {
     emit('getProduct', id);
 }
 
-function showFilter() {
-    emit('showFilter');
+function showFilter(event, eventSource) {
+    emit('showFilter', eventSource);
 }
 
 function changeCategoryGroupFavorieStatus(id, status, index) {
@@ -412,7 +415,7 @@ function addProduct() {
         <div class="list-controllers d-flex gap-2 ms-2">
             <!-- filter -->
             <div class="filter-container  pb-1 mb-1">
-                <div @click="showFilter($event)" class="btn btn-sm btn-outline-dark">
+                <div @click="showFilter($event, currentSlide)" class="btn btn-sm btn-outline-dark">
                     <IconFunnel />
                     Фильтр
                 </div>
