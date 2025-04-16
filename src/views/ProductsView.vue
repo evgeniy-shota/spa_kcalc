@@ -8,10 +8,13 @@ import ProductForm from '@/components/ProductForm.vue';
 import CategoryForm from '@/components/CategoryForm.vue';
 import FormControls from '@/components/FormControls.vue';
 import { useProductsStore } from '@/stores/productsStore';
+import { useCategoriesStore } from '@/stores/categoriesStore';
+import { useCategoryGroupsStore } from '@/stores/categoryGroupsStore';
 import { useUsersStore } from '@/stores/usersStore';
 import Offcanv from '@/components/Offcanv.vue';
 import CategoryAndProductList from '@/components/CategoryAndProductList.vue';
 import { useAdditionalProductData } from '@/stores/additionProductData';
+import { useFiltersStore } from '@/stores/filtersStore';
 
 onBeforeUnmount(() => {
     productsStore.$reset();
@@ -19,6 +22,7 @@ onBeforeUnmount(() => {
 
 const userStore = useUsersStore();
 const productsStore = useProductsStore();
+const filtersStore = useFiltersStore();
 const additionalProductDataStore = useAdditionalProductData();
 // const userStore = useUsersStore();
 
@@ -53,7 +57,7 @@ const propsForModalCategoryForm = computed(() => {
         cancel: hideCategoryFormWindow,
         applyCategoryForm: () => isApplyCategoryForm.value = true,
         deleteCategoryForm: () => isDeleteCategoryForm.value = true,
-        deleteHideConditions: productsStore.editableCategory.id === null,
+        // deleteHideConditions: productsStore.editableCategory.id === null,
         isApplyCategoryForm: isApplyCategoryForm.value,
         isCancelCategoryForm: isClearCategoryForm.value,
         isDeleteCategoryForm: isDeleteCategoryForm.value,
@@ -61,7 +65,6 @@ const propsForModalCategoryForm = computed(() => {
 });
 
 const propsForModalFilter = computed(() => {
-    let filters = productsStore.getFilters;
     return {
         categoriesGroup: additionalProductDataStore.allCategoriesGroup,
         categories: additionalProductDataStore.allCategories,
@@ -73,11 +76,11 @@ const propsForModalFilter = computed(() => {
         fatsLimits: additionalProductDataStore.fatsLimits,
         isApplyFilter: isApplyFilter.value,
         isClearFilter: isClearFilter.value,
-        groupFilterResults: filters.groupFilterResults,
-        categoryGroupsFilterDefaultVal: filters.categoryGroupsFilter,
-        categoriesFilterDefaultVal: filters.categoriesFilter,
-        productsFilterDefaultVal: filters.productsFilter,
-        currentCategoryId: productsStore.currentCategory.id,
+        groupFilterResults: filtersStore.groupFilterResults,
+        categoryGroupsFilterDefaultVal: filtersStore.categoryGroupsFilter,
+        categoriesFilterDefaultVal: filtersStore.categoriesFilter,
+        productsFilterDefaultVal: filtersStore.productsFilter,
+        // currentCategoryId: productsStore.currentCategory.id,
         userIsAuthorized: userStore.userIsAuthorized,
         applyFilter: applyFilter,
         clearFilter: clearFilter,
@@ -181,8 +184,6 @@ function getProducts(id, cursor = null) {
         productsStore.products.length = 0
     }
     // productsStore.
-    productsStore.categoriesFilter.categoryId.length = 0
-    productsStore.categoriesFilter.categoryId.push(id)
     productsStore.getProducts(id, cursor);
 }
 
@@ -427,15 +428,10 @@ function showCategoriesGroupFormWindow() { }
 
     <div class="col" style="max-height: 100%;">
 
-        <CategoryAndProductList :user-is-authorized="userStore.userIsAuthorized" :category-groups="categoriesGroup"
-            :categories="categories" :products="products" :is-category-groups-found="isCategoryGroupsFound"
-            :is-categories-found="isCategoriesFound" :is-products-found="isProductsFound"
+        <CategoryAndProductList :user-is-authorized="userStore.userIsAuthorized"
             :show-filtered-products="isShowFilteredProducts" :next-page-cursor="productsStore.productsNextCursor"
-            :categories-group-sort-param="productsStore.categoriesGroupSortParams"
-            :categories-sort-param="productsStore.categoriesSortParams"
-            :products-sort-param="productsStore.productsSortParams" @hide-filtered-product="hideFilteredProducts"
-            @get-category-groups="productsStore.getCategoryGroups();" @get-categories="getCategories"
-            @get-products="getProducts" @get-product="getProduct" @show-filter="showProductFilter"
+            @hide-filtered-product="hideFilteredProducts" @get-categories="getCategories" @get-products="getProducts"
+            @get-product="getProduct" @show-filter="showProductFilter"
             @change-category-group-favorite-status="changeCategoryGroupFavoriteStatus"
             @change-category-group-hidden-status="changeCategoryGroupHiddenStatus"
             @change-category-favorite-status="changeCategoryFavoriteStatus"

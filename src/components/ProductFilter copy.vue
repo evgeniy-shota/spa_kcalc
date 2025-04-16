@@ -8,9 +8,6 @@ import IconDashSquare from './icons/IconDashSquare.vue';
 import IconDashSquareFill from './icons/IconDashSquareFill.vue';
 import IconCheckSquareSm from './icons/IconCheckSquareSm.vue';
 import IconCheckSquareFillSm from './icons/IconCheckSquareFillSm.vue';
-import { useFiltersStore } from '@/stores/filtersStore';
-
-const filterStore = useFiltersStore();
 
 const props = defineProps({
     categoriesGroup: {
@@ -133,25 +130,25 @@ watch(() => props.isClearFilter, () => {
 
 const CUSTOM_CHECKBOX_VALUES = [null, true, false];
 
-const groupFilterResults = ref(filterStore.groupFilterResults);
+const groupFilterResults = ref(props.groupFilterResult);
 const selectedCategories = ref([]);
 const selectedDataSource = ref([]);
 const selectedCountries = ref([]);
 
-const isCategoryGroupFavoriteChecked = ref(filterStore.categoryGroupsFilter.isFavorite ?? null);
-const isCategoryGroupPersonalChecked = ref(filterStore.categoryGroupsFilter.isPersonal ?? null);
-const isCategoryGroupHiddenChecked = ref(filterStore.categoryGroupsFilter.isHidden ?? null);
+const isCategoryGroupFavoriteChecked = ref(props.categoryGroupsFilterDefaultVal?.isFavorite !== undefined ? props.categoryGroupsFilterDefaultVal.isFavorite : null);
+const isCategoryGroupPersonalChecked = ref(props.categoryGroupsFilterDefaultVal?.isPersonal !== undefined ? props.categoryGroupsFilterDefaultVal.isPersonal : null);
+const isCategoryGroupHiddenChecked = ref(props.categoryGroupsFilterDefaultVal?.isHidden !== undefined ? props.categoryGroupsFilterDefaultVal.isHidden : null);
 // const isCategoryGroupAbstractChecked = ref(props.categoryGroupsFilterDefaultVal?.isAbstract !== undefined ? props.categoryGroupsFilterDefaultVal.isAbstract : null);
 
-const isCategoryFavoriteChecked = ref(filterStore.categoriesFilter.isFavorite ?? null);
-const isCategoryPersonalChecked = ref(filterStore.categoriesFilter.isPersonal ?? null);
-const isCategoryHiddenChecked = ref(filterStore.categoriesFilter.isHidden ?? null);
+const isCategoryFavoriteChecked = ref(props.categoriesFilterDefaultVal?.isFavorite !== undefined ? props.categoriesFilterDefaultVal.isFavorite : null);
+const isCategoryPersonalChecked = ref(props.categoriesFilterDefaultVal?.isPersonal !== undefined ? props.categoriesFilterDefaultVal.isPersonal : null);
+const isCategoryHiddenChecked = ref(props.categoriesFilterDefaultVal?.isHidden !== undefined ? props.categoriesFilterDefaultVal.isHidden : null);
 // const isCategoryAbstractChecked = ref(props.categoriesFilterDefaultVal?.isAbstract !== undefined ? props.categoriesFilterDefaultVal.isAbstract : null);
 
-const isProductFavoriteChecked = ref(filterStore.productsFilter.isFavorite ?? null);
-const isProductPersonalChecked = ref(filterStore.productsFilter.isPersonal ?? null);
-const isProductHiddenChecked = ref(filterStore.productsFilter.isHidden ?? null);
-const isProductAbstractChecked = ref(filterStore.productsFilter.isAbstract ?? null);
+const isProductFavoriteChecked = ref(props.productsFilterDefaultVal?.isFavorite !== undefined ? props.productsFilterDefaultVal.isFavorite : null);
+const isProductPersonalChecked = ref(props.productsFilterDefaultVal?.isPersonal !== undefined ? props.productsFilterDefaultVal.isPersonal : null);
+const isProductHiddenChecked = ref(props.productsFilterDefaultVal?.isHidden !== undefined ? props.productsFilterDefaultVal.isHidden : null);
+const isProductAbstractChecked = ref(props.productsFilterDefaultVal?.isAbstract !== undefined ? props.productsFilterDefaultVal.isAbstract : null);
 
 const caloryLimitFrom = ref(null);
 const caloryLimitTo = ref(null);

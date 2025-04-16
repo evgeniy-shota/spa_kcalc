@@ -3,399 +3,343 @@ import { defineStore } from 'pinia'
 import axios_instance from '@/resource/js/axiosInstance'
 import { useUsersStore } from './usersStore'
 import { CategoryGroupParams, CategoryParams, ProductParams } from '@/resource/js/sortParams'
+import { useFiltersStore } from './filtersStore'
+
+const initialStateProduct = {
+  id: null,
+  category_id: null,
+  name: null,
+  composition: null,
+  description: null,
+  quantity: 0,
+  quantityType: 'weight',
+  manufacturer: null,
+  countryOfManufacture: null,
+  kcalory: 0,
+  proteins: 0,
+  carbohydrates: 0,
+  fats: 0,
+  nutrientAndVitamines: {},
+  is_visible: true,
+}
 
 // const FAKE_API = 'https://jsonplaceholder.typicode.com/todos'
-const URL_API_CATEGORY_GROUPS = 'api/category-groups/'
-const URL_API_CATEGORIES = 'api/categories/'
+// const URL_API_CATEGORY_GROUPS = 'api/category-groups/'
+// const URL_API_CATEGORIES = 'api/categories/'
 const URL_API_PRODUCTS = 'api/products/'
 const URL_API_PRODUCT = 'api/products/'
 
 export const useProductsStore = defineStore('products', () => {
-  const categoriesGroup = ref([])
-  const currentCategoryGroup = ref({
-    id: null,
-    name: null,
-    categoriesCount: null,
-  })
-  const isCategoriesGroupFound = ref(true)
-  const categories = ref([])
-  const currentCategory = ref({
-    id: null,
-    name: null,
-    productsCount: null,
-  })
+  // const categoriesGroup = ref([])
+  // const currentCategoryGroup = ref({
+  //   id: null,
+  //   name: null,
+  //   categoriesCount: null,
+  // })
+  // const isCategoriesGroupFound = ref(true)
+  // const categories = ref([])
+  // const currentCategory = ref({
+  //   id: null,
+  //   name: null,
+  //   productsCount: null,
+  // })
   // const categoriesPrevPage = ref('')
   // const categoriesNextPage = ref('')
-  const isCategoriesFound = ref(true)
+  // const isCategoriesFound = ref(true)
   const products = ref([])
   const productsPrevCursor = ref('')
   const productsNextCursor = ref('')
   const isProductsFound = ref(true)
   const editableProduct = ref({ index: null, id: null })
   const editableCategory = ref({ index: null, id: null, groupId: null, groupIndex: null })
-  const editableCategoriesGroup = ref({ index: null, id: null })
+  // const editableCategoriesGroup = ref({ index: null, id: null })
   const allCategories = ref([])
-  const categoriesGroupSortParams = ref(CategoryGroupParams.default.key)
-  const categoriesSortParams = ref(CategoryParams.default.key)
-  const productsSortParams = ref(ProductParams.default.key)
+  // const categoriesGroupSortParams = ref(CategoryGroupParams.default.key)
+  // const categoriesSortParams = ref(CategoryParams.default.key)
+  const sortType = ref(ProductParams.default.key)
   const groupFilterResults = ref(true)
-  const categoryGroupsFilter = ref({
-    categoryGroupsId: [],
-    isPersonal: null,
-    isFavorite: null,
-    isHidden: null,
-  })
-  const categoriesFilter = ref({
-    categoryGroupId: categoryGroupsFilter.value.categoryGroupsId,
-    categoryId: [],
-    isFavorite: null,
-    isHidden: null,
-    isPersonal: null,
-  })
-  const productsFilter = ref({
-    name: null,
-    // categoriesId: categoriesFilter.value.categoryId,
-    isPersonal: null,
-    isAbstract: null,
-    isFavorite: null,
-    isHidden: null,
-    manufacturer: [],
-    countryOfManufacture: [],
-    quantity: null,
-    kcalory: null,
-    proteins: null,
-    carbohydrates: null,
-    fats: null,
-  })
-  const product = ref({
-    id: null,
-    category_id: 0,
-    name: '',
-    composition: '',
-    description: '',
-    quantity: 0,
-    quantityType: 'weight',
-    manufacturer: '',
-    countryOfManufacture: '',
-    kcalory: 0,
-    proteins: 0,
-    carbohydrates: 0,
-    fats: 0,
-    nutrientAndVitamines: {},
-    is_visible: true,
-  })
+  // const categoryGroupsFilter = ref({
+  //   categoryGroupsId: [],
+  //   isPersonal: null,
+  //   isFavorite: null,
+  //   isHidden: null,
+  // })
+  // const categoriesFilter = ref({
+  //   categoryGroupId: categoryGroupsFilter.value.categoryGroupsId,
+  //   categoryId: [],
+  //   isFavorite: null,
+  //   isHidden: null,
+  //   isPersonal: null,
+  // })
+  // const productsFilter = ref({
+  //   name: null,
+  //   // categoriesId: categoriesFilter.value.categoryId,
+  //   isPersonal: null,
+  //   isAbstract: null,
+  //   isFavorite: null,
+  //   isHidden: null,
+  //   manufacturer: [],
+  //   countryOfManufacture: [],
+  //   quantity: null,
+  //   kcalory: null,
+  //   proteins: null,
+  //   carbohydrates: null,
+  //   fats: null,
+  // })
+  const product = ref({ ...initialStateProduct })
 
   const isProductFound = ref(true)
 
   function $reset() {
     editableProduct.value = { index: null, id: null }
-    editableCategory.value = { index: null, id: null, groupId: null, groupIndex: null }
-    editableCategoriesGroup.value = { index: null, id: null }
-    categoriesGroup.value.length = 0
-    currentCategoryGroup.value = {
-      id: null,
-      name: null,
-      categoriesCount: null,
-    }
-    categories.value.length = 0
-    currentCategory.value = {
-      id: null,
-      name: null,
-      productsCount: null,
-    }
+    // editableCategory.value = { index: null, id: null, groupId: null, groupIndex: null }
+    // editableCategoriesGroup.value = { index: null, id: null }
+    // categoriesGroup.value.length = 0
+    // currentCategoryGroup.value = {
+    //   id: null,
+    //   name: null,
+    //   categoriesCount: null,
+    // }
+    // categories.value.length = 0
+    // currentCategory.value = {
+    //   id: null,
+    //   name: null,
+    //   productsCount: null,
+    // }
     products.value.length = 0
-    product.value = {
-      id: null,
-      category_id: 0,
-      name: '',
-      composition: '',
-      description: '',
-      quantity: 0,
-      quantityType: 'weight',
-      manufacturer: '',
-      countryOfManufacture: '',
-      kcalory: 0,
-      proteins: 0,
-      carbohydrates: 0,
-      fats: 0,
-      nutrientAndVitamines: {},
-      is_visible: true,
-    }
+    product.value = { ...initialStateProduct }
     productsPrevCursor.value = ''
     productsNextCursor.value = ''
-    isCategoriesGroupFound.value = true
-    isCategoriesFound.value = true
+    // isCategoriesGroupFound.value = true
+    // isCategoriesFound.value = true
     isProductsFound.value = true
     isProductFound.value = true
-    categoriesGroupSortParams.value = CategoryGroupParams.default.key
-    categoriesSortParams.value = CategoryParams.default.key
-    productsSortParams.value = ProductParams.default.key
-    productsFilter.value = {
-      name: null,
-      categoriesId: [],
-      isPersonal: null,
-      isAbstract: null,
-      isFavorite: null,
-      isHidden: null,
-      manufacturer: [],
-      countryOfManufacture: [],
-      quantity: null,
-      kcalory: null,
-      proteins: null,
-      carbohydrates: null,
-      fats: null,
-    }
+    // categoriesGroupSortParams.value = CategoryGroupParams.default.key
+    // categoriesSortParams.value = CategoryParams.default.key
+    sortType.value = ProductParams.default.key
+    // productsFilter.value = {
+    //   name: null,
+    //   categoriesId: [],
+    //   isPersonal: null,
+    //   isAbstract: null,
+    //   isFavorite: null,
+    //   isHidden: null,
+    //   manufacturer: [],
+    //   countryOfManufacture: [],
+    //   quantity: null,
+    //   kcalory: null,
+    //   proteins: null,
+    //   carbohydrates: null,
+    //   fats: null,
+    // }
   }
 
-  function clearCategoryGroupFilter() {
-    categoryGroupsFilter.value = {
-      categoryGroupsId: null,
-      isPersonal: null,
-      isFavorite: null,
-      isHidden: null,
-    }
-  }
+  // function clearCategoryGroupFilter() {
+  //   categoryGroupsFilter.value = {
+  //     categoryGroupsId: null,
+  //     isPersonal: null,
+  //     isFavorite: null,
+  //     isHidden: null,
+  //   }
+  // }
 
-  function clearCategoryFilter() {
-    categoriesFilter.value = {
-      categoryGroupId: null,
-      categoryId: null,
-      isFavorite: null,
-      isHidden: null,
-      isPersonal: null,
-    }
-  }
+  // const getFilters = computed(() => {
+  //   const userStore = useUsersStore()
+  //   console.log('getFilters')
+  //   if (!userStore.userIsAuthorized) {
+  //     categoryGroupsFilter.value.isHidden = null
+  //     categoriesFilter.value.isHidden = null
+  //     productsFilter.value.isHidden = null
+  //   } else {
+  //     categoryGroupsFilter.value.isHidden = false
+  //     categoriesFilter.value.isHidden = false
+  //     productsFilter.value.isHidden = false
+  //   }
 
-  function clearProductFilter() {
-    productsFilter.value = {
-      name: null,
-      categoriesId: [],
-      isPersonal: null,
-      isAbstract: null,
-      isFavorite: null,
-      isHidden: null,
-      manufacturer: [],
-      countryOfManufacture: [],
-      quantity: null,
-      kcalory: null,
-      proteins: null,
-      carbohydrates: null,
-      fats: null,
-    }
-  }
+  //   return {
+  //     categoryGroupsFilter: categoryGroupsFilter.value,
+  //     categoriesFilter: categoriesFilter.value,
+  //     productsFilter: productsFilter.value,
+  //     groupFilterResults: groupFilterResults.value,
+  //   }
+  // })
 
-  const getFilters = computed(() => {
-    const userStore = useUsersStore()
-    console.log('getFilters')
-    if (!userStore.userIsAuthorized) {
-      categoryGroupsFilter.value.isHidden = null
-      categoriesFilter.value.isHidden = null
-      productsFilter.value.isHidden = null
-    } else {
-      categoryGroupsFilter.value.isHidden = false
-      categoriesFilter.value.isHidden = false
-      productsFilter.value.isHidden = false
-    }
+  // const getProductFilter = computed(() => {
+  //   const userStore = useUsersStore()
+  //   console.log(userStore.userIsAuthorized)
 
-    return {
-      categoryGroupsFilter: categoryGroupsFilter.value,
-      categoriesFilter: categoriesFilter.value,
-      productsFilter: productsFilter.value,
-      groupFilterResults: groupFilterResults.value,
-    }
-  })
+  //   if (!userStore.userIsAuthorized) {
+  //     productsFilter.value.isHidden = null
+  //   } else {
+  //     productsFilter.value.isHidden = false
+  //   }
 
-  const getProductFilter = computed(() => {
-    const userStore = useUsersStore()
-    console.log(userStore.userIsAuthorized)
+  //   return productsFilter.value
+  // })
 
-    if (!userStore.userIsAuthorized) {
-      productsFilter.value.isHidden = null
-    } else {
-      productsFilter.value.isHidden = false
-    }
+  // const categoriesGroupList = computed(() => {
+  //   if (categoriesGroupSortParams.value == CategoryGroupParams.nameAsc.key) {
+  //     return categoriesGroup.value.sort((a, b) => a.name.localeCompare(b.name))
+  //   }
 
-    return productsFilter.value
-  })
+  //   if (categoriesGroupSortParams.value == CategoryGroupParams.nameDesc.key) {
+  //     return categoriesGroup.value.sort((a, b) => b.name.localeCompare(a.name))
+  //   }
 
-  const categoriesGroupList = computed(() => {
-    if (categoriesGroupSortParams.value == CategoryGroupParams.nameAsc.key) {
-      return categoriesGroup.value.sort((a, b) => a.name.localeCompare(b.name))
-    }
+  //   if (categoriesGroupSortParams.value == CategoryGroupParams.default.key) {
+  //     return categoriesGroup.value.sort((a, b) => a.id - b.id)
+  //   }
 
-    if (categoriesGroupSortParams.value == CategoryGroupParams.nameDesc.key) {
-      return categoriesGroup.value.sort((a, b) => b.name.localeCompare(a.name))
-    }
+  //   if (categoriesGroupSortParams.value == CategoryGroupParams.favoriteAsc.key) {
+  //     return categoriesGroup.value.sort((a, b) => b.is_favorite - a.is_favorite)
+  //   }
 
-    if (categoriesGroupSortParams.value == CategoryGroupParams.default.key) {
-      return categoriesGroup.value.sort((a, b) => a.id - b.id)
-    }
+  //   if (categoriesGroupSortParams.value == CategoryGroupParams.favoriteDesc.key) {
+  //     return categoriesGroup.value.sort((a, b) => a.is_favorite - b.is_favorite)
+  //   }
 
-    if (categoriesGroupSortParams.value == CategoryGroupParams.favoriteAsc.key) {
-      return categoriesGroup.value.sort((a, b) => b.is_favorite - a.is_favorite)
-    }
+  //   return categoriesGroup.value
+  // })
 
-    if (categoriesGroupSortParams.value == CategoryGroupParams.favoriteDesc.key) {
-      return categoriesGroup.value.sort((a, b) => a.is_favorite - b.is_favorite)
-    }
+  // const categoriesList = computed(() => {
+  //   if (categoriesSortParams.value == CategoryParams.nameAsc.key) {
+  //     return categories.value.sort((a, b) => a.name.localeCompare(b.name))
+  //   }
 
-    return categoriesGroup.value
-  })
+  //   if (categoriesSortParams.value == CategoryParams.nameDesc.key) {
+  //     return categories.value.sort((a, b) => b.name.localeCompare(a.name))
+  //   }
 
-  const categoriesList = computed(() => {
-    if (categoriesSortParams.value == CategoryParams.nameAsc.key) {
-      return categories.value.sort((a, b) => a.name.localeCompare(b.name))
-    }
+  //   if (categoriesSortParams.value == CategoryParams.default.key) {
+  //     return categories.value.sort((a, b) => a.id - b.id)
+  //   }
 
-    if (categoriesSortParams.value == CategoryParams.nameDesc.key) {
-      return categories.value.sort((a, b) => b.name.localeCompare(a.name))
-    }
+  //   if (categoriesSortParams.value == CategoryParams.favoriteAsc.key) {
+  //     return categories.value.sort((a, b) => b.is_favorite - a.is_favorite)
+  //   }
 
-    if (categoriesSortParams.value == CategoryParams.default.key) {
-      return categories.value.sort((a, b) => a.id - b.id)
-    }
+  //   if (categoriesSortParams.value == CategoryParams.favoriteDesc.key) {
+  //     return categories.value.sort((a, b) => a.is_favorite - b.is_favorite)
+  //   }
 
-    if (categoriesSortParams.value == CategoryParams.favoriteAsc.key) {
-      return categories.value.sort((a, b) => b.is_favorite - a.is_favorite)
-    }
+  //   if (categoriesSortParams.value == CategoryParams.personalAsc.key) {
+  //     return categories.value.sort((a, b) => b.is_personal - a.is_personal)
+  //   }
 
-    if (categoriesSortParams.value == CategoryParams.favoriteDesc.key) {
-      return categories.value.sort((a, b) => a.is_favorite - b.is_favorite)
-    }
+  //   if (categoriesSortParams.value == CategoryParams.personalDesc.key) {
+  //     return categories.value.sort((a, b) => a.is_personal - b.is_personal)
+  //   }
 
-    if (categoriesSortParams.value == CategoryParams.personalAsc.key) {
-      return categories.value.sort((a, b) => b.is_personal - a.is_personal)
-    }
-
-    if (categoriesSortParams.value == CategoryParams.personalDesc.key) {
-      return categories.value.sort((a, b) => a.is_personal - b.is_personal)
-    }
-
-    return categories.value
-  })
+  //   return categories.value
+  // })
 
   const productsList = computed(() => {
     return products.value
   })
 
-  watch(productsSortParams, () => {
+  watch(sortType, () => {
     getProducts(currentCategory.value.id)
   })
 
-  async function getCategoryGroups() {
-    isCategoriesGroupFound.value = true
-    try {
-      const response = await axios_instance.get(URL_API_CATEGORY_GROUPS, {
-        params: categoryGroupsFilter.value,
-      })
+  // async function getCategoryGroups() {
+  //   isCategoriesGroupFound.value = true
+  //   try {
+  //     const response = await axios_instance.get(URL_API_CATEGORY_GROUPS, {
+  //       params: categoryGroupsFilter.value,
+  //     })
 
-      if (response) {
-        isCategoriesGroupFound.value = response.data.count > 0 ? true : false
-        categoriesGroup.value = response.data.data
+  //     if (response) {
+  //       isCategoriesGroupFound.value = response.data.count > 0 ? true : false
+  //       categoriesGroup.value = response.data.data
 
-        currentCategoryGroup.value = {
-          id: null,
-          name: null,
-          categoriesCount: null,
-        }
+  //       currentCategoryGroup.value = {
+  //         id: null,
+  //         name: null,
+  //         categoriesCount: null,
+  //       }
 
-        currentCategory.value = {
-          id: null,
-          name: null,
-          productsCount: null,
-        }
-      }
-    } catch (error) {
-      console.log('Get category groups fail')
-      isCategoriesGroupFound.value = false
-    }
-  }
+  //       currentCategory.value = {
+  //         id: null,
+  //         name: null,
+  //         productsCount: null,
+  //       }
+  //     }
+  //   } catch (error) {
+  //     console.log('Get category groups fail')
+  //     isCategoriesGroupFound.value = false
+  //   }
+  // }
 
-  async function getCategories(id) {
-    isCategoriesFound.value = true
-    console.log(categoriesFilter.value)
-    try {
-      const response = await axios_instance.get(URL_API_CATEGORIES, {
-        params: {
-          categoryGroupId: categoriesFilter.value.categoryGroupId.join(','),
-          categoryId: categoriesFilter.value.categoryId,
-          isPersonal: categoriesFilter.value.isPersonal,
-          isFavorite: categoriesFilter.value.isFavorite,
-          isHidden: categoriesFilter.value.isHidden,
-        },
-      })
+  // async function getCategories(id) {
+  //   isCategoriesFound.value = true
+  //   console.log(categoriesFilter.value)
+  //   try {
+  //     const response = await axios_instance.get(URL_API_CATEGORIES, {
+  //       params: {
+  //         categoryGroupId: categoriesFilter.value.categoryGroupId.join(','),
+  //         categoryId: categoriesFilter.value.categoryId,
+  //         isPersonal: categoriesFilter.value.isPersonal,
+  //         isFavorite: categoriesFilter.value.isFavorite,
+  //         isHidden: categoriesFilter.value.isHidden,
+  //       },
+  //     })
 
-      if (response) {
-        // console.log(response.data.data.categories.data)
-        currentCategoryGroup.value = {
-          id:
-            categoriesFilter.value.categoryGroupId.length == 1
-              ? categoriesFilter.value.categoryGroupId[0]
-              : null,
-          name: response.data.data.name,
-          categoriesCount: response.data.count,
-        }
+  //     if (response) {
+  //       // console.log(response.data.data.categories.data)
+  //       currentCategoryGroup.value = {
+  //         id:
+  //           categoriesFilter.value.categoryGroupId.length == 1
+  //             ? categoriesFilter.value.categoryGroupId[0]
+  //             : null,
+  //         name: response.data.data.name,
+  //         categoriesCount: response.data.count,
+  //       }
 
-        currentCategory.value = {
-          id: null,
-          name: null,
-          productsCount: null,
-        }
-        isCategoriesFound.value = response.data.count > 0 ? true : false
-        categories.value = response.data.data
-      }
-    } catch (error) {
-      console.log('Get categories if fail')
-      console.log(error)
-      isCategoriesFound.value = false
-    }
-  }
+  //       currentCategory.value = {
+  //         id: null,
+  //         name: null,
+  //         productsCount: null,
+  //       }
+  //       isCategoriesFound.value = response.data.count > 0 ? true : false
+  //       categories.value = response.data.data
+  //     }
+  //   } catch (error) {
+  //     console.log('Get categories if fail')
+  //     console.log(error)
+  //     isCategoriesFound.value = false
+  //   }
+  // }
 
   // get list of products in category
   async function getProducts(category_id, cursor = null) {
+    const filtersStore = useFiltersStore()
     isProductsFound.value = true
-    // let requestParam = cursor ? category_id + '?cursor=' + cursor : category_id
-    // let requestParam = category_id ? category_id : ''
-    // requestParam += '?sort=' + productsSortParams.value
-    // requestParam += cursor ? '&cursor=' + cursor : ''
-
+    let queryParams = {
+      sort: sortType.value,
+      categories: filtersStore.categoriesFilter.categoryId,
+      isPersonal: filtersStore.productsFilter.isPersonal,
+      isAbstract: filtersStore.productsFilter.isAbstract,
+      isFavorite: filtersStore.productsFilter.isFavorite,
+      isHidden: filtersStore.productsFilter.isHidden,
+      name: filtersStore.productsFilter.name,
+      manufacturer: filtersStore.productsFilter.manufacturer,
+      countryOfManufacture: filtersStore.productsFilter.countryOfManufacture,
+      quantity: filtersStore.productsFilter.quantity,
+      kcalory: filtersStore.productsFilter.kcalory,
+      proteins: filtersStore.productsFilter.proteins,
+      carbohydrates: filtersStore.productsFilter.carbohydrates,
+      fats: filtersStore.productsFilter.fats,
+      cursor: cursor ? cursor : '',
+    }
     try {
-      // const response = await axios_instance.post(
-      //   URL_API_PRODUCTS + requestParam,
-      //   productsFilter.value,
-      // )
-      console.log(productsFilter.value)
       const response = await axios_instance.get(URL_API_PRODUCTS, {
-        params: {
-          sort: productsSortParams.value,
-          categories: categoriesFilter.value.categoryId.join(','),
-          isPersonal: productsFilter.value.isPersonal,
-          isAbstract: productsFilter.value.isAbstract,
-          isFavorite: productsFilter.value.isFavorite,
-          isHidden: productsFilter.value.isHidden,
-          name: productsFilter.value.name,
-          manufacturer: productsFilter.value.manufacturer,
-          countryOfManufacture: productsFilter.value.countryOfManufacture,
-          quantity: productsFilter.value.quantity,
-          kcalory: productsFilter.value.kcalory,
-          proteins: productsFilter.value.proteins,
-          carbohydrates: productsFilter.value.carbohydrates,
-          fats: productsFilter.value.fats,
-          cursor: cursor ? cursor : '',
-        },
+        params: queryParams,
       })
 
       if (response) {
         isProductsFound.value = response.data.count > 0 ? true : false
-        currentCategory.value = {
-          id:
-            categoriesFilter.value.categoryId.length == 1
-              ? categoriesFilter.value.categoryId[0]
-              : null,
-          name: null,
-          productsCount: null,
-        }
 
+        console.log(response)
         if (cursor) {
           let tempArray = [].concat(products.value, response.data.data)
           products.value = tempArray
@@ -443,26 +387,26 @@ export const useProductsStore = defineStore('products', () => {
     }
   }
 
-  async function changeCategoryGroup(id, data, categoriesGroupIndex) {
-    try {
-      const response = await axios_instance.put(URL_API_CATEGORY_GROUPS + id, {
-        id: 'id' in data ? data.id : null,
-        name: 'name' in data ? data.name : null,
-        description: 'description' in data ? data.description : null,
-        is_enabled: 'is_enabled' in data ? data.is_enabled : null,
-        is_favorite: 'is_favorite' in data ? data.is_favorite : null,
-        is_hidden: 'is_hidden' in data ? data.is_hidden : null,
-      })
-      if (response) {
-        console.log('index: ' + categoriesGroupIndex)
-        console.log(response.data)
-        categoriesGroup.value[categoriesGroupIndex] = response.data.data
-      }
-    } catch (error) {
-      console.log('changeCategoryGroup fail')
-      console.log(error)
-    }
-  }
+  // async function changeCategoryGroup(id, data, categoriesGroupIndex) {
+  //   try {
+  //     const response = await axios_instance.put(URL_API_CATEGORY_GROUPS + id, {
+  //       id: 'id' in data ? data.id : null,
+  //       name: 'name' in data ? data.name : null,
+  //       description: 'description' in data ? data.description : null,
+  //       is_enabled: 'is_enabled' in data ? data.is_enabled : null,
+  //       is_favorite: 'is_favorite' in data ? data.is_favorite : null,
+  //       is_hidden: 'is_hidden' in data ? data.is_hidden : null,
+  //     })
+  //     if (response) {
+  //       console.log('index: ' + categoriesGroupIndex)
+  //       console.log(response.data)
+  //       categoriesGroup.value[categoriesGroupIndex] = response.data.data
+  //     }
+  //   } catch (error) {
+  //     console.log('changeCategoryGroup fail')
+  //     console.log(error)
+  //   }
+  // }
 
   async function changeCategory(id, data, index) {
     console.log('id: ' + id + ', index: ' + index)
@@ -636,46 +580,20 @@ export const useProductsStore = defineStore('products', () => {
   }
 
   return {
-    editableProduct,
-    editableCategory,
-    editableCategoriesGroup,
-    categoriesGroupSortParams,
-    categoriesSortParams,
-    productsSortParams,
-    categoriesGroupList,
-    categoriesList,
-    productsList,
-    categories,
+    sortType,
     products,
     product,
-    categoriesGroup,
-    currentCategoryGroup,
-    currentCategory,
-    isCategoriesGroupFound,
-    isCategoriesFound,
     isProductsFound,
-    getProductFilter,
-    getFilters,
-    groupFilterResults,
-    categoryGroupsFilter,
-    categoriesFilter,
-    productsFilter,
+    isProductFound,
+    editableProduct,
     productsPrevCursor,
     productsNextCursor,
-    clearCategoryGroupFilter,
-    clearCategoryFilter,
-    clearProductFilter,
-    getCategoryGroups,
-    getCategories,
     getProducts,
     getProduct,
     getFilteredProducts,
     addNewProduct,
-    addCategory,
-    changeCategoryGroup,
-    changeCategory,
     changeProduct,
-    deleteCategory,
+    productsList,
     $reset,
   }
 })

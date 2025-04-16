@@ -1,7 +1,6 @@
 <script setup>
 import { computed, onBeforeMount, ref, watch } from 'vue';
 import { useCategoryGroupsStore } from '@/stores/categoryGroupsStore';
-import { useCategoriesStore } from '@/stores/categoriesStore';
 
 import ListWithControls from './ListWithControls.vue';
 import IconArrowLeftShort from './icons/IconArrowLeftShort.vue';
@@ -9,13 +8,8 @@ import IconFunnel from './icons/IconFunnel.vue';
 import IconSortDown from './icons/IconSortDown.vue';
 import IconPlusLg from './icons/IconPlusLg.vue';
 import { CategoryGroupParams, CategoryParams, ProductParams } from '@/resource/js/sortParams';
-import { useProductsStore } from '@/stores/productsStore';
-import { useFiltersStore } from '@/stores/filtersStore';
 
 const categoryGroupStore = useCategoryGroupsStore();
-const categoriesStore = useCategoriesStore();
-const productsStore = useProductsStore();
-const filtersStore = useFiltersStore();
 
 onBeforeMount(() => {
     categoryGroupStore.getCategoryGroups();
@@ -23,30 +17,30 @@ onBeforeMount(() => {
 });
 
 const props = defineProps({
-    // categoryGroups: {
-    //     type: Array,
-    //     default: [],
-    // },
-    // isCategoryGroupsFound: {
-    //     type: Boolean,
-    //     default: false,
-    // },
-    // categories: {
-    //     type: Array,
-    //     default: [],
-    // },
-    // isCategoriesFound: {
-    //     type: Boolean,
-    //     default: false,
-    // },
-    // products: {
-    //     type: Array,
-    //     default: [],
-    // },
-    // isProductsFound: {
-    //     type: Boolean,
-    //     default: false,
-    // },
+    categoryGroups: {
+        type: Array,
+        default: [],
+    },
+    isCategoryGroupsFound: {
+        type: Boolean,
+        default: false,
+    },
+    categories: {
+        type: Array,
+        default: [],
+    },
+    isCategoriesFound: {
+        type: Boolean,
+        default: false,
+    },
+    products: {
+        type: Array,
+        default: [],
+    },
+    isProductsFound: {
+        type: Boolean,
+        default: false,
+    },
     showFilteredProducts: {
         type: Boolean,
         default: false,
@@ -59,18 +53,18 @@ const props = defineProps({
         type: Boolean,
         default: false,
     },
-    // categoriesGroupSortParam: {
-    //     type: String,
-    //     default: CategoryGroupParams.default.key,
-    // },
-    // categoriesSortParam: {
-    //     type: String,
-    //     default: CategoryParams.default.key,
-    // },
-    // productsSortParam: {
-    //     type: String,
-    //     default: ProductParams.default.key,
-    // },
+    categoriesGroupSortParam: {
+        type: String,
+        default: CategoryGroupParams.default.key,
+    },
+    categoriesSortParam: {
+        type: String,
+        default: CategoryParams.default.key,
+    },
+    productsSortParam: {
+        type: String,
+        default: ProductParams.default.key,
+    },
 
 });
 
@@ -210,9 +204,9 @@ const currentSelectedCategoryGroup = ref()
 const currentSelectedCategory = ref()
 const currentSelectedProduct = ref()
 
-const categoryGroupSortTypeValue = ref(categoryGroupStore.sortType)
-const categorySortTypeValue = ref(categoriesStore.sortType)
-const productSortTypeValue = ref(productsStore.sortType)
+const categoryGroupSortTypeValue = ref(props.categoriesGroupSortParam)
+const categorySortTypeValue = ref(props.categoriesSortParam)
+const productSortTypeValue = ref(props.productsSortParam)
 
 function setCategoryGroupSortType(val) {
     console.log('sort value: ' + val);
@@ -254,7 +248,7 @@ function slideTo(slideNum) {
     }
 
     if (slideNum === 1) {
-        categoryGroupStore.getCategoryGroups()
+        emit('getCategoryGroups');
     }
     previouslySlide.value = currentSlide.value
     currentSlide.value = slideNum;
@@ -262,25 +256,23 @@ function slideTo(slideNum) {
 
 function selectGroup(id) {
     currentSelectedCategoryGroup.value = id
-    filtersStore.categoryGroupsFilter.categoryGroupsId.length = 0
-    filtersStore.categoryGroupsFilter.categoryGroupsId.push(id)
-    categoriesStore.getCategories(id);
+    emit('getCategories', id);
     // setTimeout(() => slideTo(1), 800);
     slideTo(2);
 }
 
 function selectCategory(id) {
+
+    console.log('categoryId: ' + id)
     currentSelectedCategory.value = id
-    categoriesStore.currentCategory = id
-    filtersStore.categoriesFilter.categoryId.length = 0;
-    filtersStore.categoriesFilter.categoryId.push(id);
-    productsStore.getProducts(id);
+    emit('getProducts', id);
+    // setTimeout(() => slideTo(2), 800);
     slideTo(3);
 }
 
 function selectProduct(id) {
     currentSelectedProduct.value = id
-    productsStore.getProduct(id)
+    emit('getProduct', id);
 }
 
 function showFilter(event, eventSource) {
@@ -289,32 +281,32 @@ function showFilter(event, eventSource) {
 
 function changeCategoryGroupFavorieStatus(id, status, index) {
     console.log(`changeCategoryGroupFavorieStatus ${id}-${status}`);
-    categoryGroupStore.changeCategoryGroup(id, { isFavorite: status }, index);
+    emit('changeCategoryGroupFavoriteStatus', id, status, index);
 }
 
 function changeCategoryGroupHiddenStatus(id, status, index) {
     console.log(`changeCategoryGroupHiddenStatus ${id}-${status}`);
-    categoryGroupStore.changeCategoryGroup(id, { isHidden: status }, index);
+    emit('changeCategoryGroupHiddenStatus', id, status, index);
 }
 
 function changeCategoryFavorieStatus(id, status, index) {
     console.log(`changeCategoryFavorieStatus ${id}-${status}`);
-    categoriesStore.changeCategory(id, { isFavorite: status }, index)
+    emit('changeCategoryFavoriteStatus', id, status, index);
 }
 
 function changeCategoryHiddenStatus(id, status, index) {
     console.log(`changeCategoryHiddenStatus ${id}-${status}`);
-    categoriesStore.changeCategory(id, { isHidden: status }, index)
+    emit('changeCategoryHiddenStatus', id, status, index);
 }
 
 function changeProductFavorieStatus(id, status, index) {
     console.log(`changeProductFavorieStatus ${id}-${status}`);
-    productsStore.changeProduct(id, { isFavorite: status }, index)
+    emit('changeProductFavoriteStatus', id, status, index);
 }
 
 function changeProductHiddenStatus(id, status, index) {
     console.log(`changeProductHiddenStatus ${id}-${status}`);
-    productsStore.changeProduct(id, { isHidden: status }, index)
+    emit('changeProductHiddenStatus', id, status, index);
 }
 
 function editCategoriesGroup(id, index) {
@@ -493,21 +485,21 @@ function addProduct() {
                 @edit-elemet="editProduct" />
         </div>
         <div id="groupsSlide" v-show="currentSlide == 1" class="slide ps-2 pe-2">
-            <ListWithControls :user-is-authorized="props.userIsAuthorized" :data="categoryGroupStore.categoryGroupsList"
-                data-type="categoryGroup" :is-data-found="categoryGroupStore.isCategoryGroupsFound"
-                @select-element="selectGroup" @change-favorite-status="changeCategoryGroupFavorieStatus"
+            <ListWithControls :user-is-authorized="props.userIsAuthorized" :data="props.categoryGroups"
+                data-type="categoryGroup" :is-data-found="props.isCategoryGroupsFound" @select-element="selectGroup"
+                @change-favorite-status="changeCategoryGroupFavorieStatus"
                 @change-hidden-status="changeCategoryGroupHiddenStatus" />
         </div>
         <div id="categoriesSlide" v-show="currentSlide == 2" class="slide ps-2 pe-2">
-            <ListWithControls :user-is-authorized="props.userIsAuthorized" :data="categoriesStore.categories"
-                data-type="category" :is-data-found="categoriesStore.isCategoriesFound" @select-element="selectCategory"
+            <ListWithControls :user-is-authorized="props.userIsAuthorized" :data="props.categories" data-type="category"
+                :is-data-found="props.isCategoriesFound" @select-element="selectCategory"
                 @change-favorite-status="changeCategoryFavorieStatus" @change-hidden-status="changeCategoryHiddenStatus"
                 @edit-element="editCategory" />
         </div>
         <div id="productsSlide" @scroll="scrollList($event)" v-show="currentSlide == 3" class="slide ps-2 pe-2">
             <ListWithControls :user-is-authorized="props.userIsAuthorized"
-                :data="!props.showFilteredProducts ? productsStore.products : []" data-type="product"
-                :is-data-found="productsStore.isProductsFound" @select-element="selectProduct"
+                :data="!props.showFilteredProducts ? props.products : []" data-type="product"
+                :is-data-found="props.isProductsFound" @select-element="selectProduct"
                 @change-favorite-status="changeProductFavorieStatus" @change-hidden-status="changeProductHiddenStatus"
                 @edit-elemet="editProduct" />
         </div>
