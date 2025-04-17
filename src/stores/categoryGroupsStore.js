@@ -81,6 +81,7 @@ export const useCategoryGroupsStore = defineStore('categoryGroups', () => {
         is_hidden: 'isHidden' in data ? data.isHidden : null,
       })
       if (response) {
+        console.log(response.data.data)
         if (
           response.data.data.is_hidden === true &&
           filtersStore.categoryGroupsFilter.isHidden === false
@@ -124,6 +125,14 @@ export const useCategoryGroupsStore = defineStore('categoryGroups', () => {
 
     if (sortType.value == CategoryGroupParams.favoriteDesc.key) {
       return categoryGroups.value.sort((a, b) => a.is_favorite - b.is_favorite)
+    }
+
+    if (sortType.value == CategoryGroupParams.personalAsc.key) {
+      return categoryGroups.value.sort((a, b) => b.is_personal - a.is_personal)
+    }
+
+    if (sortType.value == CategoryGroupParams.personalDesc.key) {
+      return categoryGroups.value.sort((a, b) => a.is_personal - b.is_personal)
     }
 
     return categoryGroups.value

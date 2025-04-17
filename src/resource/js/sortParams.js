@@ -1,132 +1,132 @@
 const CategoryGroupParams = {
   default: {
-    key: 'default',
+    key: 'Default',
     title: 'По умолчанию',
   },
   nameAsc: {
-    key: 'nameAsc',
+    key: 'NameAsc',
     title: 'По названию, от А до Я',
   },
   nameDesc: {
-    key: 'nameDesc',
+    key: 'NameDesc',
     title: 'По названию, от Я до А',
   },
   favoriteAsc: {
-    key: 'favoriteAsc',
+    key: 'FavoriteAsc',
     title: 'Сначала избранные',
   },
   favoriteDesc: {
-    key: 'favoriteDesc',
+    key: 'FavoriteDesc',
     title: 'Сначала не избранные',
   },
-  // personalAsc: {
-  //   key: 'personalAsc',
-  //   title: 'Сначала персональные',
-  // },
-  // personalDesc: {
-  //   key: 'personalDesc',
-  //   title: 'Сначала не персональные',
-  // },
+  personalAsc: {
+    key: 'PersonalAsc',
+    title: 'Сначала персональные',
+  },
+  personalDesc: {
+    key: 'PersonalDesc',
+    title: 'Сначала не персональные',
+  },
 }
 
 const CategoryParams = {
   default: {
-    key: 'default',
+    key: 'Default',
     title: 'По умолчанию',
   },
   nameAsc: {
-    key: 'nameAsc',
+    key: 'NameAsc',
     title: 'По названию, от А до Я',
   },
   nameDesc: {
-    key: 'nameDesc',
+    key: 'NameDesc',
     title: 'По названию, от Я до А',
   },
   favoriteAsc: {
-    key: 'favoriteAsc',
+    key: 'FavoriteAsc',
     title: 'Сначала избранные',
   },
   favoriteDesc: {
-    key: 'favoriteDesc',
+    key: 'FavoriteDesc',
     title: 'Сначала не избранные',
   },
   personalAsc: {
-    key: 'personalAsc',
+    key: 'PersonalAsc',
     title: 'Сначала персональные',
   },
   personalDesc: {
-    key: 'personalDesc',
+    key: 'PersonalDesc',
     title: 'Сначала не персональные',
   },
 }
 
 const ProductParams = {
   default: {
-    key: 'default',
+    key: 'Default',
     title: 'По умолчанию',
   },
   nameAsc: {
-    key: 'nameAsc',
+    key: 'NameAsc',
     title: 'По названию, от А до Я',
   },
   nameDesc: {
-    key: 'nameDesc',
+    key: 'NameDesc',
     title: 'По названию, от Я до А',
   },
   favoriteAsc: {
-    key: 'favoriteAsc',
+    key: 'FavoriteAsc',
     title: 'Сначала избранные',
   },
   favoriteDesc: {
-    key: 'favoriteDesc',
+    key: 'FavoriteDesc',
     title: 'Сначала не избранные',
   },
   personalAsc: {
-    key: 'personalAsc',
+    key: 'PersonalAsc',
     title: 'Сначала персональные',
   },
   personalDesc: {
-    key: 'personalDesc',
+    key: 'PersonalDesc',
     title: 'Сначала не персональные',
   },
   abstractAsc: {
-    key: 'abstractAsc',
+    key: 'AbstractAsc',
     title: 'Сначала абстрактные',
   },
   abstractDesc: {
-    key: 'abstractDesc',
+    key: 'AbstractDesc',
     title: 'Сначала не абстрактные',
   },
   kcaloryAsc: {
-    key: 'kcaloryAsc',
+    key: 'KcaloryAsc',
     title: 'Сначала меньше калорий',
   },
   kcaloryDesc: {
-    key: 'kcaloryDesc',
+    key: 'KcaloryDesc',
     title: 'Сначала больше калорий',
   },
   proteinsAsc: {
-    key: 'proteinsAsc',
+    key: 'ProteinsAsc',
     title: 'Сначала меньше белков',
   },
   proteinsDesc: {
-    key: 'proteinsDesc',
+    key: 'ProteinsDesc',
     title: 'Сначала больше белков',
   },
   carbohydratesAsc: {
-    key: 'carbohydratesAsc',
+    key: 'CarbohydratesAsc',
     title: 'Сначала меньше углеводов',
   },
   carbohydratesDesc: {
-    key: 'carbohydratesDesc',
+    key: 'CarbohydratesDesc',
     title: 'Сначала больше углеводов',
   },
   fatsAsc: {
-    key: 'fatsAsc',
+    key: 'FatsAsc',
     title: 'Сначала меньше жиров',
   },
   fatsDesc: {
-    key: 'fatsDesc',
+    key: 'FatsDesc',
     title: 'Сначала больше жиров',
   },
 }

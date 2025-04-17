@@ -40,13 +40,13 @@ const emit = defineEmits({
     return true
   },
   changeFavoriteStatus: (id, status, index) => {
-    if (id && status !== null && index) {
+    if (id !== null && status !== null && index !== null) {
       return true
     }
     return false
   },
   changeHiddenStatus: (id, status, index) => {
-    if (id && status !== null && index) {
+    if (id !== null && status !== null && index !== null) {
       return true
     }
     return false

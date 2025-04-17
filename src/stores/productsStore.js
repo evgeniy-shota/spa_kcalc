@@ -4,6 +4,7 @@ import axios_instance from '@/resource/js/axiosInstance'
 import { useUsersStore } from './usersStore'
 import { CategoryGroupParams, CategoryParams, ProductParams } from '@/resource/js/sortParams'
 import { useFiltersStore } from './filtersStore'
+import { useCategoriesStore } from './categoriesStore'
 
 const initialStateProduct = {
   id: null,
@@ -177,68 +178,13 @@ export const useProductsStore = defineStore('products', () => {
   //   return productsFilter.value
   // })
 
-  // const categoriesGroupList = computed(() => {
-  //   if (categoriesGroupSortParams.value == CategoryGroupParams.nameAsc.key) {
-  //     return categoriesGroup.value.sort((a, b) => a.name.localeCompare(b.name))
-  //   }
-
-  //   if (categoriesGroupSortParams.value == CategoryGroupParams.nameDesc.key) {
-  //     return categoriesGroup.value.sort((a, b) => b.name.localeCompare(a.name))
-  //   }
-
-  //   if (categoriesGroupSortParams.value == CategoryGroupParams.default.key) {
-  //     return categoriesGroup.value.sort((a, b) => a.id - b.id)
-  //   }
-
-  //   if (categoriesGroupSortParams.value == CategoryGroupParams.favoriteAsc.key) {
-  //     return categoriesGroup.value.sort((a, b) => b.is_favorite - a.is_favorite)
-  //   }
-
-  //   if (categoriesGroupSortParams.value == CategoryGroupParams.favoriteDesc.key) {
-  //     return categoriesGroup.value.sort((a, b) => a.is_favorite - b.is_favorite)
-  //   }
-
-  //   return categoriesGroup.value
-  // })
-
-  // const categoriesList = computed(() => {
-  //   if (categoriesSortParams.value == CategoryParams.nameAsc.key) {
-  //     return categories.value.sort((a, b) => a.name.localeCompare(b.name))
-  //   }
-
-  //   if (categoriesSortParams.value == CategoryParams.nameDesc.key) {
-  //     return categories.value.sort((a, b) => b.name.localeCompare(a.name))
-  //   }
-
-  //   if (categoriesSortParams.value == CategoryParams.default.key) {
-  //     return categories.value.sort((a, b) => a.id - b.id)
-  //   }
-
-  //   if (categoriesSortParams.value == CategoryParams.favoriteAsc.key) {
-  //     return categories.value.sort((a, b) => b.is_favorite - a.is_favorite)
-  //   }
-
-  //   if (categoriesSortParams.value == CategoryParams.favoriteDesc.key) {
-  //     return categories.value.sort((a, b) => a.is_favorite - b.is_favorite)
-  //   }
-
-  //   if (categoriesSortParams.value == CategoryParams.personalAsc.key) {
-  //     return categories.value.sort((a, b) => b.is_personal - a.is_personal)
-  //   }
-
-  //   if (categoriesSortParams.value == CategoryParams.personalDesc.key) {
-  //     return categories.value.sort((a, b) => a.is_personal - b.is_personal)
-  //   }
-
-  //   return categories.value
-  // })
-
   const productsList = computed(() => {
     return products.value
   })
 
   watch(sortType, () => {
-    getProducts(currentCategory.value.id)
+    const categoriesStore = useCategoriesStore()
+    getProducts(categoriesStore.currentCategory.id)
   })
 
   // async function getCategoryGroups() {
@@ -408,61 +354,61 @@ export const useProductsStore = defineStore('products', () => {
   //   }
   // }
 
-  async function changeCategory(id, data, index) {
-    console.log('id: ' + id + ', index: ' + index)
-    let prevCategoryData =
-      categoriesGroup.value[editableCategory.value.groupIndex].categories.data[index]
-    try {
-      const response = await axios_instance.patch(URL_API_CATEGORIES + id, {
-        category_group_id: data.category_group_id,
-        name: data.name,
-        description: data.description,
-        is_personal: data.is_personal,
-        is_enabled: data.is_enabled,
-        icon_path: data.icon_path,
-        is_favorite: data.is_favorite,
-        is_hidden: data.is_hidden,
-        thumbnail_image_path: data.thumbnail_image_path,
-      })
-      if (response) {
-        console.log(response.data)
+  // async function changeCategory(id, data, index) {
+  //   console.log('id: ' + id + ', index: ' + index)
+  //   let prevCategoryData =
+  //     categoriesGroup.value[editableCategory.value.groupIndex].categories.data[index]
+  //   try {
+  //     const response = await axios_instance.patch(URL_API_CATEGORIES + id, {
+  //       category_group_id: data.category_group_id,
+  //       name: data.name,
+  //       description: data.description,
+  //       is_personal: data.is_personal,
+  //       is_enabled: data.is_enabled,
+  //       icon_path: data.icon_path,
+  //       is_favorite: data.is_favorite,
+  //       is_hidden: data.is_hidden,
+  //       thumbnail_image_path: data.thumbnail_image_path,
+  //     })
+  //     if (response) {
+  //       console.log(response.data)
 
-        if (response.data.data.category_group_id === prevCategoryData.category_group_id) {
-          categories.value[index] = response.data.data
-        } else {
-          console.log('splice cat')
-          categories.value.splice(index, 1)
-        }
+  //       if (response.data.data.category_group_id === prevCategoryData.category_group_id) {
+  //         categories.value[index] = response.data.data
+  //       } else {
+  //         console.log('splice cat')
+  //         categories.value.splice(index, 1)
+  //       }
 
-        let indexPrevCatGroup = categoriesGroup.value.findIndex(
-          (item) => item.id === prevCategoryData.category_group_id,
-        )
+  //       let indexPrevCatGroup = categoriesGroup.value.findIndex(
+  //         (item) => item.id === prevCategoryData.category_group_id,
+  //       )
 
-        if (indexPrevCatGroup !== -1) {
-          categoriesGroup.value[indexPrevCatGroup].categories.data.splice(index, 1)
-        }
+  //       if (indexPrevCatGroup !== -1) {
+  //         categoriesGroup.value[indexPrevCatGroup].categories.data.splice(index, 1)
+  //       }
 
-        let indexCatGroup = categoriesGroup.value.findIndex(
-          (item) => item.id === response.data.data.category_group_id,
-        )
-        if (indexCatGroup !== -1) {
-          categoriesGroup.value[indexCatGroup].categories.data.push(response.data.data)
-        }
+  //       let indexCatGroup = categoriesGroup.value.findIndex(
+  //         (item) => item.id === response.data.data.category_group_id,
+  //       )
+  //       if (indexCatGroup !== -1) {
+  //         categoriesGroup.value[indexCatGroup].categories.data.push(response.data.data)
+  //       }
 
-        editableCategory.value = {
-          id: response.data.data.id,
-          index: categoriesGroup.value[indexCatGroup].categories.data.length - 1,
-          groupId: response.data.data.category_group_id,
-          groupIndex: indexCatGroup,
-        }
-        return true
-      }
-    } catch (error) {
-      console.log('changeCategory fail')
-      console.log(error)
-      return false
-    }
-  }
+  //       editableCategory.value = {
+  //         id: response.data.data.id,
+  //         index: categoriesGroup.value[indexCatGroup].categories.data.length - 1,
+  //         groupId: response.data.data.category_group_id,
+  //         groupIndex: indexCatGroup,
+  //       }
+  //       return true
+  //     }
+  //   } catch (error) {
+  //     console.log('changeCategory fail')
+  //     console.log(error)
+  //     return false
+  //   }
+  // }
 
   async function addCategory(data) {
     let newData = data
@@ -517,7 +463,7 @@ export const useProductsStore = defineStore('products', () => {
 
   async function changeProduct(id, data, index) {
     try {
-      const response = await axios_instance.patch(URL_API_PRODUCTS + id, {
+      const response = await axios_instance.put(URL_API_PRODUCTS + id, {
         // user_id: '',
         category_id: data.category_id,
         type_id: data.type_id,
@@ -546,8 +492,8 @@ export const useProductsStore = defineStore('products', () => {
         fats_per_unit: data.fats_per_unit,
         nutrients_and_vitamins: data.nutrients_and_vitamins,
         data_source: data.data_source,
-        is_favorite: data.is_favorite,
-        is_hidden: data.is_hidden,
+        is_favorite: data.isFavorite,
+        is_hidden: data.isHidden,
       })
 
       if (response) {

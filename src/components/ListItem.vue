@@ -63,13 +63,13 @@ const emit = defineEmits({
         return false
     },
     changeFavoriteStatus: (id, status, index) => {
-        if (id && status !== null && index) {
+        if (id !== null && status !== null && index !== null) {
             return true
         }
         return false
     },
     changeHiddenStatus: (id, status, index) => {
-        if (id && status !== null && index) {
+        if (id !== null && status !== null && index !== null) {
             return true
         }
         return false
@@ -110,17 +110,14 @@ function selectElement(event, id) {
 }
 
 function changeElementHiddenStatus(id, status, index) {
-    console.log('Added to hidden list :' + id)
     emit('changeHiddenStatus', id, status, index);
 }
 
 function changeElementFavoriteStatus(id, status, index) {
-    console.log('add to favorite list: ' + id)
     emit('changeFavoriteStatus', id, status, index);
 }
 
 function editElement(id, index) {
-    // console.log('eidt element - ' + id + ' - ' + index)
     emit('editElement', id, index);
 }
 
