@@ -1,7 +1,8 @@
 import { defineStore } from 'pinia'
-import { ref } from 'vue'
+import { computed, ref } from 'vue'
 import { useUsersStore } from './usersStore'
 import storageAvailable from '@/resource/js/webStorageAvailable'
+import { deepCopy } from '@/resource/js/utils'
 
 const initialStateCategoryGroupsFilter = {
   categoryGroupsId: [],
@@ -10,10 +11,10 @@ const initialStateCategoryGroupsFilter = {
   isHidden: null,
 }
 const initialStateCategoriesFilter = {
-  categoryId: [],
+  categoriesId: [],
+  isPersonal: null,
   isFavorite: null,
   isHidden: null,
-  isPersonal: null,
 }
 const initialStateProductsFilter = {
   name: null,
@@ -30,102 +31,203 @@ const initialStateProductsFilter = {
   fats: null,
 }
 
+function setInitialState(storageData, initialData, userIsAuthorized) {
+  let initialState = storageData !== null ? deepCopy(storageData) : deepCopy(initialData)
+
+  if (userIsAuthorized === true) {
+    initialState.isHidden = false
+  }
+
+  return initialState
+}
+
 export const useFiltersStore = defineStore('filters', () => {
+  const userStore = useUsersStore()
+
   let localStorageCategoryGroupsFilter = null
   let localStorageCategoriesFilter = null
   let localStorageProductsFilter = null
 
-  if (storageAvailable('localStorage')) {
-    localStorageCategoryGroupsFilter = JSON.parse(localStorage.getItem('categoryGroupsFilter'))
-    localStorageCategoriesFilter = JSON.parse(localStorage.getItem('categoriesFilter'))
-    localStorageProductsFilter = JSON.parse(localStorage.getItem('productsFilter'))
-  }
+  // check localStorage
+  // if (storageAvailable('localStorage')) {
+  //   console.log('storage available')
+  //   localStorageCategoryGroupsFilter = JSON.parse(localStorage.getItem('categoryGroupsFilter'))
+  //   localStorageCategoriesFilter = JSON.parse(localStorage.getItem('categoriesFilter'))
+  //   localStorageProductsFilter = JSON.parse(localStorage.getItem('productsFilter'))
+  // }
 
-  const categoryGroupsFilter =
-    localStorageCategoryGroupsFilter !== null
-      ? ref(localStorageCategoryGroupsFilter)
-      : ref({ ...initialStateCategoryGroupsFilter })
+  const categoryGroupsFilter = ref(
+    setInitialState(
+      localStorageCategoryGroupsFilter,
+      initialStateCategoryGroupsFilter,
+      userStore.userIsAuthorized,
+    ),
+  )
+  const categoriesFilter = ref(
+    setInitialState(
+      localStorageCategoriesFilter,
+      initialStateCategoriesFilter,
+      userStore.userIsAuthorized,
+    ),
+  )
+  const productsFilter = ref(
+    setInitialState(
+      localStorageProductsFilter,
+      initialStateProductsFilter,
+      userStore.userIsAuthorized,
+    ),
+  )
 
-  const categoriesFilter =
-    localStorageCategoriesFilter !== null
-      ? ref(localStorageCategoriesFilter)
-      : ref({ ...initialStateCategoriesFilter })
-
-  const productsFilter =
-    localStorageProductsFilter !== null
-      ? ref(localStorageProductsFilter)
-      : ref({ ...initialStateProductsFilter })
-
+  const appliedCategoryGroupsFilter = ref(null)
+  const appliedCategoriesFilter = ref(null)
+  const appliedProductsFilter = ref(null)
   const groupFilterResults = ref(true)
   const isCategoryGroupsChanged = ref(false)
   const isCategoriesChanged = ref(false)
   const isProductsChanged = ref(false)
 
-  function setCategoryGroupsFilter(data) {
-    categoryGroupsFilter.value = { ...data }
+  function addElementToCategoryGroupsId(element) {
+    if (element === null) {
+      return
+    }
+
+    if (typeof element === 'array') {
+      categoryGroupsFilter.value.categoryGroupsId.push(...element)
+    }
+
+    if (categoryGroupsFilter.value.categoryGroupsId.includes(element)) {
+      return
+    }
+
+    categoryGroupsFilter.value.categoryGroupsId.push(element)
+  }
+
+  function addElementToCategoriesId(element) {
+    if (element === null) {
+      return
+    }
+
+    if (typeof element === 'array') {
+      categoriesFilter.value.categoriesId.push(...element)
+    }
+
+    if (categoriesFilter.value.categoriesId.includes(element)) {
+      return
+    }
+
+    categoriesFilter.value.categoriesId.push(element)
+  }
+
+  const isFilterApplied = computed(() => {
+    return (
+      appliedProductsFilter.value !== null ||
+      appliedCategoriesFilter.value !== null ||
+      appliedCategoryGroupsFilter.value !== null
+    )
+  })
+
+  const actualCategoryGroupsFilter = computed(() => {
+    if (appliedCategoryGroupsFilter.value !== null) {
+      return appliedCategoryGroupsFilter.value
+    }
+    console.log('actualCategoryGroupsFilter')
+    return categoryGroupsFilter.value
+  })
+
+  const actualCategoriesFilter = computed(() => {
+    if (appliedCategoriesFilter.value !== null) {
+      return appliedCategoriesFilter.value
+    }
+    console.log('actualCategoriesFilter')
+    return categoriesFilter.value
+  })
+
+  const actualProductsFilter = computed(() => {
+    if (appliedProductsFilter.value !== null) {
+      return appliedProductsFilter.value
+    }
+    return productsFilter.value
+  })
+
+  function setCategoryGroupsFilter(data, saveAppliedFilter = false) {
+    // categoryGroupsFilter.value = Object.assign(categoryGroupsFilter.value, data)
+    categoryGroupsFilter.value = deepCopy(data)
+
+    if (saveAppliedFilter) {
+      appliedCategoryGroupsFilter.value = deepCopy(categoryGroupsFilter.value)
+      // appliedCategoryGroupsFilter.value = deepCopy(categoryGroupsFilter.value)
+      // appliedCategoryGroupsFilter.value = Object.assign({}, categoryGroupsFilter.value)
+    }
+
     isCategoryGroupsChanged.value = true
-    localStorage.setItem('categoryGroupsFilter', JSON.stringify(categoryGroupsFilter.value))
+    // localStorage.setItem('categoryGroupsFilter', JSON.stringify(categoryGroupsFilter.value))
   }
 
-  function setCategoriesFilter(data) {
-    categoriesFilter.value = { ...data }
+  function setCategoriesFilter(data, saveAppliedFilter = false) {
+    // categoriesFilter.value = Object.assign(categoriesFilter.value, data)
+    categoriesFilter.value = deepCopy(data)
+
+    if (saveAppliedFilter) {
+      appliedCategoriesFilter.value = deepCopy(categoriesFilter.value)
+    }
+
     isCategoriesChanged.value = true
-    localStorage.setItem('categoriesFilter', JSON.stringify(categoriesFilter.value))
+    // localStorage.setItem('categoriesFilter', JSON.stringify(categoriesFilter.value))
   }
 
-  function setProductsFilter(data) {
-    productsFilter.value = { ...data }
+  function setProductsFilter(data, saveAppliedFilter = false) {
+    productsFilter.value = Object.assign(productsFilter.value, data)
+
+    if (saveAppliedFilter) {
+      appliedProductsFilter.value = deepCopy(productsFilter.value)
+    }
+
     isProductsChanged.value = true
-    localStorage.setItem('productsFilter', JSON.stringify(productsFilter.value))
+    // localStorage.setItem('productsFilter', JSON.stringify(productsFilter.value))
   }
 
   function resetCategoryGroupsFilter() {
-    localStorage.removeItem('categoryGroupsFilter')
-    categoryGroupsFilter.value = { ...initialStateCategoryGroupsFilter }
+    // localStorage.removeItem('categoryGroupsFilter')
+    categoryGroupsFilter.value = setInitialState(
+      null,
+      initialStateCategoryGroupsFilter,
+      userStore.userIsAuthorized,
+    )
+    appliedCategoryGroupsFilter.value = null
+    // categoryGroupsFilter.value = { ...initialStateCategoryGroupsFilter, ...initialData }
     isCategoryGroupsChanged.value = false
   }
 
   function resetCategoriesFilter() {
-    localStorage.removeItem('categoriesFilter')
-    categoriesFilter.value = { ...initialStateCategoriesFilter }
+    // localStorage.removeItem('categoriesFilter')
+    categoriesFilter.value = setInitialState(
+      null,
+      initialStateCategoriesFilter,
+      userStore.userIsAuthorized,
+    )
+    appliedCategoriesFilter.value = null
+    // categoriesFilter.value = { ...initialStateCategoriesFilter, ...initialData }
     isCategoriesChanged.value = false
   }
 
-  function resetProductsFilter() {
-    localStorage.removeItem('productsFilter')
-    productsFilter.value = { ...initialStateProductsFilter }
+  function resetProductsFilter(initialData = null) {
+    // localStorage.removeItem('productsFilter')
+    productsFilter.value = setInitialState(
+      null,
+      initialStateProductsFilter,
+      userStore.userIsAuthorized,
+    )
+    appliedProductsFilter.value = null
+    // productsFilter.value = { ...initialStateProductsFilter, ...initialData }
     isProductsChanged.value = false
   }
 
   function $reset() {
-    const userStore = useUsersStore()
-    let defaultHiddenValueCategoryGroups = null
-    let defaultHiddenValueCategories = null
-    let defaultHiddenValueProducts = null
-
-    if (userStore.userIsAuthorized) {
-      defaultHiddenValueCategoryGroups = false
-      defaultHiddenValueCategories = false
-      defaultHiddenValueProducts = false
-    }
-
-    categoryGroupsFilter.value = {
-      ...initialStateCategoryGroupsFilter,
-      isHidden: defaultHiddenValueCategoryGroups,
-    }
-    categoriesFilter.value = {
-      ...initialStateCategoriesFilter,
-      isHidden: defaultHiddenValueCategories,
-    }
-    productsFilter.value = {
-      ...initialStateProductsFilter,
-      isHidden: defaultHiddenValueProducts,
-    }
+    resetCategoryGroupsFilter()
+    resetCategoriesFilter()
+    resetProductsFilter()
     groupFilterResults.value = true
-
-    isCategoryGroupsChanged.value = false
-    isCategoriesChanged.value = false
-    isProductsChanged.value = false
+    console.log('clear')
   }
 
   return {
@@ -133,12 +235,21 @@ export const useFiltersStore = defineStore('filters', () => {
     categoriesFilter,
     productsFilter,
     groupFilterResults,
+    appliedCategoryGroupsFilter,
+    appliedCategoriesFilter,
+    appliedProductsFilter,
+    addElementToCategoryGroupsId,
+    addElementToCategoriesId,
     setCategoryGroupsFilter,
     setCategoriesFilter,
     setProductsFilter,
     resetCategoryGroupsFilter,
     resetCategoriesFilter,
     resetProductsFilter,
+    actualCategoryGroupsFilter,
+    actualCategoriesFilter,
+    actualProductsFilter,
+    isFilterApplied,
     $reset,
   }
 })

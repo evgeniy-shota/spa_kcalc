@@ -31,152 +31,33 @@ const URL_API_PRODUCTS = 'api/products/'
 const URL_API_PRODUCT = 'api/products/'
 
 export const useProductsStore = defineStore('products', () => {
-  // const categoriesGroup = ref([])
-  // const currentCategoryGroup = ref({
-  //   id: null,
-  //   name: null,
-  //   categoriesCount: null,
-  // })
-  // const isCategoriesGroupFound = ref(true)
-  // const categories = ref([])
-  // const currentCategory = ref({
-  //   id: null,
-  //   name: null,
-  //   productsCount: null,
-  // })
-  // const categoriesPrevPage = ref('')
-  // const categoriesNextPage = ref('')
-  // const isCategoriesFound = ref(true)
+  const filtersStore = useFiltersStore()
+  const sortType = ref(ProductParams.default.key)
   const products = ref([])
-  const productsPrevCursor = ref('')
-  const productsNextCursor = ref('')
+  const product = ref({ ...initialStateProduct })
+  const currentProduct = ref(null)
+  const prevCursor = ref(null)
+  const nextCursor = ref(null)
   const isProductsFound = ref(true)
+  const isProductFound = ref(true)
+
   const editableProduct = ref({ index: null, id: null })
   const editableCategory = ref({ index: null, id: null, groupId: null, groupIndex: null })
   // const editableCategoriesGroup = ref({ index: null, id: null })
-  const allCategories = ref([])
-  // const categoriesGroupSortParams = ref(CategoryGroupParams.default.key)
-  // const categoriesSortParams = ref(CategoryParams.default.key)
-  const sortType = ref(ProductParams.default.key)
-  const groupFilterResults = ref(true)
-  // const categoryGroupsFilter = ref({
-  //   categoryGroupsId: [],
-  //   isPersonal: null,
-  //   isFavorite: null,
-  //   isHidden: null,
-  // })
-  // const categoriesFilter = ref({
-  //   categoryGroupId: categoryGroupsFilter.value.categoryGroupsId,
-  //   categoryId: [],
-  //   isFavorite: null,
-  //   isHidden: null,
-  //   isPersonal: null,
-  // })
-  // const productsFilter = ref({
-  //   name: null,
-  //   // categoriesId: categoriesFilter.value.categoryId,
-  //   isPersonal: null,
-  //   isAbstract: null,
-  //   isFavorite: null,
-  //   isHidden: null,
-  //   manufacturer: [],
-  //   countryOfManufacture: [],
-  //   quantity: null,
-  //   kcalory: null,
-  //   proteins: null,
-  //   carbohydrates: null,
-  //   fats: null,
-  // })
-  const product = ref({ ...initialStateProduct })
-
-  const isProductFound = ref(true)
 
   function $reset() {
     editableProduct.value = { index: null, id: null }
     // editableCategory.value = { index: null, id: null, groupId: null, groupIndex: null }
     // editableCategoriesGroup.value = { index: null, id: null }
-    // categoriesGroup.value.length = 0
-    // currentCategoryGroup.value = {
-    //   id: null,
-    //   name: null,
-    //   categoriesCount: null,
-    // }
-    // categories.value.length = 0
-    // currentCategory.value = {
-    //   id: null,
-    //   name: null,
-    //   productsCount: null,
-    // }
+    sortType.value = ProductParams.default.key
     products.value.length = 0
     product.value = { ...initialStateProduct }
-    productsPrevCursor.value = ''
-    productsNextCursor.value = ''
-    // isCategoriesGroupFound.value = true
-    // isCategoriesFound.value = true
+    currentProduct.value = null
+    prevCursor.value = null
+    nextCursor.value = null
     isProductsFound.value = true
     isProductFound.value = true
-    // categoriesGroupSortParams.value = CategoryGroupParams.default.key
-    // categoriesSortParams.value = CategoryParams.default.key
-    sortType.value = ProductParams.default.key
-    // productsFilter.value = {
-    //   name: null,
-    //   categoriesId: [],
-    //   isPersonal: null,
-    //   isAbstract: null,
-    //   isFavorite: null,
-    //   isHidden: null,
-    //   manufacturer: [],
-    //   countryOfManufacture: [],
-    //   quantity: null,
-    //   kcalory: null,
-    //   proteins: null,
-    //   carbohydrates: null,
-    //   fats: null,
-    // }
   }
-
-  // function clearCategoryGroupFilter() {
-  //   categoryGroupsFilter.value = {
-  //     categoryGroupsId: null,
-  //     isPersonal: null,
-  //     isFavorite: null,
-  //     isHidden: null,
-  //   }
-  // }
-
-  // const getFilters = computed(() => {
-  //   const userStore = useUsersStore()
-  //   console.log('getFilters')
-  //   if (!userStore.userIsAuthorized) {
-  //     categoryGroupsFilter.value.isHidden = null
-  //     categoriesFilter.value.isHidden = null
-  //     productsFilter.value.isHidden = null
-  //   } else {
-  //     categoryGroupsFilter.value.isHidden = false
-  //     categoriesFilter.value.isHidden = false
-  //     productsFilter.value.isHidden = false
-  //   }
-
-  //   return {
-  //     categoryGroupsFilter: categoryGroupsFilter.value,
-  //     categoriesFilter: categoriesFilter.value,
-  //     productsFilter: productsFilter.value,
-  //     groupFilterResults: groupFilterResults.value,
-  //   }
-  // })
-
-  // const getProductFilter = computed(() => {
-  //   const userStore = useUsersStore()
-  //   console.log(userStore.userIsAuthorized)
-
-  //   if (!userStore.userIsAuthorized) {
-  //     productsFilter.value.isHidden = null
-  //   } else {
-  //     productsFilter.value.isHidden = false
-  //   }
-
-  //   return productsFilter.value
-  // })
 
   const productsList = computed(() => {
     return products.value
@@ -186,35 +67,6 @@ export const useProductsStore = defineStore('products', () => {
     const categoriesStore = useCategoriesStore()
     getProducts(categoriesStore.currentCategory.id)
   })
-
-  // async function getCategoryGroups() {
-  //   isCategoriesGroupFound.value = true
-  //   try {
-  //     const response = await axios_instance.get(URL_API_CATEGORY_GROUPS, {
-  //       params: categoryGroupsFilter.value,
-  //     })
-
-  //     if (response) {
-  //       isCategoriesGroupFound.value = response.data.count > 0 ? true : false
-  //       categoriesGroup.value = response.data.data
-
-  //       currentCategoryGroup.value = {
-  //         id: null,
-  //         name: null,
-  //         categoriesCount: null,
-  //       }
-
-  //       currentCategory.value = {
-  //         id: null,
-  //         name: null,
-  //         productsCount: null,
-  //       }
-  //     }
-  //   } catch (error) {
-  //     console.log('Get category groups fail')
-  //     isCategoriesGroupFound.value = false
-  //   }
-  // }
 
   // async function getCategories(id) {
   //   isCategoriesFound.value = true
@@ -257,26 +109,42 @@ export const useProductsStore = defineStore('products', () => {
   // }
 
   // get list of products in category
-  async function getProducts(category_id, cursor = null) {
-    const filtersStore = useFiltersStore()
+  async function getProducts(filter, cursor = null) {
     isProductsFound.value = true
-    let queryParams = {
-      sort: sortType.value,
-      categories: filtersStore.categoriesFilter.categoryId,
-      isPersonal: filtersStore.productsFilter.isPersonal,
-      isAbstract: filtersStore.productsFilter.isAbstract,
-      isFavorite: filtersStore.productsFilter.isFavorite,
-      isHidden: filtersStore.productsFilter.isHidden,
-      name: filtersStore.productsFilter.name,
-      manufacturer: filtersStore.productsFilter.manufacturer,
-      countryOfManufacture: filtersStore.productsFilter.countryOfManufacture,
-      quantity: filtersStore.productsFilter.quantity,
-      kcalory: filtersStore.productsFilter.kcalory,
-      proteins: filtersStore.productsFilter.proteins,
-      carbohydrates: filtersStore.productsFilter.carbohydrates,
-      fats: filtersStore.productsFilter.fats,
-      cursor: cursor ? cursor : '',
+    let filterParams =
+      filter !== null
+        ? filter
+        : Object.assign(
+            {
+              categoriesId: filtersStore.categoriesFilter.categoriesId,
+              // categoriesId: filtersStore.actualCategoriesFilter.categoriesId,
+            },
+            // filtersStore.productsFilter,
+            filtersStore.actualProductsFilter,
+          )
+    let queryParams = Object.assign({ sort: sortType.value }, filterParams)
+
+    if (cursor !== null) {
+      queryParams = Object.assign(queryParams, {
+        cursor: cursor !== null ? cursor : '',
+      })
     }
+
+    // let queryParams = {
+    // isPersonal: filtersStore.productsFilter.isPersonal,
+    // isAbstract: filtersStore.productsFilter.isAbstract,
+    // isFavorite: filtersStore.productsFilter.isFavorite,
+    // isHidden: filtersStore.productsFilter.isHidden,
+    // name: filtersStore.productsFilter.name,
+    // manufacturer: filtersStore.productsFilter.manufacturer,
+    // countryOfManufacture: filtersStore.productsFilter.countryOfManufacture,
+    // quantity: filtersStore.productsFilter.quantity,
+    // kcalory: filtersStore.productsFilter.kcalory,
+    // proteins: filtersStore.productsFilter.proteins,
+    // carbohydrates: filtersStore.productsFilter.carbohydrates,
+    // fats: filtersStore.productsFilter.fats,
+    // }
+
     try {
       const response = await axios_instance.get(URL_API_PRODUCTS, {
         params: queryParams,
@@ -285,15 +153,14 @@ export const useProductsStore = defineStore('products', () => {
       if (response) {
         isProductsFound.value = response.data.count > 0 ? true : false
 
-        console.log(response)
         if (cursor) {
           let tempArray = [].concat(products.value, response.data.data)
           products.value = tempArray
         } else {
           products.value = response.data.data
         }
-        productsPrevCursor.value = response.data.meta.prev_cursor
-        productsNextCursor.value = response.data.meta.next_cursor
+        prevCursor.value = response.data.meta.prev_cursor
+        nextCursor.value = response.data.meta.next_cursor
       }
     } catch (error) {
       console.log(error)
@@ -301,26 +168,10 @@ export const useProductsStore = defineStore('products', () => {
     }
   }
 
-  async function getFilteredProducts() {
-    try {
-      const response = await axios_instance.post(URL_API_PRODUCT, productsFilter.value)
-
-      if (response) {
-        isProductsFound.value = response.data.count > 0 ? true : false
-        products.value = response.data.data
-        productsPrevCursor.value = response.data.meta.prev_cursor
-        productsNextCursor.value = response.data.meta.next_cursor
-      }
-    } catch (error) {
-      console.log('Get filtered product fail')
-      console.log(error)
-    }
-  }
-
-  async function getProduct(product_id = 0) {
+  async function getProduct(productId = 0) {
     isProductFound.value = true
     try {
-      const response = await axios_instance.get(URL_API_PRODUCT + `${product_id}`)
+      const response = await axios_instance.get(URL_API_PRODUCT + productId)
       if (response) {
         isProductFound.value = true
         product.value = response.data.data
@@ -332,27 +183,6 @@ export const useProductsStore = defineStore('products', () => {
       isProductFound.value = false
     }
   }
-
-  // async function changeCategoryGroup(id, data, categoriesGroupIndex) {
-  //   try {
-  //     const response = await axios_instance.put(URL_API_CATEGORY_GROUPS + id, {
-  //       id: 'id' in data ? data.id : null,
-  //       name: 'name' in data ? data.name : null,
-  //       description: 'description' in data ? data.description : null,
-  //       is_enabled: 'is_enabled' in data ? data.is_enabled : null,
-  //       is_favorite: 'is_favorite' in data ? data.is_favorite : null,
-  //       is_hidden: 'is_hidden' in data ? data.is_hidden : null,
-  //     })
-  //     if (response) {
-  //       console.log('index: ' + categoriesGroupIndex)
-  //       console.log(response.data)
-  //       categoriesGroup.value[categoriesGroupIndex] = response.data.data
-  //     }
-  //   } catch (error) {
-  //     console.log('changeCategoryGroup fail')
-  //     console.log(error)
-  //   }
-  // }
 
   // async function changeCategory(id, data, index) {
   //   console.log('id: ' + id + ', index: ' + index)
@@ -532,11 +362,10 @@ export const useProductsStore = defineStore('products', () => {
     isProductsFound,
     isProductFound,
     editableProduct,
-    productsPrevCursor,
-    productsNextCursor,
+    prevCursor,
+    nextCursor,
     getProducts,
     getProduct,
-    getFilteredProducts,
     addNewProduct,
     changeProduct,
     productsList,

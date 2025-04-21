@@ -15,6 +15,7 @@ const initialStateCategory = {
 }
 
 export const useCategoriesStore = defineStore('categories', () => {
+  const filtersStore = useFiltersStore()
   const sortType = ref(CategoryParams.default.key)
   const categories = ref([])
   const category = ref({ ...initialStateCategory })
@@ -31,15 +32,20 @@ export const useCategoriesStore = defineStore('categories', () => {
     isCategoryFound.value = null
   }
 
-  async function getCategories() {
+  async function getCategories(filter) {
     isCategoriesFound.value = null
-    const filterStore = useFiltersStore()
+    let filterParams =
+      filter !== null
+        ? filter
+        : {
+            categoryGroupsId: filtersStore.categoryGroupsFilter.categoryGroupsId,
+            ...filtersStore.categoriesFilter,
+          }
+
+    console.log(filterParams)
     try {
       const response = await axios_instance.get(URL_API, {
-        params: {
-          categoryGroupId: filterStore.categoryGroupsFilter.categoryGroupsId,
-          ...filterStore.categoriesFilter.value,
-        },
+        params: filterParams,
       })
 
       if (response) {
@@ -89,7 +95,7 @@ export const useCategoriesStore = defineStore('categories', () => {
   async function changeCategory(id, data, index) {
     const filtersStore = useFiltersStore()
     let requestBody = {
-      categoryGroupId: data.categoryGroupId,
+      categoryGroupsId: data.categoryGroupsId,
       name: data.name,
       description: data.description,
       is_personal: data.isPersonal,

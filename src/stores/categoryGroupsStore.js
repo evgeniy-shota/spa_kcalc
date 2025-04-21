@@ -15,10 +15,11 @@ const initialStateCategoryGroup = {
 }
 
 export const useCategoryGroupsStore = defineStore('categoryGroups', () => {
+  const filtersStore = useFiltersStore()
   const sortType = ref(CategoryGroupParams.default.key)
   const categoryGroups = ref([])
   const categoryGroup = ref({ ...initialStateCategoryGroup })
-  const currnetCategoryGroup = ref()
+  const currentCategoryGroup = ref()
   const isCategoryGroupsFound = ref(null)
   const isCategoryGroupFound = ref(null)
   const editableCategoryGroup = ref({ index: null, id: null })
@@ -27,12 +28,12 @@ export const useCategoryGroupsStore = defineStore('categoryGroups', () => {
     categoryGroup.value = { ...initialStateCategoryGroup }
   }
 
-  async function getCategoryGroups() {
-    const filterStore = useFiltersStore()
-    console.log('new cat-group')
+  async function getCategoryGroups(filter = null) {
+    let filterParams = filter !== null ? filter : { ...filtersStore.categoryGroupsFilter }
+
     try {
       const response = await axios_instance.get(URL_API, {
-        params: filterStore.categoryGroupsFilter.value,
+        params: filterParams,
       })
 
       if (response) {
@@ -50,7 +51,7 @@ export const useCategoryGroupsStore = defineStore('categoryGroups', () => {
     try {
       const response = await axios_instance.get(URL_API + id)
 
-      if (response.code == 200) {
+      if (response) {
         isCategoryGroupsFound.value = true
         categoryGroup.value = response.data.data
       }
@@ -144,7 +145,7 @@ export const useCategoryGroupsStore = defineStore('categoryGroups', () => {
     categoryGroup,
     isCategoryGroupsFound,
     isCategoryGroupFound,
-    currnetCategoryGroup,
+    currentCategoryGroup,
     editableCategoryGroup,
     getCategoryGroups,
     getCategoryGroup,

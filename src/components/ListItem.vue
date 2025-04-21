@@ -105,7 +105,6 @@ function selectElement(event, id) {
         return
     }
 
-    console.log(targetAttributeControll + " " + id)
     emit('selectElement', id)
 }
 

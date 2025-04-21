@@ -5,7 +5,7 @@ import { computed, ref } from 'vue'
 const URL_ADDITIONAL_DATA = '/api/additional-products-data'
 
 export const useAdditionalProductData = defineStore('additionalProductData', () => {
-  const allCategoriesGroup = ref([])
+  const allCategoryGroups = ref([])
   const allCategories = ref([])
   const countriesOfManufacture = ref([])
   const dataSource = ref([])
@@ -14,6 +14,31 @@ export const useAdditionalProductData = defineStore('additionalProductData', () 
   const proteinsLimits = ref([])
   const carbohydratesLimits = ref([])
   const fatsLimits = ref([])
+
+  const categoryGroupsIdCategoriesIdMap = computed(() => {
+    let categoryGroups = new Map()
+    for (let i = 0; i < allCategoryGroups.value.length; i++) {
+      let categories = new Set()
+      for (let j = 0; j < allCategoryGroups.value[i].categories.data.length; j++) {
+        categories.add(allCategoryGroups.value[i].categories.data[j].id)
+      }
+      categoryGroups.set(allCategoryGroups.value[i].id, categories)
+    }
+    return categoryGroups
+  })
+
+  const categoriesIdCategoryGroupsIdMap = computed(() => {
+    let categories = new Map()
+    for (let i = 0; i < allCategoryGroups.value.length; i++) {
+      for (let j = 0; j < allCategoryGroups.value[i].categories.data.length; j++) {
+        categories.set(
+          allCategoryGroups.value[i].categories.data[j].id,
+          allCategoryGroups.value[i].id,
+        )
+      }
+    }
+    return categories
+  })
 
   function categoriesList(catGroup) {
     let categories = []
@@ -28,9 +53,8 @@ export const useAdditionalProductData = defineStore('additionalProductData', () 
       const response = await axios_instance.get(URL_ADDITIONAL_DATA)
 
       if (response) {
-        console.log(response.data)
-        allCategoriesGroup.value = response.data.categoriesGroup.data
-        allCategories.value = categoriesList(allCategoriesGroup.value)
+        allCategoryGroups.value = response.data.categoriesGroup.data
+        allCategories.value = categoriesList(allCategoryGroups.value)
         countriesOfManufacture.value = response.data.country_of_manufactory.data
         dataSource.value = response.data.data_source.data
 
@@ -66,7 +90,7 @@ export const useAdditionalProductData = defineStore('additionalProductData', () 
   }
 
   return {
-    allCategoriesGroup,
+    allCategoryGroups,
     allCategories,
     countriesOfManufacture,
     dataSource,
@@ -76,6 +100,8 @@ export const useAdditionalProductData = defineStore('additionalProductData', () 
     carbohydratesLimits,
     fatsLimits,
     getData,
+    categoryGroupsIdCategoriesIdMap,
+    categoriesIdCategoryGroupsIdMap,
     $reset,
   }
 })

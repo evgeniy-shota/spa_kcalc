@@ -1,33 +1,25 @@
 <script setup>
-import { watch, ref, computed } from 'vue';
+import { watch, ref, computed, onUpdated } from 'vue';
 import { filterNumberInput } from '@/resource/js/inputFilters';
 import { validateFloatNumber } from '@/resource/js/dataValidation';
 
 import IconSquare from './icons/IconSquare.vue';
-import IconDashSquare from './icons/IconDashSquare.vue';
 import IconDashSquareFill from './icons/IconDashSquareFill.vue';
-import IconCheckSquareSm from './icons/IconCheckSquareSm.vue';
 import IconCheckSquareFillSm from './icons/IconCheckSquareFillSm.vue';
 import { useFiltersStore } from '@/stores/filtersStore';
+import { useAdditionalProductData } from '@/stores/additionProductData';
+import { useCategoriesStore } from '@/stores/categoriesStore';
+import { useCategoryGroupsStore } from '@/stores/categoryGroupsStore';
 
-const filterStore = useFiltersStore();
+const filtersStore = useFiltersStore();
+const additionalProductDataStore = useAdditionalProductData();
+const categoriesStore = useCategoriesStore();
+const categoryGroups = useCategoryGroupsStore();
 
 const props = defineProps({
-    categoriesGroup: {
-        type: Array,
-        default: () => [],
-    },
-    categories: {
-        type: Array,
-        default: () => [],
-    },
-    countries: {
-        type: Array,
-        default: () => [],
-    },
-    dataSource: {
-        type: Array,
-        default: () => [],
+    isFilterShowed: {
+        type: Boolean,
+        default: false,
     },
     isApplyFilter: {
         type: Boolean,
@@ -36,42 +28,6 @@ const props = defineProps({
     isClearFilter: {
         type: Boolean,
         default: false,
-    },
-    caloryLimit: {
-        type: Array,
-        default: () => [0, 999]
-    },
-    proteinsLimit: {
-        type: Array,
-        default: () => [0, 999]
-    },
-    carbohydratesLimit: {
-        type: Array,
-        default: () => [0, 999]
-    },
-    fatsLimit: {
-        type: Array,
-        default: () => [0, 999]
-    },
-    categoryGroupsFilterDefaultVal: {
-        type: Object,
-        default: null,
-    },
-    categoriesFilterDefaultVal: {
-        type: Object,
-        default: null,
-    },
-    productsFilterDefaultVal: {
-        type: Object,
-        default: null,
-    },
-    groupFilterResult: {
-        type: Boolean,
-        default: true,
-    },
-    currentCategoryId: {
-        type: Number,
-        default: null,
     },
     userIsAuthorized: {
         type: Boolean,
@@ -91,32 +47,94 @@ const emit = defineEmits({
     },
 });
 
-watch([
-    () => props.caloryLimit,
-    () => props.proteinsLimit,
-    () => props.carbohydratesLimit,
-    () => props.fatsLimit], () => {
+onUpdated(() => {
+    console.log('filter update')
+    console.log(filtersStore.actualCategoryGroupsFilter)
+})
 
-        if (props.caloryLimit) {
-            caloryLimitFrom.value = props.caloryLimit[0]
-            caloryLimitTo.value = props.caloryLimit[1]
-        }
+// watch(filtersStore.actualCategoryGroupsFilter.categoryGroupsId, (value) => {
+//     console.log(filtersStore.actualCategoryGroupsFilter.categoryGroupsId)
+//     if (value.length === 0) {
+//         selectedCategoryGroups.value.clear()
+//         return
+//     }
 
-        if (props.proteinsLimit) {
-            proteinsLimitFrom.value = props.proteinsLimit[0]
-            proteinsLimitTo.value = props.proteinsLimit[1]
-        }
+//     for (let i = 0; i < value.length; i++) {
+//         initCategories(value[i])
+//     }
+// })
 
-        if (props.carbohydratesLimit) {
-            carbohydratesLimitFrom.value = props.carbohydratesLimit[0]
-            carbohydratesLimitTo.value = props.carbohydratesLimit[1]
-        }
+// watch(filtersStore.actualCategoriesFilter.categoriesId, (value) => {
+//     console.log(filtersStore.actualCategoriesFilter.categoriesId)
+//     if (value.length === 0) {
+//         selectedCategories.value.clear()
+//         return
+//     }
 
-        if (props.fatsLimit) {
-            fatsLimitFrom.value = props.fatsLimit[0]
-            fatsLimitTo.value = props.fatsLimit[1]
-        }
-    });
+//     for (let i = 0; i < value.length; i++) {
+//         initCategoryGroups(value[i])
+//     }
+// })
+
+const CUSTOM_CHECKBOX_VALUES = [null, true, false];
+
+const groupFilterResults = ref(null);
+const selectedCategoryGroups = ref(null)
+const selectedCategories = ref(null);
+// const selectedCategories = ref([categoriesStore.currentCategory]);
+const selectedDataSource = ref([]);
+const selectedCountries = ref([]);
+
+const isCategoryGroupFavoriteChecked = ref(null);
+const isCategoryGroupPersonalChecked = ref(null);
+const isCategoryGroupHiddenChecked = ref(null);
+// const isCategoryGroupAbstractChecked = ref(props.categoryGroupsFilterDefaultVal?.isAbstract !== undefined ? props.categoryGroupsFilterDefaultVal.isAbstract : null);
+
+const isCategoryFavoriteChecked = ref(null);
+const isCategoryPersonalChecked = ref(null);
+const isCategoryHiddenChecked = ref(null);
+// const isCategoryAbstractChecked = ref(props.categoriesFilterDefaultVal?.isAbstract !== undefined ? props.categoriesFilterDefaultVal.isAbstract : null);
+
+const isProductFavoriteChecked = ref(null);
+const isProductPersonalChecked = ref(null);
+const isProductHiddenChecked = ref(null);
+const isProductAbstractChecked = ref(null);
+
+const caloryLimitFrom = ref(null);
+const caloryLimitTo = ref(null);
+const proteinsLimitFrom = ref(null);
+const proteinsLimitTo = ref(null);
+const carbohydratesLimitFrom = ref(null);
+const carbohydratesLimitTo = ref(null);
+const fatsLimitFrom = ref(null);
+const fatsLimitTo = ref(null);
+
+// watch([
+//     () => additionalProductDataStore.caloryLimits,
+//     () => additionalProductDataStore.proteinsLimits,
+//     () => additionalProductDataStore.carbohydratesLimits,
+//     () => additionalProductDataStore.fatsLimits], () => {
+
+//         if (additionalProductDataStore.caloryLimits) {
+//             caloryLimitFrom.value = additionalProductDataStore.caloryLimits[0]
+//             caloryLimitTo.value = additionalProductDataStore.caloryLimits[1]
+//         }
+
+//         if (additionalProductDataStore.proteinsLimits) {
+//             proteinsLimitFrom.value = additionalProductDataStore.proteinsLimits[0]
+//             proteinsLimitTo.value = additionalProductDataStore.proteinsLimits[1]
+//         }
+
+//         if (additionalProductDataStore.carbohydratesLimits) {
+//             carbohydratesLimitFrom.value = additionalProductDataStore.carbohydratesLimits[0]
+//             carbohydratesLimitTo.value = additionalProductDataStore.carbohydratesLimits[1]
+//         }
+
+//         if (additionalProductDataStore.fatsLimits) {
+//             fatsLimitFrom.value = additionalProductDataStore.fatsLimits[0]
+//             fatsLimitTo.value = additionalProductDataStore.fatsLimits[1]
+//         }
+//     });
 
 watch(() => props.isApplyFilter, () => {
     if (props.isApplyFilter) {
@@ -131,43 +149,72 @@ watch(() => props.isClearFilter, () => {
     }
 });
 
-const CUSTOM_CHECKBOX_VALUES = [null, true, false];
-
-const groupFilterResults = ref(filterStore.groupFilterResults);
-const selectedCategories = ref([]);
-const selectedDataSource = ref([]);
-const selectedCountries = ref([]);
-
-const isCategoryGroupFavoriteChecked = ref(filterStore.categoryGroupsFilter.isFavorite ?? null);
-const isCategoryGroupPersonalChecked = ref(filterStore.categoryGroupsFilter.isPersonal ?? null);
-const isCategoryGroupHiddenChecked = ref(filterStore.categoryGroupsFilter.isHidden ?? null);
-// const isCategoryGroupAbstractChecked = ref(props.categoryGroupsFilterDefaultVal?.isAbstract !== undefined ? props.categoryGroupsFilterDefaultVal.isAbstract : null);
-
-const isCategoryFavoriteChecked = ref(filterStore.categoriesFilter.isFavorite ?? null);
-const isCategoryPersonalChecked = ref(filterStore.categoriesFilter.isPersonal ?? null);
-const isCategoryHiddenChecked = ref(filterStore.categoriesFilter.isHidden ?? null);
-// const isCategoryAbstractChecked = ref(props.categoriesFilterDefaultVal?.isAbstract !== undefined ? props.categoriesFilterDefaultVal.isAbstract : null);
-
-const isProductFavoriteChecked = ref(filterStore.productsFilter.isFavorite ?? null);
-const isProductPersonalChecked = ref(filterStore.productsFilter.isPersonal ?? null);
-const isProductHiddenChecked = ref(filterStore.productsFilter.isHidden ?? null);
-const isProductAbstractChecked = ref(filterStore.productsFilter.isAbstract ?? null);
-
-const caloryLimitFrom = ref(null);
-const caloryLimitTo = ref(null);
-const proteinsLimitFrom = ref(null);
-const proteinsLimitTo = ref(null);
-const carbohydratesLimitFrom = ref(null);
-const carbohydratesLimitTo = ref(null);
-const fatsLimitFrom = ref(null);
-const fatsLimitTo = ref(null);
-
-watch(() => props.currentCategoryId, () => {
-    if (props.currentCategoryId !== null) {
-        selectedCategories.value.length = 0
-        selectedCategories.value.push(props.currentCategoryId);
+watch(() => props.isFilterShowed, ((value) => {
+    if (value == true) {
+        prepareToShow()
     }
-});
+}))
+
+function prepareToShow() {
+    console.log('prepereToShow')
+    selectedCategories.value = new Set(filtersStore.actualCategoriesFilter.categoriesId);
+    selectedCategoryGroups.value = new Set(filtersStore.actualCategoryGroupsFilter.categoryGroupsId)
+    groupFilterResults.value = filtersStore.groupFilterResults;
+    isCategoryGroupFavoriteChecked.value = filtersStore.actualCategoryGroupsFilter.isFavorite ?? null;
+    isCategoryGroupPersonalChecked.value = filtersStore.actualCategoryGroupsFilter.isPersonal ?? null;
+    isCategoryGroupHiddenChecked.value = filtersStore.actualCategoryGroupsFilter.isHidden ?? null;
+    isCategoryFavoriteChecked.value = filtersStore.actualCategoriesFilter.isFavorite ?? null;
+    isCategoryPersonalChecked.value = filtersStore.actualCategoriesFilter.isPersonal ?? null;
+    isCategoryHiddenChecked.value = filtersStore.actualCategoriesFilter.isHidden ?? null;
+    isProductFavoriteChecked.value = filtersStore.actualProductsFilter.isFavorite ?? null;
+    isProductPersonalChecked.value = filtersStore.actualProductsFilter.isPersonal ?? null;
+    isProductHiddenChecked.value = filtersStore.actualProductsFilter.isHidden ?? null;
+    isProductAbstractChecked.value = filtersStore.actualProductsFilter.isAbstract ?? null;
+    caloryLimitFrom.value = additionalProductDataStore.caloryLimits[0];
+    caloryLimitTo.value = additionalProductDataStore.caloryLimits[1];
+    proteinsLimitFrom.value = additionalProductDataStore.proteinsLimits[0];
+    proteinsLimitTo.value = additionalProductDataStore.proteinsLimits[1];
+    carbohydratesLimitFrom.value = additionalProductDataStore.carbohydratesLimits[0];
+    carbohydratesLimitTo.value = additionalProductDataStore.carbohydratesLimits[1];
+    fatsLimitFrom.value = additionalProductDataStore.fatsLimits[0];
+    fatsLimitTo.value = additionalProductDataStore.fatsLimits[1];
+}
+
+function initCategories(id) {
+    let categoriesFromCategoryGroup = additionalProductDataStore.categoryGroupsIdCategoriesIdMap.get(id)
+    if (selectedCategoryGroups.value.has(id)) {
+        categoriesFromCategoryGroup.forEach(categoryId => {
+            selectedCategories.value.add(categoryId);
+        });
+    } else {
+        categoriesFromCategoryGroup.forEach(categoryId => {
+            selectedCategories.value.delete(categoryId)
+        });
+    }
+}
+
+function initCategoryGroups(id) {
+    let categoryGroupContainsCategory =
+        additionalProductDataStore.categoriesIdCategoryGroupsIdMap.get(id)
+    let categoriesFromCategoryGroup =
+        additionalProductDataStore.categoryGroupsIdCategoriesIdMap.get(categoryGroupContainsCategory)
+
+    if (selectedCategories.value.has(id)) {
+        selectedCategoryGroups.value.add(categoryGroupContainsCategory);
+    } else {
+        let countSelectedCategoriesFromSameCategoryGroup = 0
+
+        categoriesFromCategoryGroup.forEach(categoryId => {
+            if (selectedCategories.value.has(categoryId)) {
+                countSelectedCategoriesFromSameCategoryGroup += 1;
+            }
+        });
+
+        if (countSelectedCategoriesFromSameCategoryGroup === 0) {
+            selectedCategoryGroups.value.delete(categoryGroupContainsCategory);
+        }
+    }
+}
 
 function applyFilter() {
     let productsFilter = {
@@ -186,17 +233,25 @@ function applyFilter() {
     };
 
     let categoryGroupsFilter = {
+        categoryGroupsId: selectedCategoryGroups.value.size > 0 ? Array.from(selectedCategoryGroups.value) : [],
         isFavorite: isCategoryGroupFavoriteChecked.value,
         isPersonal: isCategoryGroupPersonalChecked.value,
         isHidden: isCategoryGroupHiddenChecked.value,
     }
 
     let categoriesFilter = {
-        categoryId: selectedCategories.value.length > 0 ? selectedCategories.value : [],
+        categoriesId: selectedCategories.value.size > 0 ? Array.from(selectedCategories.value) : [],
         isFavorite: isCategoryFavoriteChecked.value,
         isPersonal: isCategoryPersonalChecked.value,
         isHidden: isCategoryHiddenChecked.value,
     }
+
+    console.log({
+        categoryGroupsFilter: categoryGroupsFilter,
+        categoriesFilter: categoriesFilter,
+        productsFilter: productsFilter,
+        groupFilterResults: groupFilterResults.value,
+    })
 
     emit('applyFilter', {
         categoryGroupsFilter: categoryGroupsFilter,
@@ -207,30 +262,34 @@ function applyFilter() {
 }
 
 function clearFilter() {
-    selectedCategories.value = [props.currentCategoryId];
+    emit('clearFilter');
+
+    selectedCategoryGroups.value = new Set(filtersStore.actualCategoryGroupsFilter.categoryGroupsId);
+    selectedCategories.value = new Set(filtersStore.actualCategoriesFilter.categoriesId);
     selectedDataSource.value = [];
     selectedCountries.value = [];
-    groupFilterResults.value = props.groupFilterResult;
-    isCategoryGroupFavoriteChecked.value = props.categoryGroupsFilterDefaultVal?.isFavorite !== undefined ? props.categoryGroupsFilterDefaultVal.isFavorite : null;
-    isCategoryGroupPersonalChecked.value = props.categoryGroupsFilterDefaultVal?.isPersonal !== undefined ? props.categoryGroupsFilterDefaultVal.isPersonal : null;
-    isCategoryGroupHiddenChecked.value = props.categoryGroupsFilterDefaultVal?.isHidden !== undefined ? props.categoryGroupsFilterDefaultVal.isHidden : null;
-    isCategoryFavoriteChecked.value = props.categoriesFilterDefaultVal?.isFavorite !== undefined ? props.categoriesFilterDefaultVal.isFavorite : null;
-    isCategoryPersonalChecked.value = props.categoriesFilterDefaultVal?.isPersonal !== undefined ? props.categoriesFilterDefaultVal.isPersonal : null;
-    isCategoryHiddenChecked.value = props.categoriesFilterDefaultVal?.isHidden !== undefined ? props.categoriesFilterDefaultVal.isHidden : null;
-    isProductFavoriteChecked.value = props.productsFilterDefaultVal?.isFavorite !== undefined ? props.productsFilterDefaultVal.isFavorite : null;
-    isProductPersonalChecked.value = props.productsFilterDefaultVal?.isPersonal !== undefined ? props.productsFilterDefaultVal.isPersonal : null;
-    isProductHiddenChecked.value = props.productsFilterDefaultVal?.isHidden !== undefined ? props.productsFilterDefaultVal.isHidden : null;
-    isProductAbstractChecked.value = props.productsFilterDefaultVal?.isAbstract !== undefined ? props.productsFilterDefaultVal.isAbstract : null;
-    caloryLimitFrom.value = props.caloryLimit[0];
-    caloryLimitTo.value = props.caloryLimit[1];
-    proteinsLimitFrom.value = props.proteinsLimit[0];
-    proteinsLimitTo.value = props.proteinsLimit[1];
-    carbohydratesLimitFrom.value = props.carbohydratesLimit[0];
-    carbohydratesLimitTo.value = props.carbohydratesLimit[1];
-    fatsLimitFrom.value = props.fatsLimit[0];
-    fatsLimitTo.value = props.fatsLimit[1];
+    groupFilterResults.value = filtersStore.groupFilterResults;
 
-    emit('clearFilter');
+    isCategoryGroupFavoriteChecked.value = filtersStore.actualCategoryGroupsFilter.isFavorite ?? null;
+    isCategoryGroupPersonalChecked.value = filtersStore.actualCategoryGroupsFilter.isPersonal ?? null;
+    isCategoryGroupHiddenChecked.value = filtersStore.actualCategoryGroupsFilter.isHidden ?? null;
+    isCategoryFavoriteChecked.value = filtersStore.actualCategoriesFilter.isFavorite ?? null;
+    isCategoryPersonalChecked.value = filtersStore.actualCategoriesFilter.isPersonal ?? null;
+    isCategoryHiddenChecked.value = filtersStore.actualCategoriesFilter.isHidden ?? null;
+    isProductFavoriteChecked.value = filtersStore.actualProductsFilter.isFavorite ?? null;
+    isProductPersonalChecked.value = filtersStore.actualProductsFilter.isPersonal ?? null;
+    isProductHiddenChecked.value = filtersStore.actualProductsFilter.isHidden ?? null;
+    isProductAbstractChecked.value = filtersStore.actualProductsFilter.isAbstract ?? null;
+
+    caloryLimitFrom.value = additionalProductDataStore.caloryLimits[0];
+    caloryLimitTo.value = additionalProductDataStore.caloryLimits[1];
+    proteinsLimitFrom.value = additionalProductDataStore.proteinsLimits[0];
+    proteinsLimitTo.value = additionalProductDataStore.proteinsLimits[1];
+    carbohydratesLimitFrom.value = additionalProductDataStore.carbohydratesLimits[0];
+    carbohydratesLimitTo.value = additionalProductDataStore.carbohydratesLimits[1];
+    fatsLimitFrom.value = additionalProductDataStore.fatsLimits[0];
+    fatsLimitTo.value = additionalProductDataStore.fatsLimits[1];
+
 }
 
 function inputCharFilter(event) {
@@ -283,7 +342,6 @@ function changeAllProductsCustomCheckboxValue(newValue) {
     }
 }
 
-
 function checkboxClasses(value, disableForUnauthorized = true) {
     let classes = 'border-bottom ';
 
@@ -301,6 +359,14 @@ function checkboxClasses(value, disableForUnauthorized = true) {
 
     return classes
 };
+
+function changeCategoryGroupCheckbox(id) {
+    initCategories(id)
+}
+
+function changeCategoryCheckbox(id) {
+    initCategoryGroups(id)
+}
 
 </script>
 
@@ -322,18 +388,25 @@ function checkboxClasses(value, disableForUnauthorized = true) {
                 <div class="border-bottom border-light-subtle">Категории</div>
                 <div class="categories-filter-container mb-1 rounded border-light me-2">
                     <ul class="list-group list-group-flush px-2">
-                        <li v-show="props.categories.length == 0">
+                        <li v-show="additionalProductDataStore.allCategoryGroups.length == 0">
                             <div class="form-text">Нет данных</div>
                         </li>
-                        <li v-for="itemGroup in props.categoriesGroup">
-                            <div class="mb-1">
-                                {{ itemGroup.name }}
+                        <li v-for="itemGroup in additionalProductDataStore.allCategoryGroups">
+                            <div class="form-check">
+                                <input @change="changeCategoryGroupCheckbox(itemGroup.id)"
+                                    v-model="selectedCategoryGroups" class="form-check-input" type="checkbox"
+                                    :value="itemGroup.id" :name="'categoryGroupFilter' + itemGroup.id"
+                                    :id="'categoryGroupFilter' + itemGroup.id">
+                                <label class="form-check-label" :for="'categoryGroupFilter' + itemGroup.id">
+                                    {{ itemGroup.name }}
+                                </label>
                             </div>
-                            <ul class="list-group list-group-flush px-2">
+                            <ul class="list-group list-group-flush px-2 border-start">
                                 <li v-for="item in itemGroup.categories.data" :key="item.id">
-                                    <div class="form-check">
-                                        <input class="form-check-input" type="checkbox" :value="item.id"
-                                            v-model="selectedCategories" :id="'categoryFilter1' + item.id">
+                                    <div class="form-check ms-2">
+                                        <input @change="changeCategoryCheckbox(item.id)" v-model="selectedCategories"
+                                            class="form-check-input" type="checkbox" :value="item.id"
+                                            :id="'categoryFilter1' + item.id">
                                         <label class="form-check-label" :for="'categoryFilter1' + item.id">
                                             {{ item.name }}
                                         </label>
@@ -358,10 +431,10 @@ function checkboxClasses(value, disableForUnauthorized = true) {
                 <div class="border-bottom border-light-subtle">Страна производства</div>
                 <div class="country-filter-container mb-1 rounded border-light me-2">
                     <ul class="list-group list-group-flush px-2">
-                        <li v-show="props.countries.length == 0">
+                        <li v-show="additionalProductDataStore.countriesOfManufacture.length == 0">
                             <div class="form-text">Нет данных</div>
                         </li>
-                        <li v-for="item in props.countries">
+                        <li v-for="item in additionalProductDataStore.countriesOfManufacture">
                             <div class="form-check">
                                 <input class="form-check-input" type="checkbox" :value="item.id"
                                     v-model="selectedCountries" :id="'countryFilter1' + item.id">
@@ -391,8 +464,8 @@ function checkboxClasses(value, disableForUnauthorized = true) {
                     <IconSquare /> - любое значение
                 </div>
             </div>
-            <div class="ps-3">
 
+            <div class="ps-3">
                 <!-- <input class="form-check-input" v-model="isFavoriteChecked" type="checkbox" value=""
                     id="favoriteProductsFilter"> -->
                 <label class="form-label d-flex mb-1 gap-1 align-items-center"
@@ -406,6 +479,7 @@ function checkboxClasses(value, disableForUnauthorized = true) {
                     <div :class="checkboxClasses(isCategoryGroupFavoriteChecked)">Избранные группы</div>
                 </label>
             </div>
+
             <div class="ps-3">
                 <!-- <input class="form-check-input" v-model="isPersonalChecked" type="checkbox" value=""
                     id="personalProductsFilter"> -->
@@ -422,6 +496,7 @@ function checkboxClasses(value, disableForUnauthorized = true) {
                     </div>
                 </label>
             </div>
+
             <div class="ps-3">
                 <!-- <input class="form-check-input" v-model="isHiddenChecked" type="checkbox" value=""
                     id="hiddenProductsFilter"> -->

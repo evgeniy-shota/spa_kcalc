@@ -78,7 +78,6 @@ function selectElement(id) {
   //   return
   // }
 
-  console.log('select element is: ' + id)
   lastSelectedProduct.value = id
   emit('selectElement', id)
 }

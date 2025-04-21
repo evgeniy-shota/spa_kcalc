@@ -7,9 +7,12 @@ import { useUsersStore } from './stores/usersStore';
 
 import NavBar from './components/NavBar.vue';
 import StatusBar from './components/StatusBar.vue';
+import Toasts from './components/Toasts.vue';
 import Footer from './components/Footer.vue';
+import { useNotificationStore } from './stores/notificationStore';
 
 const userStore = useUsersStore();
+const notificationStore = useNotificationStore()
 
 const userIsActive = computed(() => {
   return userStore.userIsAuthorized && !userStore.userIsBanned
@@ -43,6 +46,8 @@ onMounted(() => {
     <div class="row mb-2" id="mainRow">
       <RouterView />
     </div>
+
+    <Toasts />
 
     <!-- footer   fixed-bottom -->
     <!-- <div class=" fixed-bottom">
