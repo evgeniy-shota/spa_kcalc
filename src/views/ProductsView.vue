@@ -1,6 +1,7 @@
 <script setup>
 import { computed, onBeforeMount, onBeforeUnmount, onDeactivated, onMounted, ref } from 'vue';
-import ProductsList from '@/components/ProductsList.vue';
+// import '../../node_modules/bootstrap/dist/js/bootstrap'
+// import ProductsList from '@/components/ProductsList.vue';
 import ProductInfo from '@/components/ProductInfo.vue';
 import ProductFilter from '@/components/ProductFilter.vue';
 import ModalWindow from '@/components/ModalWindow.vue';
@@ -39,6 +40,7 @@ onMounted(() => {
     additionalProductDataStore.getData();
 });
 
+const categoryFormTitle = ref('')
 const isShowProductFilter = ref(false)
 const isShowFilteredProducts = ref(false)
 const isApplyFilter = ref(false)
@@ -57,6 +59,7 @@ const slideForCategoryAndCategoryGroupList = ref(null)
 
 const propsForModalCategoryForm = computed(() => {
     return {
+        title: categoryFormTitle.value,
         submitedForm: categoryFormSubmited,
         // deleteCategory: deleteCategory,
         cancel: hideCategoryFormWindow,
@@ -157,30 +160,43 @@ async function applyFilter(filters) {
     filtersStore.groupFilterResults = filters.groupFilterResults;
     console.log(eventSourceToFilter.value);
 
-    if (filters.groupFilterResults && eventSourceToFilter.value === Slides.CategoryGroups.value) {
-        categoryGroupsStore.getCategoryGroups(filtersStore.actualCategoryGroupsFilter);
-    } else if (filters.groupFilterResults && eventSourceToFilter.value === Slides.Categories.value) {
-        // categoriesStore.getCategories(filtersStore.actualCategoriesFilter);
-        categoriesStore.getCategories(filtersStore.actualCategoriesFilter);
+    if (filters.groupFilterResults) {
+        if (filters.groupFilterResults && eventSourceToFilter.value === Slides.CategoryGroups.value) {
+            categoryGroupsStore.getCategoryGroups(filtersStore.actualCategoryGroupsFilter);
+        } else if (filters.groupFilterResults && eventSourceToFilter.value === Slides.Categories.value) {
+            // categoriesStore.getCategories(filtersStore.actualCategoriesFilter);
+            categoriesStore.getCategories(filtersStore.actualCategoriesFilter);
+        } else {
+            // productsStore.getProducts(filtersStore.actualProductsFilter);
+            productsStore.getProducts({
+                ...filtersStore.actualProductsFilter,
+                categoriesId: filtersStore.categoriesFilter.categoriesId
+            });
+        }
     } else {
-        // productsStore.getProducts(filtersStore.actualProductsFilter);
-        productsStore.getProducts(filtersStore.actualProductsFilter);
-    }
-    if (!filters.groupFilterResults
-        && (filters.categoriesFilter.categoryId === null
-            || (filters.categoriesFilter.categoryId.length !== 1
-                || filters.categoriesFilter.categoryId[0] !== categoriesStore.currentCategory.id))) {
+        // if (filters.categoriesFilter.categoriesId === null
+        //     || (filters.categoriesFilter.categoriesId.length !== 1
+        //         || filters.categoriesFilter.categoriesId[0] !== categoriesStore.currentCategory.id)) {
+        // }
         isShowFilteredProducts.value = true
+        productsStore.getProducts({
+            ...filtersStore.actualProductsFilter,
+            categoriesId: filtersStore.actualCategoriesFilter.categoriesId
+        });
     }
     // isShowFilteredProducts.value = true
 }
 
 async function clearFilter() {
-
+    const prevGroupResultVal = filtersStore.groupFilterResults;
     filtersStore.$reset()
-    console.log('eventsource: ' + eventSourceToFilter.value)
 
-    if (eventSourceToFilter.value === Slides.CategoryGroups.value) {
+    if (prevGroupResultVal === false) {
+        categoryGroupsStore.getCategoryGroups(filtersStore.actualCategoryGroupsFilter);
+        slideForCategoryAndCategoryGroupList.value = Slides.CategoryGroups.value
+    }
+
+    if (prevGroupResultVal === false || eventSourceToFilter.value === Slides.CategoryGroups.value) {
         categoryGroupsStore.getCategoryGroups(filtersStore.actualCategoryGroupsFilter);
     } else if (eventSourceToFilter.value === Slides.Categories.value) {
         filtersStore.addElementToCategoryGroupsId(categoryGroupsStore.currentCategoryGroup)
@@ -206,26 +222,29 @@ async function clearFilter() {
 }
 
 function hideFilteredProducts() {
-    productsStore.clearProductFilter();
+    console.log('hideFilteredProducts')
     isShowFilteredProducts.value = false
 }
 
 function editCategory(id = null, index = null) {
     console.log('ProductView - editCategory: ' + id + '-' + index)
+    let modalWinowTitle = null
     if (index !== null) {
-        productsStore.editableCategory = {
+        categoriesStore.editableCategory = {
             index: index,
             id: id,
-            groupId: productsStore.currentCategoryGroup.id,
+            // groupId: categoryGroupsStore.currentCategoryGroup,
             // change setting currentCategoryGroup - need setup index in categoriesGroup
-            groupIndex: productsStore.categoriesGroup.findIndex(
-                (item) => item.id === productsStore.currentCategoryGroup.id
-            )
+            // groupIndex: categoryGroupsStore.categoryGroups.findIndex(
+            //     (item) => item.id === categoryGroupsStore.currentCategoryGroup
+            // )
         }
+        modalWinowTitle = "Редактирование категории"
     } else {
-        productsStore.editableCategory = { index: null, id: null, groupId: null, groupIndex: null }
+        categoriesStore.editableCategory = { index: null, id: null, groupId: null, groupIndex: null }
+        modalWinowTitle = 'Добавление категории'
     }
-    showCategoryFormWindow()
+    showCategoryFormWindow(modalWinowTitle)
 }
 
 function editProduct(id, index) {
@@ -243,14 +262,15 @@ async function saveNewProduct(product, category) {
     }
 }
 
-function showCategoryFormWindow() {
+function showCategoryFormWindow(title = null) {
     console.log('show cat form');
+    categoryFormTitle.value = title ?? 'Добавление категории'
     isClearCategoryForm.value = false;
     isShowCategoryFormWindow.value = true
 }
 
 function hideCategoryFormWindow() {
-    console.log('hide');
+    console.log('hide cat form');
     productsStore.editableCategory = { index: null, id: null, groupId: null, groupIndex: null }
     isClearCategoryForm.value = true;
     isApplyCategoryForm.value = false
@@ -280,13 +300,12 @@ function categoryFormSubmited() {
 
 function showCategoriesGroupFormWindow() { }
 
-
 </script>
 
 <template>
 
     <!-- Category form -->
-    <ModalWindow :show-window="isShowCategoryFormWindow" title="Добавление новой категории" :height-vh="60"
+    <ModalWindow modal-id="modalWindowCategory" :show-window="isShowCategoryFormWindow" :title="categoryFormTitle"
         @close-window="hideCategoryFormWindow" :props-for-slots="propsForModalCategoryForm">
         <template
             #main="{ name, description, categoriesGroups, categoriesGroup, submitedForm, cancel, isApplyCategoryForm, isDeleteCategoryForm }">
@@ -306,7 +325,7 @@ function showCategoriesGroupFormWindow() { }
         </template>
     </ModalWindow>
 
-    <ModalWindow :show-window="isShowNewProductWindow" title="Добавление нового продукта"
+    <ModalWindow modal-id="modalWindowProduct" :show-window="isShowNewProductWindow" title="Добавление нового продукта"
         @close-window="hideNewProductWindow" :props-for-slots="propsForModalWindowSlots">
         <!-- <template #main="{ propsForSlot }">
             <ProductForm @submit-form="propsForSlot.saveNewProduct" :product="propsForSlot.product"
@@ -319,8 +338,8 @@ function showCategoriesGroupFormWindow() { }
         </template>
     </ModalWindow>
 
-    <ModalWindow :show-window="isShowProductFilter" title="Расширенный фильтр" @close-window="hideProductFilter"
-        :props-for-slots="propsForModalFilter">
+    <ModalWindow modal-id="moddalWindowFilter" :show-window="isShowProductFilter" title="Расширенный фильтр"
+        @close-window="hideProductFilter" :props-for-slots="propsForModalFilter">
 
         <template #main="{ isFilterShowed, isApplyFilter, isClearFilter, applyFilter, clearFilter, userIsAuthorized, }">
             <ProductFilter :user-is-authorized="userIsAuthorized" @apply-filter="applyFilter"
@@ -343,7 +362,8 @@ function showCategoriesGroupFormWindow() { }
             :slide-num="slideForCategoryAndCategoryGroupList" :show-filtered-products="isShowFilteredProducts"
             :next-page-cursor="productsStore.productsNextCursor" @hide-filtered-product="hideFilteredProducts"
             @show-filter="showProductFilter" @edit-category="editCategory" @edit-product="editProduct"
-            @add-category-group="showCategoriesGroupFormWindow" @add-category="showCategoryFormWindow" @add-product="">
+            @add-category-group="showCategoriesGroupFormWindow" @add-category="showCategoryFormWindow" @add-product=""
+            @slided="() => slideForCategoryAndCategoryGroupList = null">
         </CategoryAndProductList>
 
         <!-- <ProductsList @on-click-add-new-product="showNewProductWindow" @show-product-info="showProductInfoWindow"

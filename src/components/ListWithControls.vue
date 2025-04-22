@@ -1,6 +1,5 @@
 <script setup>
-import { onUnmounted, onUpdated, ref } from 'vue'
-
+import { ref } from 'vue'
 
 import ListItem from './ListItem.vue'
 
@@ -81,15 +80,6 @@ function selectElement(id) {
   lastSelectedProduct.value = id
   emit('selectElement', id)
 }
-
-// function addElementToHidden(id) {
-//   console.log('Added to hidden list :' + id)
-// }
-
-// function addElementToFavorite(id) {
-//   console.log('add to favorite list: ' + id)
-// }
-
 
 </script>
 

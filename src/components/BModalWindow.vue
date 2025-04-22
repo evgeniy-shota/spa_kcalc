@@ -10,6 +10,10 @@ const props = defineProps({
         type: String,
         default: null,
     },
+    isShow: {
+        type: Boolean,
+        default: false,
+    },
 })
 
 function showWindow() {
@@ -19,14 +23,15 @@ function showWindow() {
 }
 
 function hideWindow() {
-
+    const mw = document.getElementById(props.id)
+    mw.Hide()
 }
 </script>
 
 <template>
 
-    <div class="modal" tabindex="-1">
-        <div class="modal-dialog modal-lg" :id="props.id">
+    <div class="modal" :id="props.id" tabindex="-1">
+        <div class="modal-dialog modal-lg">
             <div class="modal-content">
                 <div class="modal-header">
                     <h5 class="modal-title">{{ props.title }}</h5>

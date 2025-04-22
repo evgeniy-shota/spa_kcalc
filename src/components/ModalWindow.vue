@@ -1,12 +1,16 @@
 <script setup>
-
-import { computed, ref, useTemplateRef, watch } from 'vue';
+import { computed, onMounted, ref, useTemplateRef, watch } from 'vue';
+import { Modal } from 'bootstrap';
 import IconCloseXlg from './icons/IconCloseXlg.vue';
 
 const props = defineProps({
+    modalId: {
+        type: String,
+        default: null,
+    },
     title: {
         type: String,
-        default: 'Новое окно'
+        default: 'Новое окно',
     },
     showWindow: {
         type: Boolean,
@@ -15,14 +19,6 @@ const props = defineProps({
     size: {
         type: String,
         default: null,
-    },
-    widthVh: {
-        type: Number,
-        default: 60,
-    },
-    heightVh: {
-        type: Number,
-        default: 70
     },
     // headerHeightProcent: {
     //     type: Number,
@@ -38,21 +34,38 @@ const props = defineProps({
     }
 });
 
-const modalMainSlot = useTemplateRef('modalMainSlot');
-
-watch(() => props.showWindow, () => {
-    if (!modalMainSlot) {
-        return
-    }
-    modalMainSlot.value.scrollTop = 0
-    // let element = document.getElementById('modalMainSlot');
-    // console.log(modalMainSlot.value)
-    // element.scrollTop = 0
+onMounted(() => {
+    document.getElementById(props.modalId).addEventListener('hidden.bs.modal', event => {
+        emit('closeWindow');
+    })
 });
+
+watch(() => props.showWindow, (value) => {
+    if (value === true) {
+        showWindow(props.modalId)
+    }
+})
+
+// const modalMainSlot = useTemplateRef('modalMainSlot');
+
+// watch(() => props.showWindow, () => {
+//     if (!modalMainSlot) {
+//         return
+//     }
+//     modalMainSlot.value.scrollTop = 0
+//     // let element = document.getElementById('modalMainSlot');
+//     // console.log(modalMainSlot.value)
+//     // element.scrollTop = 0
+// });
 
 const emit = defineEmits({
     closeWindow: () => { return true },
 });
+
+function showWindow(modalId) {
+    const myModal = new Modal('#' + modalId)
+    myModal.show()
+}
 
 function closeWindow(event,) {
     if (event.target.hasAttribute('closeModalWindow')) {
@@ -60,45 +73,57 @@ function closeWindow(event,) {
     }
 }
 
-const modalWindowSize = computed(() => {
-    const appWigth = document.getElementById('app').clientWidth;
-    let adaptiveWidth = appWigth < 550 ? 100 : props.widthVh;
-    let adaptiveHeight = appWigth < 550 ? 90 : props.heightVh;
-    let adaptiveLeftOffset = appWigth < 550 ? 0 : (100 - props.widthVh) / 2;
-
-    return {
-        height: adaptiveHeight + 'vh',
-        width: adaptiveWidth + 'vw',
-        top: (100 - adaptiveHeight) / 2 + 'vh',
-        left: adaptiveLeftOffset + 'vw',
-    }
-});
-
-function mainSlotSize(slotHeader, slotFooter) {
-    let height = 98;
-    // console.log('main slot size');
-    // console.log(slotHeader);
-    // console.log(slotFooter);
-    if (slotHeader) {
-        height -= 8;
-    }
-
-    if (slotFooter) {
-        height -= 8;
-    }
-
-    return {
-        height: height + '%',
-        'max-height': height + '%'
-    }
-}
-
 </script>
 
 <template>
-    <div @click="closeWindow($event)" :hidden="!props.showWindow" closeModalWindow class="modal-window-container"
-        role="dialog">
-        <div class="card modal-window" :style="modalWindowSize">
+
+    <div class="modal" tabindex="-1" :id="props.modalId">
+        <div class="modal-dialog modal-lg modal-dialog-scrollable">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">{{ props.title }}</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close">
+                    </button>
+                </div>
+                <div v-if="$slots.header" class="modal-header">
+                    <slot name="header" v-bind="props.propsForSlots"></slot>
+                </div>
+                <div class="modal-body">
+                    <slot name="main" v-bind=props.propsForSlots></slot>
+                </div>
+                <div class="modal-footer">
+                    <slot name="footer" v-bind="props.propsForSlots"></slot>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- <div @click="closeWindow($event)" :hidden="!props.showWindow" closeModalWindow class="modal" role="dialog"
+        style="z-index: 3;"> -->
+    <!-- <div class="modal" tabindex="-1"> -->
+
+    <!-- <div class="modal-dialog modal-lg modal-dialog-scrollable" style="z-index: 4; background-color: #fffffa;">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">{{ props.title }}</h5>
+                    <button type="button" closeModalWindow class="btn-close" data-bs-dismiss="modal"
+                        aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <p>Modal body text goes here.</p>
+                    <slot name="main" v-bind=props.propsForSlots></slot>
+                </div>
+                <div class="modal-footer">
+                    <slot name="footer" v-bind="props.propsForSlots"></slot>
+
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-primary">Save changes</button>
+                </div>
+            </div>
+        </div> -->
+
+
+    <!-- <div class="card modal-window" :style="modalWindowSize">
             <div class="card-header p-1">
                 <div class="hstack">
                     <div class="me-auto px-2">
@@ -113,10 +138,10 @@ function mainSlotSize(slotHeader, slotFooter) {
             <div class="card-body modal-window-body py-1 px-1">
                 <div v-if="$slots.header" class="modal-header" :style="{ 'height': props.headerHeightProcent + '%' }">
                     <slot name="header" v-bind="props.propsForSlots"></slot>
-                </div>
+                </div> -->
 
-                <!-- <slot name="main" :propsForSlot=props.propsForSlots></slot> -->
-                <div ref="modalMainSlot" v-if="$slots.main" :style="mainSlotSize($slots.header, $slots.footer)"
+    <!-- <slot name="main" :propsForSlot=props.propsForSlots></slot> -->
+    <!-- <div ref="modalMainSlot" v-if="$slots.main" :style="mainSlotSize($slots.header, $slots.footer)"
                     class="modal-main rounded">
                     <slot name="main" v-bind=props.propsForSlots></slot>
                 </div>
@@ -126,52 +151,56 @@ function mainSlotSize(slotHeader, slotFooter) {
                     <slot name="footer" v-bind="props.propsForSlots"></slot>
                 </div>
             </div>
-        </div>
-    </div>
+        </div> -->
+    <!-- </div> -->
 
 </template>
 
 <style lang="scss">
-.modal-window-container {
-    position: absolute;
-    padding: 0;
-    top: 0;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    background-color: rgba(32, 32, 32, 0.842);
+.modal {
     background-image: url('/4rect2.png');
-    // opacity: 0.8;
-    z-index: 4;
+
 }
 
-.modal-window {
-    position: relative;
-    top: 0;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    z-index: 4;
-}
-
-// .modal-window-body {
-//     overflow-y: scroll;
+// .modal-window-container {
+//     position: absolute;
+//     padding: 0;
+//     top: 0;
+//     bottom: 0;
+//     left: 0;
+//     right: 0;
+//     background-color: rgba(32, 32, 32, 0.842);
+//     background-image: url('/4rect2.png');
+//     // opacity: 0.8;
+//     z-index: 3;
 // }
-.modal-window-body {
-    height: 100%;
-}
 
-.modal-header,
-.modal-footer {
-    min-height: 8%;
-    width: 100%;
-}
+// .modal-window {
+//     position: relative;
+//     top: 0;
+//     bottom: 0;
+//     left: 0;
+//     right: 0;
+//     z-index: 4;
+// }
 
-.modal-main {
-    height: 90%;
-    overflow-y: auto;
-    overflow-x: hidden;
-    // background-color: #e4e484;
-    background-color: #fffffa;
-}
-</style>
+// // .modal-window-body {
+// //     overflow-y: scroll;
+// // }
+// .modal-window-body {
+//     height: 100%;
+// }
+
+// // .modal-header,
+// // .modal-footer {
+// //     min-height: 8%;
+// //     width: 100%;
+// // }
+
+// .modal-main {
+//     height: 90%;
+//     overflow-y: auto;
+//     overflow-x: hidden;
+//     // background-color: #e4e484;
+//     background-color: #fffffa;
+// }</style>

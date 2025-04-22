@@ -6,6 +6,7 @@ import { validateFloatNumber } from '@/resource/js/dataValidation';
 import IconSquare from './icons/IconSquare.vue';
 import IconDashSquareFill from './icons/IconDashSquareFill.vue';
 import IconCheckSquareFillSm from './icons/IconCheckSquareFillSm.vue';
+import IconInfoCircle from './icons/IconInfoCircle.vue';
 import { useFiltersStore } from '@/stores/filtersStore';
 import { useAdditionalProductData } from '@/stores/additionProductData';
 import { useCategoriesStore } from '@/stores/categoriesStore';
@@ -289,7 +290,6 @@ function clearFilter() {
     carbohydratesLimitTo.value = additionalProductDataStore.carbohydratesLimits[1];
     fatsLimitFrom.value = additionalProductDataStore.fatsLimits[0];
     fatsLimitTo.value = additionalProductDataStore.fatsLimits[1];
-
 }
 
 function inputCharFilter(event) {
@@ -372,7 +372,8 @@ function changeCategoryCheckbox(id) {
 
 <template>
     <div class="filter-container">
-        <div class="row pe-4">
+        <!-- temporarily disabled -->
+        <!-- <div class="row pe-4">
             <div class="col px-3">
                 <div class="form-check">
                     <input type="checkbox" name="groupFilterResults" id="groupFilterResults" class="form-check-input"
@@ -380,6 +381,15 @@ function changeCategoryCheckbox(id) {
                     <label for="groupFilterResults" class="form-label mb-1">Объединять отфильтрованные данные по группам
                         и
                         категориям</label>
+                </div>
+            </div>
+        </div> -->
+
+        <div class="row pe-4">
+            <div class="col">
+                <div class="p-2 bg-info bg-opacity-10 border border-info rounded">
+                    <IconInfoCircle />
+                    Фильтр по умолчанию заполняется автоматически, в зависимости от контекста использования. Например, если открыть фильтр находясь в группе "Овощи и зелень", все категории из группы будут выбранны автоматически
                 </div>
             </div>
         </div>

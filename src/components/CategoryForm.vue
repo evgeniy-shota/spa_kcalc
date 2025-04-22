@@ -1,9 +1,13 @@
 <script setup>
-import { useProductsStore } from '@/stores/productsStore';
 import { computed, ref, watch } from 'vue';
 import IconInfoCircle from './icons/IconInfoCircle.vue';
+import { useCategoryGroupsStore } from '@/stores/categoryGroupsStore';
+import { useCategoriesStore } from '@/stores/categoriesStore';
+import { useAdditionalProductData } from '@/stores/additionProductData';
 
-const productStore = useProductsStore();
+const categoryGroupsStore = useCategoryGroupsStore()
+const categoriesStore = useCategoriesStore()
+const additionalProductDataStore = useAdditionalProductData()
 
 const props = defineProps({
     id: {
@@ -53,7 +57,7 @@ watch(() => props.isApplyCategoryChanges, (value) => {
     if (value === true) {
         submitForm();
     }
-})
+});
 
 watch(() => props.isDeleteCategory, (value) => {
     if (value) {
@@ -61,26 +65,39 @@ watch(() => props.isDeleteCategory, (value) => {
     }
 });
 
-watch(() => productStore.editableCategory, (value) => {
+watch(() => categoriesStore.editableCategory, (value) => {
     console.log(value)
     formActionSuccessful.value = null
     validationSuccessful.value = null
 
-    if (value.id === null) {
+    if (value === null || value.id === null) {
         categoryName.value = null
         categoryDescription.value = null
-        selectedCategoriesGroup.value = productStore.currentCategoryGroup.id !== null ? productStore.currentCategoryGroup.id : null
+        selectedCategoriesGroup.value = categoryGroupsStore.currentCategoryGroup !== null ? categoryGroupsStore.currentCategoryGroup : null
         return
     }
 
-    if (value.groupId !== productStore.currentCategoryGroup.id) {
-        categoryName.value = productStore.categoriesGroup[value.groupIndex].categories.data[value.index].name;
-        categoryDescription.value = productStore.categoriesGroup[value.groupIndex].categories.data[value.index].description;
-        selectedCategoriesGroup.value = productStore.categoriesGroup[value.groupIndex].categories.data[value.index].category_group_id
+    const categoryGroupId = additionalProductDataStore.categoriesIdCategoryGroupsIdMap.get(value.id)
+
+    if (categoryGroupId !== categoryGroupsStore.currentCategoryGroup) {
+        const category = additionalProductDataStore.allCategories.forEach(element => {
+            if (element.id === value.id) {
+                return element;
+            }
+        });
+        console.log('category: ')
+        console.log(category)
+        categoryName.value = category.name;
+        categoryDescription.value = category.description;
+        selectedCategoriesGroup.value = category.category_group_id
+
+        // categoryName.value = productStore.categoriesGroup[value.groupIndex].categories.data[value.index].name;
+        // categoryDescription.value = productStore.categoriesGroup[value.groupIndex].categories.data[value.index].description;
+        // selectedCategoriesGroup.value = productStore.categoriesGroup[value.groupIndex].categories.data[value.index].category_group_id
     } else {
-        categoryName.value = productStore.categories[value.index].name;
-        categoryDescription.value = productStore.categories[value.index].description;
-        selectedCategoriesGroup.value = productStore.categories[value.index].category_group_id
+        categoryName.value = categoriesStore.categories[value.index].name;
+        categoryDescription.value = categoriesStore.categories[value.index].description;
+        selectedCategoriesGroup.value = categoriesStore.categories[value.index].category_group_id
     }
 
 });
@@ -142,17 +159,26 @@ async function submitForm() {
     }
 
     let data = {
-        id: productStore.editableCategory.id,
+        id: categoriesStore.editableCategory.id,
         name: categoryName.value,
         description: categoryDescription.value,
-        category_group_id: selectedCategoriesGroup.value,
+        categoryGroupsId: selectedCategoriesGroup.value,
     }
-    let response = await productStore.editableCategory.id !== null ?
-        productStore.changeCategory(data.id, data, productStore.editableCategory.index) :
-        productStore.addCategory(data);
+
+    console.log(data)
+
+    let response = await categoriesStore.editableCategory.id !== null ?
+        categoriesStore.changeCategory(data.id, data, categoriesStore.editableCategory.index) :
+        categoriesStore.createCategory(data);
 
     if (response) {
         console.log('category updated')
+        if (categoriesStore.editableCategory.id === null) {
+            categoriesStore.editableCategory = {
+                id: categoriesStore.categories[categoriesStore.categories.length - 1].id,
+                index: categoriesStore.categories.length - 1,
+            }
+        }
         formActionSuccessful.value = true
         // emit('cancel');
     } else {
@@ -165,10 +191,10 @@ async function submitForm() {
 
 async function deleteCategory() {
     console.log('cat form delete')
-    let response = await productStore.deleteCategory(productStore.editableCategory.id, productStore.editableCategory.index);
+    let response = await categoriesStore.deleteCategory(categoriesStore.editableCategory.id, categoriesStore.editableCategory.index);
 
     if (response) {
-        productStore.editableCategory = { index: null, id: null }
+        categoriesStore.editableCategory = { index: null, id: null }
         formActionSuccessful.value = true
         clearForm()
     } else {
@@ -180,7 +206,7 @@ async function deleteCategory() {
 
 function cancel() {
     clearForm()
-    emit('cancel');
+    emit('cat form cancel');
 }
 
 function clearForm() {
@@ -226,7 +252,7 @@ function validateForm() {
                 <select v-model="selectedCategoriesGroup" name="categoriesGroup" id="categoriesGroup"
                     class="form-select"
                     :class="{ 'border-danger': formInputsHelps.categoriesGroupSelect.errors.length > 0 }">
-                    <option v-for="item in productStore.categoriesGroupList" :key="item.id" :value="item.id">{{
+                    <option v-for="item in categoryGroupsStore.categoryGroupsList" :key="item.id" :value="item.id">{{
                         item.name }}
                     </option>
                 </select>

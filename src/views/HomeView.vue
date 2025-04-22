@@ -88,8 +88,8 @@ function selectElement(element) {
     :search-result="searchResult" search-label="Поиск продукта\диеты" :search-result-label="searchResultLabel"
     :time-delay-ms="productSearchTimerDelayMs" /> -->
 
-  <ModalWindow :props-for-slots="{ ...searchInputProps, ...searchResultProps }" :show-window="showSearchWindow"
-    @close-window="hideSearch" :title="searchTitle" :header-height-procent="15">
+  <ModalWindow modal-id="modalWindowSearch" :props-for-slots="{ ...searchInputProps, ...searchResultProps }"
+    :show-window="showSearchWindow" @close-window="hideSearch" :title="searchTitle" :header-height-procent="15">
 
     <template #header="{ searchLabel, timeDelayMs, searchText, searchHistory, search, searchIsComplete }">
       <SearchInput :search-label="searchLabel" :time-delay-ms="timeDelayMs" :search-text="searchText"

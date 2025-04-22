@@ -99,19 +99,19 @@ const currentTimer = ref(null);
 //     currentTimer.value = null
 // });
 
-// watch(() => props.slideNum, (value) => {
-//     if (value === Slides.CategoryGroups.value) {
-//         slideTo(Slides.CategoryGroups.value, true)
-//     } else if (value === Slides.Categories.value) {
-//         slideTo(Slides.Categories.value, true)
-//     } else {
-//         slideTo(Slides.Products.value)
-//     }
-// });
+watch(() => props.slideNum, (value) => {
+    if (value === Slides.CategoryGroups.value) {
+        slideTo(Slides.CategoryGroups.value)
+    } else if (value === Slides.Categories.value) {
+        slideTo(Slides.Categories.value)
+    } else {
+        slideTo(Slides.Products.value)
+    }
+});
 
 watch(() => props.showFilteredProducts, () => {
     if (props.showFilteredProducts) {
-        slideTo(0);
+        slideTo(Slides.Products.value);
     }
 });
 
@@ -128,7 +128,6 @@ function setProductsSortType(val) {
 }
 
 function slideTo(slideNum, isStepBack = false) {
-
     if (slideNum > slideLimit || slideNum < Slides.CategoryGroups.value) {
         return;
     }
@@ -138,12 +137,15 @@ function slideTo(slideNum, isStepBack = false) {
     }
 
     if (slideNum === Slides.CategoryGroups.value && isStepBack) {
-
         getCategoryGroups()
-    }
-
-    if (slideNum === Slides.Categories.value && isStepBack) {
-        selectCategoryGroup(categoryGroupStore.currentCategoryGroup)
+    } else if (slideNum === Slides.Categories.value && isStepBack) {
+        if (filtersStore.groupFilterResults === false) {
+            filtersStore.$reset()
+            emit('hideFilteredProduct')
+            slideTo(Slides.CategoryGroups.value, true)
+        } else {
+            selectCategoryGroup(categoryGroupStore.currentCategoryGroup)
+        }
     }
 
     previouslySlide.value = currentSlide.value
@@ -151,7 +153,6 @@ function slideTo(slideNum, isStepBack = false) {
 }
 
 function getCategoryGroups() {
-
     filtersStore.categoryGroupsFilter.categoryGroupsId.length = 0
     filtersStore.categoriesFilter.categoriesId.length = 0
 
@@ -277,7 +278,6 @@ function getNextDataPage() {
 }
 
 function scrollList(event) {
-
     if (!productsStore.nextCursor) {
         return
     }
@@ -309,7 +309,6 @@ function addProduct() {
     console.log('add Product')
     emit('addProduct')
 }
-
 
 </script>
 
@@ -447,9 +446,8 @@ function addProduct() {
         </div>
         <div id="productsSlide" @scroll="scrollList($event)" v-show="currentSlide == Slides.Products.value"
             class="slide ps-2 pe-2">
-            <ListWithControls :user-is-authorized="props.userIsAuthorized"
-                :data="!props.showFilteredProducts ? productsStore.productsList : []" data-type="product"
-                :is-data-found="productsStore.isProductsFound" @select-element="selectProduct"
+            <ListWithControls :user-is-authorized="props.userIsAuthorized" :data="productsStore.productsList"
+                data-type="product" :is-data-found="productsStore.isProductsFound" @select-element="selectProduct"
                 @change-favorite-status="changeProductFavorieStatus" @change-hidden-status="changeProductHiddenStatus"
                 @edit-elemet="editProduct" />
         </div>

@@ -13,10 +13,14 @@ function getActivityInfo(id) {
 </script>
 
 <template>
-    <div class="col-7">
+    <div class="col">
+        <div class="card border-light p-3">
+            В разработке
+        </div>
+    </div>
+    <!-- <div class="col-7">
         <div class="card border border-light">
             <div class="list-group list-height-limit">
-
                 <a v-for="activity in activitiesStore.activities" :key="activity.id"
                     class="list-group-item list-group-item-action" style="cursor: pointer;" aria-current="true"
                     v-on:click="getProductInfo(activity.id)">
@@ -32,5 +36,5 @@ function getActivityInfo(id) {
             <p>Информация об актичности, затраты относительно дневной нормы</p>
 
         </div>
-    </div>
+    </div> -->
 </template>

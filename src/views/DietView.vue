@@ -47,24 +47,20 @@ onMounted(() => {
 
 <template>
 
-    <ModalWindow title="Поиск продуктов" :show-window="isShowSearchWindow" @close-window="hideSearchWindow">
-        <template #header>
-            <SearchInput />
-        </template>
-        <template #main>
-            <SearchResult />
-        </template>
-    </ModalWindow>
-
-    <!-- diets list -->
-    <div class="col">
-        <DietList :diets="dietsStore.diets" @select-item="selectDiet" />
+    <div class="col ">
+        <div class="card p-3 border-light">
+            В разработке
+        </div>
     </div>
+    <!-- diets list -->
+    <!-- <div class="col">
+        <DietList :diets="dietsStore.diets" @select-item="selectDiet" />
+    </div> -->
 
     <!-- diet info -->
-    <div class="col">
+    <!-- <div class="col">
         <DietFrom @save-diet="saveDiet" @add-product="showSearchWindow" />
-    </div>
+    </div> -->
 
 </template>
 

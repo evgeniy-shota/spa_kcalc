@@ -1,6 +1,7 @@
 <script setup>
 import { computed, onBeforeMount, onMounted } from 'vue';
 import { RouterView } from 'vue-router';
+
 // import axios_instance from './resource/js/axiosInstance'
 
 import { useUsersStore } from './stores/usersStore';

@@ -41,7 +41,7 @@ function selectSearchResult(type, id) {
 </script>
 
 <template>
-    <div id="dailyActivityContainer" class="card ps-2 pe-2 pt-2">
+    <div id="dailyActivityContainer" class="card border-light ps-2 pe-2 pt-2" style="height: 100%;">
         <h6>Дневная активность</h6>
         <form action="" method="">
 

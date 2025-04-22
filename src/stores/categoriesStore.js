@@ -76,13 +76,14 @@ export const useCategoriesStore = defineStore('categories', () => {
     }
   }
 
-  async function createCategory() {
+  async function createCategory(data) {
     try {
       const response = await axios_instance.post(URL_API, {
-        //
+        ...data,
       })
 
       if (response) {
+        categories.value.push(response.data.data)
         return true
       }
     } catch (error) {
@@ -95,7 +96,7 @@ export const useCategoriesStore = defineStore('categories', () => {
   async function changeCategory(id, data, index) {
     const filtersStore = useFiltersStore()
     let requestBody = {
-      categoryGroupsId: data.categoryGroupsId,
+      category_group_id: data.categoryGroupsId,
       name: data.name,
       description: data.description,
       is_personal: data.isPersonal,
@@ -105,7 +106,9 @@ export const useCategoriesStore = defineStore('categories', () => {
       iconPath: data.iconPath,
       thumbnailImagePath: data.thumbnailImagePath,
     }
-    let previouslyVal = categories.value[index]
+    let previouslyVal = index
+      ? categories.value[index]
+      : categories.value[editableCategory.value.index]
     try {
       const response = await axios_instance.put(URL_API + id, {
         ...requestBody,
@@ -131,11 +134,12 @@ export const useCategoriesStore = defineStore('categories', () => {
     }
   }
 
-  async function deleteCategory(id) {
+  async function deleteCategory(id, index) {
     try {
       const response = await axios_instance.delete(URL_API + id)
 
       if (response) {
+        categories.value.splice(index, 1)
         return true
       }
     } catch (error) {

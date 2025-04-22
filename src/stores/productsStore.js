@@ -64,8 +64,11 @@ export const useProductsStore = defineStore('products', () => {
   })
 
   watch(sortType, () => {
-    const categoriesStore = useCategoriesStore()
-    getProducts(categoriesStore.currentCategory.id)
+    // const categoriesStore = useCategoriesStore()
+    getProducts({
+      categoriesId: filtersStore.categoriesFilter.categoriesId,
+      ...filtersStore.actualProductsFilter,
+    })
   })
 
   // async function getCategories(id) {

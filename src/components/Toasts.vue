@@ -1,7 +1,8 @@
 <script setup>
 import { onMounted, ref } from 'vue';
-import '../../node_modules/bootstrap/dist/js/bootstrap.bundle'
+// import '../../node_modules/bootstrap/dist/js/bootstrap'
 import { useNotificationStore } from '@/stores/notificationStore';
+import { Toast } from 'bootstrap';
 
 const notificationStore = useNotificationStore()
 
@@ -11,7 +12,7 @@ onMounted(() => {
 
 function showToast() {
     const toastLiveExample = document.getElementById('liveToast')
-    const toastBootstrap = bootstrap.Toast.getOrCreateInstance(toastLiveExample)
+    const toastBootstrap = Toast.getOrCreateInstance(toastLiveExample)
     toastBootstrap.show()
 }
 
