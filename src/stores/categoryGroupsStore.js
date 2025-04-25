@@ -3,6 +3,7 @@ import { CategoryGroupParams } from '@/resource/js/sortParams'
 import { defineStore } from 'pinia'
 import { computed, ref } from 'vue'
 import { useFiltersStore } from './filtersStore'
+import { useAdditionalProductData } from './additionProductData'
 
 const URL_API = 'api/category-groups/'
 const initialStateCategoryGroup = {
@@ -19,7 +20,7 @@ export const useCategoryGroupsStore = defineStore('categoryGroups', () => {
   const sortType = ref(CategoryGroupParams.default.key)
   const categoryGroups = ref([])
   const categoryGroup = ref({ ...initialStateCategoryGroup })
-  const currentCategoryGroup = ref()
+  const currentCategoryGroup = ref(null)
   const isCategoryGroupsFound = ref(null)
   const isCategoryGroupFound = ref(null)
   const editableCategoryGroup = ref({ index: null, id: null })
@@ -61,50 +62,91 @@ export const useCategoryGroupsStore = defineStore('categoryGroups', () => {
     }
   }
 
-  async function createCategoryGroup() {
+  async function createCategoryGroup(data) {
+    let response = null
     try {
-      const response = await axios_instance.post(URL_API, {})
+      response = await axios_instance.post(URL_API, {
+        ...data,
+      })
     } catch (error) {
       console.warn('Create category group fail...')
       console.warn(error)
+      return false
+    }
+
+    if (response) {
+      const additionalProductDataStore = useAdditionalProductData()
+      additionalProductDataStore.addCategoryGroup(response.data.data)
+      categoryGroups.value.push(response.data.data)
+      categoryGroup.value = response.data.data
+      return true
     }
   }
 
   async function changeCategoryGroup(id, data, index) {
     const filtersStore = useFiltersStore()
-    try {
-      const response = await axios_instance.put(URL_API + id, {
-        id: 'id' in data ? data.id : null,
-        name: 'name' in data ? data.name : null,
-        description: 'description' in data ? data.description : null,
-        is_enabled: 'isEnabled' in data ? data.isEnabled : null,
-        is_favorite: 'isFavorite' in data ? data.isFavorite : null,
-        is_hidden: 'isHidden' in data ? data.isHidden : null,
-      })
-      if (response) {
-        console.log(response.data.data)
-        if (
-          response.data.data.is_hidden === true &&
-          filtersStore.categoryGroupsFilter.isHidden === false
-        ) {
-          categoryGroups.value.splice(index, 1)
-        } else {
-          categoryGroups.value[index] = response.data.data
-        }
-      }
-    } catch (error) {
-      console.warn('changeCategoryGroup fail')
-      console.warn(error)
+    let requestBody = {
+      id: 'id' in data ? data.id : null,
+      name: 'name' in data ? data.name : null,
+      description: 'description' in data ? data.description : null,
+      is_enabled: 'isEnabled' in data ? data.isEnabled : null,
+      is_favorite: 'isFavorite' in data ? data.isFavorite : null,
+      is_hidden: 'isHidden' in data ? data.isHidden : null,
     }
+    let response = null
+
+    try {
+      response = await axios_instance.put(URL_API + id, {
+        ...requestBody,
+      })
+    } catch (error) {
+      console.warn('change CategoryGroup fail')
+      console.warn(error)
+      return false
+    }
+
+    if (response) {
+      const additionalProductDataStore = useAdditionalProductData()
+      console.log(response.data.data)
+
+      if (
+        response.data.data.is_hidden === true &&
+        filtersStore.categoryGroupsFilter.isHidden === false
+      ) {
+        categoryGroups.value.splice(index, 1)
+        additionalProductDataStore.deleteCategoryGroup(id)
+        resetCategoryGroup()
+      } else {
+        categoryGroups.value[index] = response.data.data
+        additionalProductDataStore.changeCategoryGroup()
+        categoryGroup.value = response.data.data
+      }
+    }
+    return true
   }
 
-  async function deleteCategoryGroup(id) {
+  async function deleteCategoryGroup(id, index) {
+    let response = null
+
     try {
-      const response = await axios_instance.delete(URL_API + id)
+      response = await axios_instance.delete(URL_API + id)
     } catch (error) {
       console.warn('Delete category group fail...')
       console.warn(error)
+      return false
     }
+
+    if (response) {
+      const additionalProductDataStore = useAdditionalProductData()
+      additionalProductDataStore.deleteCategoryGroup(id)
+      resetCategoryGroup()
+      categoryGroups.value.splice(index, 1)
+      return true
+    }
+  }
+
+  function resetCategoryGroup() {
+    categoryGroup.value = { ...initialStateCategoryGroup }
   }
 
   const categoryGroupsList = computed(() => {
@@ -152,6 +194,7 @@ export const useCategoryGroupsStore = defineStore('categoryGroups', () => {
     createCategoryGroup,
     changeCategoryGroup,
     deleteCategoryGroup,
+    resetCategoryGroup,
     categoryGroupsList,
     $reset,
   }

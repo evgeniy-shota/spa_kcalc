@@ -80,6 +80,12 @@ const emit = defineEmits({
         }
         return false
     },
+    openFeedbackForm: (data) => {
+        if (data !== null) {
+            return true
+        }
+        return false
+    },
 });
 
 function colorIndicationOfElemetnType(elementType, isAbstract, isPersonal) {
@@ -120,14 +126,38 @@ function editElement(id, index) {
     emit('editElement', id, index);
 }
 
+function openFeedbackForm(data) {
+    console.log('feedback')
+    emit('openFeedbackForm', data)
+}
+
+function setTooltip(text, maxlength) {
+    let attrib = null
+    if (text.length > maxlength) {
+        attrib = {
+            "data-bs-toggle": "tooltip",
+            "data-bs-title": text,
+        }
+    }
+    return attrib
+}
+
+function getParentInfo() {
+
+    console.log()
+}
+
 </script>
 
 <template>
     <div @click="selectElement($event, props.id)" data-btn-controll="item"
-        class="list-item d-flex align-items-center border-bottom mb-1">
+        class="list-item d-flex align-items-center border-bottom mb-1" style="cursor: pointer;">
 
         <div class="item-info me-auto ps-1 pb-1">
-            <div class="item-name mb-1" data-btn-controll="item">{{ props.name }}</div>
+            <div class="item-name mb-1 d-inline-block text-truncate" data-btn-controll="item"
+                v-bind="setTooltip(props.name, 25)">
+                {{ props.name }}
+            </div>
             <slot v-if="$slots.elementData" name="elementData" v-bind="props.elementData">
 
             </slot>
@@ -135,12 +165,13 @@ function editElement(id, index) {
             <div class="item-additional-info d-flex gap-2">
                 <div class="d-flex gap-2 item-marks">
                     <div v-if="props.isPersonal">
-                        <IconBookmarkStarFill :size="20" style="color: orange" v-if="props.isFavorite" />
-                        <IconBookmarkStar :size="20" class="text-secondary" v-else />
+                        <IconBookmarkStarFill v-if="props.isFavorite" :size="20" class="favorite-icon"
+                            style="color: orange" />
+                        <IconBookmarkStar :size="20" class="favorite-icon text-secondary" v-else />
                     </div>
                     <div v-else>
-                        <IconStarFill :size="20" v-if="props.isFavorite" style="color: orange" />
-                        <IconStar :size="20" class="text-secondary" v-else />
+                        <IconStarFill v-if="props.isFavorite" :size="20" class="favorite-icon" style="color: orange" />
+                        <IconStar :size="20" class="favorite-icon text-secondary" v-else />
                     </div>
                     <!-- <div v-if="props.isAbstract" class="abstract-product-icon">
                         <IconAbstractEgg :size="20" />
@@ -149,8 +180,8 @@ function editElement(id, index) {
                         <IconEyeSlash :size="20" />
                     </div>
                 </div>
-                <div class="description">
-                    {{ props.description }}
+                <div class="item-description d-inline-block text-truncate" style="cursor: pointer;">
+                    <small data-btn-controll="item">{{ props.description }}</small>
                 </div>
             </div>
         </div>
@@ -182,7 +213,8 @@ function editElement(id, index) {
                         </button>
                     </li>
                     <li>
-                        <button @click="" class="dropdown-item" href="#">
+                        <button @click="openFeedbackForm({ id: props.id, name: props.name })" class="dropdown-item"
+                            href="#">
                             Сообщить об ошибке
                         </button>
                     </li>
@@ -194,12 +226,42 @@ function editElement(id, index) {
 </template>
 
 <style lang="scss">
+@media (max-width: 1300px) {
+    .item-name {
+        max-width: 25rem;
+    }
+
+    .item-description {
+        max-width: 20rem;
+    }
+}
+
+@media (max-width: 660px) {
+    .item-name {
+        max-width: 20rem;
+    }
+
+    .item-description {
+        max-width: 15rem;
+    }
+}
+
+@media (max-width: 460px) {
+    .item-name {
+        max-width: 15rem;
+    }
+
+    .item-description {
+        max-width: 10rem;
+    }
+}
+
 .list-item {
     min-width: 100%;
     max-width: 100%;
 }
 
-.lits-item:hover {
+.list-item:hover {
     background-color: #f8f9fa;
 }
 
@@ -213,5 +275,9 @@ function editElement(id, index) {
 
 .abstract-product-icon {
     display: inline;
+}
+
+.favorite-icon:hover {
+    fill: rgba($color: #E85D04, $alpha: .6)
 }
 </style>

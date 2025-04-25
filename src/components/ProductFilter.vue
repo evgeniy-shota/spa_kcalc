@@ -48,11 +48,6 @@ const emit = defineEmits({
     },
 });
 
-onUpdated(() => {
-    console.log('filter update')
-    console.log(filtersStore.actualCategoryGroupsFilter)
-})
-
 // watch(filtersStore.actualCategoryGroupsFilter.categoryGroupsId, (value) => {
 //     console.log(filtersStore.actualCategoryGroupsFilter.categoryGroupsId)
 //     if (value.length === 0) {
@@ -389,7 +384,9 @@ function changeCategoryCheckbox(id) {
             <div class="col">
                 <div class="p-2 bg-info bg-opacity-10 border border-info rounded">
                     <IconInfoCircle />
-                    Фильтр по умолчанию заполняется автоматически, в зависимости от контекста использования. Например, если открыть фильтр находясь в группе "Овощи и зелень", все категории из группы будут выбранны автоматически
+                    Фильтр по умолчанию заполняется автоматически, в зависимости от контекста использования. Например,
+                    если открыть фильтр находясь в группе "Овощи и зелень", все категории из группы будут выбранны
+                    автоматически
                 </div>
             </div>
         </div>
@@ -411,7 +408,7 @@ function changeCategoryCheckbox(id) {
                                     {{ itemGroup.name }}
                                 </label>
                             </div>
-                            <ul class="list-group list-group-flush px-2 border-start">
+                            <ul v-if="'categories' in itemGroup" class="list-group list-group-flush px-2 border-start">
                                 <li v-for="item in itemGroup.categories.data" :key="item.id">
                                     <div class="form-check ms-2">
                                         <input @change="changeCategoryCheckbox(item.id)" v-model="selectedCategories"

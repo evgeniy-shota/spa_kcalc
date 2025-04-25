@@ -17,6 +17,7 @@ import CategoryAndProductList from '@/components/CategoryAndProductList.vue';
 import { useAdditionalProductData } from '@/stores/additionProductData';
 import { useFiltersStore } from '@/stores/filtersStore';
 import { Slides } from '@/resource/js/CategoryAndProductListSlides';
+import CategoryGroupForm from '@/components/CategoryGroupForm.vue';
 
 onBeforeUnmount(() => {
     productsStore.$reset();
@@ -40,22 +41,43 @@ onMounted(() => {
     additionalProductDataStore.getData();
 });
 
+const categoryGroupFormTitle = ref('')
+const isApplyCategoryGroupForm = ref(false)
+const isClearCategoryGroupForm = ref(false)
+const isDeleteCategoryGroupForm = ref(false)
+const isShowCategoryGroupFormWindow = ref(false);
+
 const categoryFormTitle = ref('')
+const isApplyCategoryForm = ref(false)
+const isClearCategoryForm = ref(false)
+const isDeleteCategoryForm = ref(false)
+const isShowCategoryFormWindow = ref(false);
+
 const isShowProductFilter = ref(false)
 const isShowFilteredProducts = ref(false)
 const isApplyFilter = ref(false)
 const isClearFilter = ref(false)
-const isApplyCategoryForm = ref(false)
-const isClearCategoryForm = ref(false)
-const isDeleteCategoryForm = ref(false)
-const isApplyCategoriesGroupForm = ref(false)
-const isClearCategoriesGroupForm = ref(false)
+
 const isShowNewProductWindow = ref(false);
-const isShowCategoryFormWindow = ref(false);
 const isShowProductInfoWindow = ref(false);
 const saveNewProductResult = ref(false);
 const eventSourceToFilter = ref(null);
 const slideForCategoryAndCategoryGroupList = ref(null)
+
+const propsForModalCategoryGroupForm = computed(() => {
+    return {
+        title: categoryGroupFormTitle.value,
+        submitedForm: categoryGroupFormSubmited,
+        // deleteCategory: deleteCategoryGroup,
+        cancel: hideCategoryGroupFormWindow,
+        applyCategoryGroupForm: () => isApplyCategoryGroupForm.value = true,
+        deleteCategoryGroupForm: () => isDeleteCategoryGroupForm.value = true,
+        isApplyCategoryGroupForm: isApplyCategoryGroupForm.value,
+        isClearCategoryGroupForm: isClearCategoryGroupForm.value,
+        isDeleteCategoryGroupForm: isDeleteCategoryGroupForm.value,
+        deleteHideConditions: categoryGroupsStore.categoryGroup.id === null
+    }
+});
 
 const propsForModalCategoryForm = computed(() => {
     return {
@@ -65,10 +87,11 @@ const propsForModalCategoryForm = computed(() => {
         cancel: hideCategoryFormWindow,
         applyCategoryForm: () => isApplyCategoryForm.value = true,
         deleteCategoryForm: () => isDeleteCategoryForm.value = true,
-        // deleteHideConditions: productsStore.editableCategory.id === null,
         isApplyCategoryForm: isApplyCategoryForm.value,
-        isCancelCategoryForm: isClearCategoryForm.value,
+        // isCancelCategoryForm: isClearCategoryForm.value,
+        isClearCategoryForm: isClearCategoryForm.value,
         isDeleteCategoryForm: isDeleteCategoryForm.value,
+        deleteHideConditions: categoriesStore.category.id === null
     }
 });
 
@@ -226,23 +249,11 @@ function hideFilteredProducts() {
     isShowFilteredProducts.value = false
 }
 
-function editCategory(id = null, index = null) {
-    console.log('ProductView - editCategory: ' + id + '-' + index)
-    let modalWinowTitle = null
-    if (index !== null) {
-        categoriesStore.editableCategory = {
-            index: index,
-            id: id,
-            // groupId: categoryGroupsStore.currentCategoryGroup,
-            // change setting currentCategoryGroup - need setup index in categoriesGroup
-            // groupIndex: categoryGroupsStore.categoryGroups.findIndex(
-            //     (item) => item.id === categoryGroupsStore.currentCategoryGroup
-            // )
-        }
+function editCategory(id = null) {
+    let modalWinowTitle = 'Добавление категории'
+    if (id !== null) {
+        categoriesStore.getCategory(id)
         modalWinowTitle = "Редактирование категории"
-    } else {
-        categoriesStore.editableCategory = { index: null, id: null, groupId: null, groupIndex: null }
-        modalWinowTitle = 'Добавление категории'
     }
     showCategoryFormWindow(modalWinowTitle)
 }
@@ -250,6 +261,76 @@ function editCategory(id = null, index = null) {
 function editProduct(id, index) {
     console.log('ProductView - editProduct: ' + id)
 }
+
+function addCategory() {
+    const title = 'Добавление категории'
+    showCategoryFormWindow(title)
+}
+
+function showCategoryFormWindow(title = null) {
+    console.log('show cat form');
+    categoryFormTitle.value = title ?? 'Добавление категории'
+    isClearCategoryForm.value = false;
+    isDeleteCategoryForm.value = false;
+    isShowCategoryFormWindow.value = true
+}
+
+function hideCategoryFormWindow() {
+    console.log('hide cat form');
+    isClearCategoryForm.value = true;
+    isApplyCategoryForm.value = false
+    isDeleteCategoryForm.value = false
+    isShowCategoryFormWindow.value = false
+}
+
+function addCategoryGroup() {
+    const title = 'Добавление группы'
+    showCategoryGroupFormWindow(title)
+}
+
+function editCategoryGroup(id = null) {
+    let modalWinowTitle = 'Добавление группы'
+    if (id !== null) {
+        categoryGroupsStore.getCategoryGroup(id)
+        modalWinowTitle = "Редактирование группы"
+    }
+    showCategoryGroupFormWindow(modalWinowTitle)
+}
+
+function showCategoryGroupFormWindow(title = null) {
+    console.log('show cat group form');
+    categoryGroupFormTitle.value = title ?? 'Добавление группы категорий'
+    isClearCategoryGroupForm.value = false;
+    isDeleteCategoryGroupForm.value = false;
+    isShowCategoryGroupFormWindow.value = true
+}
+
+function hideCategoryGroupFormWindow() {
+    console.log('hide cat group form');
+    isClearCategoryGroupForm.value = true;
+    isApplyCategoryGroupForm.value = false
+    isDeleteCategoryGroupForm.value = false
+    isShowCategoryGroupFormWindow.value = false
+}
+
+function categoryFormSubmited() {
+    isApplyCategoryForm.value = false
+    isDeleteCategoryForm.value = false
+}
+
+function categoryGroupFormSubmited() {
+    isApplyCategoryGroupForm.value = false
+    isDeleteCategoryGroupForm.value = false
+}
+
+function categoryFormDelete() {
+    isShowCategoryFormWindow.value = false
+}
+
+function categoryGroupFormDelete() {
+    isShowCategoryGroupFormWindow.value = false
+}
+
 
 async function saveNewProduct(product, category) {
     console.log('save new product');
@@ -262,69 +343,47 @@ async function saveNewProduct(product, category) {
     }
 }
 
-function showCategoryFormWindow(title = null) {
-    console.log('show cat form');
-    categoryFormTitle.value = title ?? 'Добавление категории'
-    isClearCategoryForm.value = false;
-    isShowCategoryFormWindow.value = true
-}
-
-function hideCategoryFormWindow() {
-    console.log('hide cat form');
-    productsStore.editableCategory = { index: null, id: null, groupId: null, groupIndex: null }
-    isClearCategoryForm.value = true;
-    isApplyCategoryForm.value = false
-    isDeleteCategoryForm.value = false
-    isShowCategoryFormWindow.value = false
-}
-
-// async function saveCategory(category, index) {
-//     // console.log('save category')
-//     // console.log(category)
-//     isApplyCategoryForm.value = false
-//     if (index === -1) {
-//         productsStore.addCategory(category)
-//     } else {
-//         productsStore.changeCategory(category.id, category, index);
-//     }
-// }
-
-// async function deleteCategory(id) {
-//     console.log('delete category')
-// }
-
-function categoryFormSubmited() {
-    isApplyCategoryForm.value = false
-    isDeleteCategoryForm.value = false
-}
-
-function showCategoriesGroupFormWindow() { }
-
 </script>
 
 <template>
 
-    <!-- Category form -->
-    <ModalWindow modal-id="modalWindowCategory" :show-window="isShowCategoryFormWindow" :title="categoryFormTitle"
-        @close-window="hideCategoryFormWindow" :props-for-slots="propsForModalCategoryForm">
+    <!-- CategoryGroup form -->
+    <ModalWindow modal-id="modalWindowCategoryGroup" :show-window="isShowCategoryGroupFormWindow"
+        :hide-window="!isShowCategoryGroupFormWindow" :title="categoryGroupFormTitle"
+        @close-window="hideCategoryGroupFormWindow" :props-for-slots="propsForModalCategoryGroupForm">
         <template
-            #main="{ name, description, categoriesGroups, categoriesGroup, submitedForm, cancel, isApplyCategoryForm, isDeleteCategoryForm }">
+            #main="{ submitedForm, cancel, isApplyCategoryGroupForm, isDeleteCategoryGroupForm, isClearCategoryGroupForm }">
+            <CategoryGroupForm @submited-form="submitedForm" @cancel="cancel" @delete-event="categoryGroupFormDelete"
+                :trigger-apply-category-group-changes="isApplyCategoryGroupForm"
+                :trigger-delete-category-group="isDeleteCategoryGroupForm"
+                :trigger-clear-category-group-form="isClearCategoryGroupForm" />
+        </template>
+
+        <template #footer="{ applyCategoryGroupForm, deleteCategoryGroupForm, cancel, deleteHideConditions }">
+            <FormControls @apply-action="applyCategoryGroupForm" @delete-action="deleteCategoryGroupForm"
+                @cancel-action="cancel" :hide-delete="deleteHideConditions" cancel-btn-name="Закрыть" />
+        </template>
+    </ModalWindow>
+
+    <!-- Category form -->
+    <ModalWindow modal-id="modalWindowCategory" :show-window="isShowCategoryFormWindow"
+        :hide-window="!isShowCategoryFormWindow" :title="categoryFormTitle" @close-window="hideCategoryFormWindow"
+        :props-for-slots="propsForModalCategoryForm">
+        <template
+            #main="{ name, description, categoriesGroups, categoriesGroup, submitedForm, cancel, isApplyCategoryForm, isDeleteCategoryForm, isClearCategoryForm }">
             <CategoryForm :name="name" :description="description" :categories-group="categoriesGroup"
                 :categories-groups="categoriesGroups" @submited-form="submitedForm" @cancel="cancel"
-                :is-apply-category-changes="isApplyCategoryForm" :is-delete-category="isDeleteCategoryForm" />
+                @delete-event="categoryFormDelete" :triggerApplyCategoryChanges="isApplyCategoryForm"
+                :triggerDeleteCategory="isDeleteCategoryForm" :trigger-clear-category-form="isClearCategoryForm" />
         </template>
 
         <template #footer="{ applyCategoryForm, deleteCategoryForm, cancel, deleteHideConditions }">
             <FormControls @apply-action="applyCategoryForm" @delete-action="deleteCategoryForm" @cancel-action="cancel"
-                :hide-delete="deleteHideConditions" />
-            <!-- <div class=""> -->
-            <!-- <button @click="applyCategoryForm" class="btn btn-primary me-2" type="button">Добавить</button>
-            <button class="btn btn-danger me-2">Удалить</button>
-            <button @click="cancel" class="btn btn-secondary me-2">Отменить</button> -->
-            <!-- </div> -->
+                :hide-delete="deleteHideConditions" cancel-btn-name="Закрыть" />
         </template>
     </ModalWindow>
 
+    <!-- product form -->
     <ModalWindow modal-id="modalWindowProduct" :show-window="isShowNewProductWindow" title="Добавление нового продукта"
         @close-window="hideNewProductWindow" :props-for-slots="propsForModalWindowSlots">
         <!-- <template #main="{ propsForSlot }">
@@ -356,14 +415,14 @@ function showCategoriesGroupFormWindow() { }
 
     <!-- <Offcanvas title="test offcanvas" /> -->
 
-    <div class="col" style="max-height: 100%;">
+    <div class="col" style="max-height: 100%; max-height: 100%;">
 
         <CategoryAndProductList :user-is-authorized="userStore.userIsAuthorized"
             :slide-num="slideForCategoryAndCategoryGroupList" :show-filtered-products="isShowFilteredProducts"
             :next-page-cursor="productsStore.productsNextCursor" @hide-filtered-product="hideFilteredProducts"
-            @show-filter="showProductFilter" @edit-category="editCategory" @edit-product="editProduct"
-            @add-category-group="showCategoriesGroupFormWindow" @add-category="showCategoryFormWindow" @add-product=""
-            @slided="() => slideForCategoryAndCategoryGroupList = null">
+            @show-filter="showProductFilter" @edit-categories-group="editCategoryGroup"
+            @add-category-group="addCategoryGroup" @edit-category="editCategory" @edit-product="editProduct"
+            @add-category="addCategory" @add-product="" @slided="() => slideForCategoryAndCategoryGroupList = null">
         </CategoryAndProductList>
 
         <!-- <ProductsList @on-click-add-new-product="showNewProductWindow" @show-product-info="showProductInfoWindow"

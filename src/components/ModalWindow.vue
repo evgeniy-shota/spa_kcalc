@@ -16,6 +16,10 @@ const props = defineProps({
         type: Boolean,
         default: false,
     },
+    hideWindow: {
+        type: Boolean,
+        default: false,
+    },
     size: {
         type: String,
         default: null,
@@ -34,6 +38,11 @@ const props = defineProps({
     }
 });
 
+const emit = defineEmits({
+    closeWindow: () => { return true },
+});
+
+
 onMounted(() => {
     document.getElementById(props.modalId).addEventListener('hidden.bs.modal', event => {
         emit('closeWindow');
@@ -43,6 +52,12 @@ onMounted(() => {
 watch(() => props.showWindow, (value) => {
     if (value === true) {
         showWindow(props.modalId)
+    }
+})
+
+watch(() => props.hideWindow, (value) => {
+    if (value === true) {
+        closeWindow(props.modalId)
     }
 })
 
@@ -58,19 +73,16 @@ watch(() => props.showWindow, (value) => {
 //     // element.scrollTop = 0
 // });
 
-const emit = defineEmits({
-    closeWindow: () => { return true },
-});
 
 function showWindow(modalId) {
     const myModal = new Modal('#' + modalId)
     myModal.show()
 }
 
-function closeWindow(event,) {
-    if (event.target.hasAttribute('closeModalWindow')) {
-        emit('closeWindow');
-    }
+function closeWindow(modalId) {
+    const myModal = Modal.getInstance('#' + modalId)
+    myModal.hide()
+    emit('closeWindow');
 }
 
 </script>

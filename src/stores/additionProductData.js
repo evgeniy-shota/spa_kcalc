@@ -16,10 +16,19 @@ export const useAdditionalProductData = defineStore('additionalProductData', () 
   const fatsLimits = ref([])
 
   const categoryGroupsIdCategoriesIdMap = computed(() => {
+    console.log('categoryGroupsIdCategoriesIdMap')
     let categoryGroups = new Map()
-    for (let i = 0; i < allCategoryGroups.value.length; i++) {
+    const allCategoryGroupsLength = allCategoryGroups.value.length
+
+    for (let i = 0; i < allCategoryGroupsLength; i++) {
+      console.log(allCategoryGroups.value[i].name)
       let categories = new Set()
-      for (let j = 0; j < allCategoryGroups.value[i].categories.data.length; j++) {
+      let categoriesLength =
+        'categories' in allCategoryGroups.value[i]
+          ? allCategoryGroups.value[i].categories.data.length
+          : 0
+
+      for (let j = 0; j < categoriesLength; j++) {
         categories.add(allCategoryGroups.value[i].categories.data[j].id)
       }
       categoryGroups.set(allCategoryGroups.value[i].id, categories)
@@ -28,9 +37,17 @@ export const useAdditionalProductData = defineStore('additionalProductData', () 
   })
 
   const categoriesIdCategoryGroupsIdMap = computed(() => {
+    console.log('categoriesIdCategoryGroupsIdMap')
     let categories = new Map()
-    for (let i = 0; i < allCategoryGroups.value.length; i++) {
-      for (let j = 0; j < allCategoryGroups.value[i].categories.data.length; j++) {
+    const allCategoryGroupsLength = allCategoryGroups.value.length
+
+    for (let i = 0; i < allCategoryGroupsLength; i++) {
+      let categoriesLength =
+        'categories' in allCategoryGroups.value[i]
+          ? allCategoryGroups.value[i].categories.data.length
+          : 0
+
+      for (let j = 0; j < categoriesLength; j++) {
         categories.set(
           allCategoryGroups.value[i].categories.data[j].id,
           allCategoryGroups.value[i].id,
@@ -39,6 +56,121 @@ export const useAdditionalProductData = defineStore('additionalProductData', () 
     }
     return categories
   })
+
+  function addCategory(catGroupId, category) {
+    allCategories.value.push(category)
+    const allCategoryGroupsLength = allCategoryGroups.value.length
+
+    for (let i = 0; i < allCategoryGroupsLength; i++) {
+      if (allCategoryGroups.value[i].id === catGroupId) {
+        allCategoryGroups.value[i].categories.data.push(category)
+        allCategoryGroups.value[i].categories.count++
+        console.log('added in group')
+        return
+      }
+      console.log('search...')
+    }
+  }
+
+  function addCategoryGroup(categoryGroup) {
+    allCategoryGroups.value.push(categoryGroup)
+  }
+
+  function changeCategory(prevCatGroupId, catGroupId, categoryId, category) {
+    const allCategoriesLength = allCategories.value.length
+
+    for (let i = 0; i < allCategoriesLength; i++) {
+      if (allCategories.value[i].id === categoryId) {
+        allCategories.value[i] = category
+      }
+    }
+
+    const allCategoryGroupsLength = allCategoryGroups.value.length
+    const needRemoveFromPrevCatGroup = prevCatGroupId !== catGroupId
+    let categoryRemoved = false
+    let categoryAddedOrChanged = false
+
+    for (let i = 0; i < allCategoryGroupsLength; i++) {
+      let categoriesInGroupLength = allCategoryGroups.value[i].categories.data.length
+
+      if (needRemoveFromPrevCatGroup && allCategoryGroups.value[i].id === prevCatGroupId) {
+        for (let j = 0; j < categoriesInGroupLength; j++) {
+          if (allCategoryGroups.value[i].categories.data[j].id === categoryId) {
+            allCategoryGroups.value[i].categories.data.splice(j, 1)
+            allCategoryGroups.value[i].categories.count--
+            console.log('removed from group')
+            categoryRemoved = true
+            break
+          }
+        }
+      }
+
+      if (allCategoryGroups.value[i].id === catGroupId) {
+        if (needRemoveFromPrevCatGroup && categoryRemoved) {
+          allCategoryGroups.value[i].categories.data.push(category)
+          allCategoryGroups.value[i].categories.count++
+          console.log('added after removed')
+          return
+        }
+
+        for (let j = 0; j < categoriesInGroupLength; j++) {
+          if (allCategoryGroups.value[i].categories.data[j].id === categoryId) {
+            allCategoryGroups.value[i].categories.data[j] = category
+            console.log('changed in group')
+            break
+          }
+        }
+
+        categoryAddedOrChanged = true
+      }
+
+      if (categoryAddedOrChanged && categoryRemoved) {
+        return
+      }
+      console.log('search...')
+    }
+  }
+
+  function changeCategoryGroup(catGroupId, categoryGroup) {
+    let allCategoryGroupsLength = allCategoryGroups.value.length
+
+    for (let i = 0; i < allCategoryGroupsLength; i++) {
+      if (allCategoryGroups.value[i].id === catGroupId) {
+        allCategoryGroups.value[i] = categoryGroup
+        break
+      }
+    }
+  }
+
+  function deleteCategory(catGroupId, categoryId) {
+    const catGroupLength = allCategoryGroups.value.length
+
+    for (let i = 0; i < catGroupLength; i++) {
+      if (allCategoryGroups.value[i].id === catGroupId) {
+        const categoriesLength = allCategoryGroups.value[i].categories.data.length
+
+        for (let j = 0; j < categoriesLength; j++) {
+          if (allCategoryGroups.value[i].categories.data[j].id === categoryId) {
+            console.log(allCategoryGroups.value[i].categories.data)
+            allCategoryGroups.value[i].categories.data.splice(j, 1)
+            allCategoryGroups.value[i].categories.count--
+            return
+          }
+        }
+      }
+    }
+  }
+
+  function deleteCategoryGroup(catGroupId) {
+    const catGroupLength = allCategoryGroups.value.length
+
+    for (let i = 0; i < catGroupLength; i++) {
+      if (allCategoryGroups.value[i].id === catGroupId) {
+        allCategoryGroups.value.splice(i, 1)
+        return
+      }
+    }
+  }
 
   function categoriesList(catGroup) {
     let categories = []
@@ -100,6 +232,12 @@ export const useAdditionalProductData = defineStore('additionalProductData', () 
     carbohydratesLimits,
     fatsLimits,
     getData,
+    addCategory,
+    addCategoryGroup,
+    changeCategory,
+    changeCategoryGroup,
+    deleteCategory,
+    deleteCategoryGroup,
     categoryGroupsIdCategoriesIdMap,
     categoriesIdCategoryGroupsIdMap,
     $reset,

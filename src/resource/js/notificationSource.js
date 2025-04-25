@@ -1,4 +1,4 @@
-export const notificationType = {
+export const notificationSource = {
   Server: {
     value: 'Server',
   },

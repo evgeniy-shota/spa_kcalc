@@ -44,7 +44,7 @@ const props = defineProps({
 });
 
 const emit = defineEmits({
-    editCategoriesGroup: (id, index) => {
+    editCategoryGroup: (id, index) => {
         if (id, index) {
             return true
         }
@@ -253,7 +253,7 @@ function changeProductHiddenStatus(id, status, index) {
     productsStore.changeProduct(id, { isHidden: status }, index)
 }
 
-function editCategoriesGroup(id, index) {
+function editCategoryGroup(id, index) {
     console.log('editCategory: ' + id);
     emit('editCategoriesGroup', id, index);
 }
@@ -266,6 +266,21 @@ function editCategory(id, index) {
 function editProduct(id, index) {
     console.log('editProduct: ' + id);
     emit('editProduct', id, index);
+}
+
+function addCategoryGroup() {
+    console.log('add CategoryGroup')
+    emit('addCategoryGroup')
+}
+
+function addCategory() {
+    console.log('add Category')
+    emit('addCategory')
+}
+
+function addProduct() {
+    console.log('add Product')
+    emit('addProduct')
 }
 
 function resetTimer() {
@@ -293,21 +308,6 @@ function scrollList(event) {
         getNextDataPage();
         currentTimer.value = setTimeout(resetTimer, timeOutMs);
     }
-}
-
-function addCategoryGroup() {
-    console.log('add CategoryGroup')
-    emit('addCategoryGroup')
-}
-
-function addCategory() {
-    console.log('add Category')
-    emit('addCategory')
-}
-
-function addProduct() {
-    console.log('add Product')
-    emit('addProduct')
 }
 
 </script>
@@ -403,8 +403,7 @@ function addProduct() {
                 </ul>
             </div>
 
-
-            <div class="dropdown me-2">
+            <div v-if="props.userIsAuthorized" class="dropdown me-2">
                 <button class="btn btn-sm btn-outline-primary d-flex align-items-center" type="button"
                     data-bs-toggle="dropdown">
                     <IconPlusLg />
@@ -436,7 +435,7 @@ function addProduct() {
             <ListWithControls :user-is-authorized="props.userIsAuthorized" :data="categoryGroupStore.categoryGroupsList"
                 data-type="categoryGroup" :is-data-found="categoryGroupStore.isCategoryGroupsFound"
                 @select-element="selectCategoryGroup" @change-favorite-status="changeCategoryGroupFavorieStatus"
-                @change-hidden-status="changeCategoryGroupHiddenStatus" />
+                @change-hidden-status="changeCategoryGroupHiddenStatus" @edit-element="editCategoryGroup" />
         </div>
         <div id="categoriesSlide" v-show="currentSlide == Slides.Categories.value" class="slide ps-2 pe-2">
             <ListWithControls :user-is-authorized="props.userIsAuthorized" :data="categoriesStore.categoriesList"

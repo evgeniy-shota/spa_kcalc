@@ -6,8 +6,8 @@ import { computed, ref } from 'vue'
 
 const initialStateNotification = {
   id: null,
-  type: notificationType.Default,
-  priority: notificationPriority.Default,
+  type: notificationType.Default.value,
+  priority: notificationPriority.Default.value,
   title: null,
   message: null,
   body: null,
@@ -42,20 +42,29 @@ export const useNotificationStore = defineStore('notifications', () => {
       notificationKey = notificationQueue.value.Default.shift()
     }
 
-    return {
-      notifications: notifications.value.get(notificationKey),
-      callBack: (key) => addNotificationToShown(key),
-    }
+    console.log('notificationToShow')
+    console.log(notificationKey)
+
+    return notificationKey ? notifications.value.get(notificationKey) : null
   })
 
-  function addNotification(data) {
+  function addNotification(priority, data) {
     let notification = deepCopy({ ...initialStateNotification, ...data })
 
-    if (notification.time === null) {
-      notification.time = new Date().time
+    // if (!notification.time) {
+    //   notification.time = new Date().time
+    // }
+
+    let key = 'fuck' + notification.type
+    // let key = notification.time + notification.type
+    if (priority === notificationPriority.ExtraHigh.value) {
+      notificationQueue.value.ExtraHigh.push(key)
+    } else if (priority === notificationPriority.High.value) {
+      notificationQueue.value.High.push(key)
+    } else {
+      notificationQueue.value.Default.push(key)
     }
 
-    let key = notification.time + notification.type
     notifications.value.set(key, notification)
   }
 

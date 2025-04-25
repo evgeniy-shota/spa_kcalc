@@ -3,10 +3,13 @@ import axios_instance from '@/resource/js/axiosInstance'
 import { defineStore } from 'pinia'
 import { CategoryParams } from '@/resource/js/sortParams'
 import { useFiltersStore } from './filtersStore'
+import { useCategoryGroupsStore } from './categoryGroupsStore'
+import { useAdditionalProductData } from './additionProductData'
 
 const URL_API = 'api/categories/'
 const initialStateCategory = {
   id: null,
+  category_group_id: null,
   name: null,
   description: null,
   is_personal: null,
@@ -22,14 +25,15 @@ export const useCategoriesStore = defineStore('categories', () => {
   const currentCategory = ref()
   const isCategoriesFound = ref(null)
   const isCategoryFound = ref(null)
-  const editableCategory = ref({ index: null, id: null })
+  const editableCategory = ref({ id: null, index: null })
 
   function $reset() {
     sortType.value = CategoryParams.default.key
     categories.value = []
-    category.value = { ...initialStateCategory }
+    resetCategory()
     isCategoriesFound.value = null
     isCategoryFound.value = null
+    editableCategory.value = { id: null, index: null }
   }
 
   async function getCategories(filter) {
@@ -42,7 +46,6 @@ export const useCategoriesStore = defineStore('categories', () => {
             ...filtersStore.categoriesFilter,
           }
 
-    console.log(filterParams)
     try {
       const response = await axios_instance.get(URL_API, {
         params: filterParams,
@@ -68,33 +71,17 @@ export const useCategoriesStore = defineStore('categories', () => {
       if (response) {
         isCategoryFound.value = true
         category.value = response.data.data
+        return true
       }
     } catch (error) {
       isCategoryFound.value = false
       console.warn('Get Category')
       console.warn(error)
-    }
-  }
-
-  async function createCategory(data) {
-    try {
-      const response = await axios_instance.post(URL_API, {
-        ...data,
-      })
-
-      if (response) {
-        categories.value.push(response.data.data)
-        return true
-      }
-    } catch (error) {
-      console.warn('Create Category fail...')
-      console.warn(error)
       return false
     }
   }
 
-  async function changeCategory(id, data, index) {
-    const filtersStore = useFiltersStore()
+  async function createCategory(data) {
     let requestBody = {
       category_group_id: data.categoryGroupsId,
       name: data.name,
@@ -106,31 +93,85 @@ export const useCategoriesStore = defineStore('categories', () => {
       iconPath: data.iconPath,
       thumbnailImagePath: data.thumbnailImagePath,
     }
-    let previouslyVal = index
-      ? categories.value[index]
-      : categories.value[editableCategory.value.index]
+    let response = null
     try {
-      const response = await axios_instance.put(URL_API + id, {
+      response = await axios_instance.post(URL_API, {
         ...requestBody,
       })
+    } catch (error) {
+      console.warn('Create Category fail...')
+      console.warn(error)
+      return false
+    }
 
-      if (response) {
-        if (
-          response.data.data.category_group_id !== previouslyVal.category_group_id ||
-          (filtersStore.categoriesFilter.isHidden === false &&
-            response.data.data.is_hidden === true)
-        ) {
-          categories.value.splice(index, 1)
-        } else {
-          categories.value[index] = response.data.data
-        }
-
-        return true
+    if (response) {
+      const additionalProductDataStore = useAdditionalProductData()
+      additionalProductDataStore.addCategory(
+        response.data.data.category_group_id,
+        response.data.data,
+      )
+      category.value = response.data.data
+      const categoryGroupsStore = useCategoryGroupsStore()
+      if (response.data.data.category_group_id === categoryGroupsStore.currentCategoryGroup) {
+        categories.value.push(response.data.data)
       }
+      return true
+    }
+  }
+
+  async function changeCategory(id, data, index) {
+    // const filtersStore = useFiltersStore()
+    let requestBody = {
+      id: id,
+      category_group_id: data.categoryGroupsId,
+      name: data.name,
+      description: data.description,
+      is_personal: data.isPersonal,
+      is_enabled: data.isEnabled,
+      is_favorite: data.isFavorite,
+      is_hidden: data.isHidden,
+      iconPath: data.iconPath,
+      thumbnailImagePath: data.thumbnailImagePath,
+    }
+
+    let response = null
+
+    try {
+      response = await axios_instance.put(URL_API + id, {
+        ...requestBody,
+      })
     } catch (error) {
       console.warn('Change Category fail...')
       console.warn(error)
-      return false
+      return { result: false }
+    }
+    // console.log(response)
+    if (response) {
+      const categoryGroupsStore = useCategoryGroupsStore()
+      const additionalProductDataStore = useAdditionalProductData()
+      additionalProductDataStore.changeCategory(
+        category.value.category_group_id,
+        response.data.data.category_group_id,
+        response.data.data.id,
+        response.data.data,
+      )
+
+      if (
+        response.data.data.category_group_id !== categoryGroupsStore.currentCategoryGroup ||
+        (filtersStore.categoriesFilter.isHidden === false && response.data.data.is_hidden === true)
+      ) {
+        categories.value.splice(index, 1)
+        category.value = response.data.data
+        return true
+      } else {
+        if (category.value.category_group_id === response.data.data.category_group_id) {
+          categories.value[index] = response.data.data
+        } else {
+          categories.value.push(response.data.data)
+        }
+        category.value = response.data.data
+        return true
+      }
     }
   }
 
@@ -139,6 +180,9 @@ export const useCategoriesStore = defineStore('categories', () => {
       const response = await axios_instance.delete(URL_API + id)
 
       if (response) {
+        const additionalProductDataStore = useAdditionalProductData()
+        additionalProductDataStore.deleteCategory(category.value.category_group_id, id)
+        resetCategory()
         categories.value.splice(index, 1)
         return true
       }
@@ -147,6 +191,10 @@ export const useCategoriesStore = defineStore('categories', () => {
       console.warn(error)
       return false
     }
+  }
+
+  function resetCategory() {
+    category.value = { ...initialStateCategory }
   }
 
   const categoriesList = computed(() => {
@@ -194,6 +242,7 @@ export const useCategoriesStore = defineStore('categories', () => {
     createCategory,
     changeCategory,
     deleteCategory,
+    resetCategory,
     categoriesList,
     $reset,
   }
